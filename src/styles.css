@@ -154,5 +154,26 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+}
+
+@layer utilities {
+  .container-x { max-width: 80rem; margin-inline: auto; padding-inline: 1.5rem; }
+  @media (min-width: 768px) { .container-x { padding-inline: 2rem; } }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(2rem);
+    animation: fadeUp 0.7s ease-out forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
   }
 }
