@@ -61,6 +61,15 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme inline {
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-dark: var(--dark);
+  --color-dark-secondary: var(--dark-secondary);
+  --color-border-dark: var(--border-dark);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
