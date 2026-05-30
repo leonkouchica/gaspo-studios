@@ -16,7 +16,9 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const team = [
+import { TeamMember } from "../types";
+
+const team: TeamMember[] = [
   { name: "Marco Gaspari", role: "Founder & Lead Photographer", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80", bio: "Two-time Sony World Photography finalist. Marco founded Gaspo in 2014." },
   { name: "Elena Vasquez", role: "Creative Director", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80", bio: "Crafts the visual language of every brand and bride we work with." },
   { name: "Daniel Okonkwo", role: "Senior Photographer", role2: true, img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80", bio: "Specialist in editorial and commercial campaigns." },
@@ -34,17 +36,24 @@ function AboutPage() {
           <div>
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Our Story</p>
             <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Where Technology Meets Artistry in Photography</h2>
-            <p className="text-muted-foreground mt-5 leading-relaxed">
-              Welcome to Gaspo Studios — a place where technology meets artistry in photography. Established by a group of passionate photographers, our studio has grown to become a cornerstone in the photography community, known for our commitment to quality and creativity.
-            </p>
-            <p className="text-muted-foreground mt-4 leading-relaxed">
-              What started as a small studio has blossomed into a premiere photography destination. Over the years, we've expanded our services, continuously improving our techniques and adopting the latest technology to enhance our photographic output.
-            </p>
-            <p className="text-muted-foreground mt-4 leading-relaxed">
-              At Gaspo Studios, we are committed to sustainability and community involvement. We strive to minimize our environmental impact and actively participate in community projects, believing that great businesses can also be great neighbors.
-            </p>
-            <Link to="/gallery" className="inline-flex items-center gap-2 mt-8 border border-dark text-dark rounded-full px-7 py-3 font-medium hover:bg-dark hover:text-white transition-all">
-              View Our Work <ArrowRight size={18} />
+            <div className="space-y-4 mt-6 text-muted-foreground leading-relaxed">
+              <p className="text-lg">
+                Welcome to Gaspo Studios — a place where technology meets artistry in photography. Established by a group of passionate photographers, our studio has grown to become a cornerstone in the photography community, known for our commitment to quality and creativity.
+              </p>
+              <p>
+                What started as a small studio has blossomed into a premiere photography destination. Over the years, we've expanded our services, continuously improving our techniques and adopting the latest technology to enhance our photographic output.
+              </p>
+            </div>
+
+            <div className="mt-8 p-6 bg-muted/50 rounded-2xl border-l-4 border-primary shadow-sm">
+              <h4 className="font-bold text-primary uppercase tracking-[0.2em] text-xs">Our Commitment</h4>
+              <p className="text-muted-foreground mt-2 leading-relaxed">
+                At Gaspo Studios, we are committed to sustainability and community involvement. We strive to minimize our environmental impact and actively participate in community projects, believing that great businesses can also be great neighbors.
+              </p>
+            </div>
+
+            <Link to="/gallery" className="inline-flex items-center gap-2 mt-8 border border-dark text-dark rounded-full px-7 py-3 font-medium hover:bg-dark hover:text-white transition-all group">
+              View Our Work <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>

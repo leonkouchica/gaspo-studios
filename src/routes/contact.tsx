@@ -15,48 +15,144 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
+import { useState } from "react";
+
 function ContactPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", subject: "General inquiry", message: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", phone: "", message: "" });
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const validate = () => {
+    const newErrors = { name: "", email: "", phone: "", message: "" };
+    let valid = true;
+    if (!formData.name.trim()) {
+      newErrors.name = "Full name is required";
+      valid = false;
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email address is required";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+      valid = false;
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+      valid = false;
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+      valid = false;
+    }
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validate()) {
+      setIsSuccess(true);
+    }
+  };
+
   return (
     <>
       <PageHeader title="Get in Touch" crumb="Contact" subtitle="Have questions? We're here to help every step of the way." />
-
+      
       <section className="py-20 md:py-28">
         <div className="container-x grid lg:grid-cols-2 gap-10">
-          <form className="bg-white rounded-2xl p-8 border border-border shadow-sm space-y-5" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Contact form</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-dark mt-2">Send us a message</h2>
+          {isSuccess ? (
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-6">
+                <Mail size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-green-900">Message Sent Successfully!</h2>
+              <p className="text-green-700 mt-3 max-w-md leading-relaxed">
+                Thank you, {formData.name}. We've received your request about "{formData.subject}" and will get back to you at {formData.email} as soon as possible (usually within 24 hours).
+              </p>
+              <button 
+                onClick={() => {
+                  setIsSuccess(false);
+                  setFormData({ name: "", email: "", phone: "", subject: "General inquiry", message: "" });
+                }}
+                className="mt-8 bg-green-600 hover:bg-green-700 transition-colors text-white rounded-full px-8 py-3.5 font-semibold"
+              >
+                Send Another Message
+              </button>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+          ) : (
+            <form className="bg-white rounded-2xl p-8 border border-border shadow-sm space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label className="text-sm font-medium text-dark">Name</label>
-                <input className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Jane Doe" />
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Contact form</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-dark mt-2">Send us a message</h2>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-dark">Name</label>
+                  <input 
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    className={`mt-1.5 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.name ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`}
+                    placeholder="Jane Doe" 
+                  />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-dark">Email</label>
+                  <input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`mt-1.5 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.email ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`}
+                    placeholder="jane@example.com" 
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-dark">Email</label>
-                <input type="email" className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="jane@example.com" />
+                <label className="text-sm font-medium text-dark">Phone</label>
+                <input 
+                  type="tel" 
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.phone ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`}
+                  placeholder="+1 (555) 000-0000" 
+                />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-dark">Phone</label>
-              <input type="tel" className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="+1 (555) 000-0000" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-dark">Subject</label>
-              <select className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none bg-white">
-                <option>General inquiry</option>
-                <option>Booking question</option>
-                <option>Commercial project</option>
-                <option>Press / media</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-dark">Message</label>
-              <textarea rows={5} className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Tell us a little about your project…" />
-            </div>
-            <button className="w-full bg-primary hover:bg-primary-hover transition-colors text-white rounded-full py-4 font-semibold">Send Message</button>
-          </form>
-
+              <div>
+                <label className="text-sm font-medium text-dark">Subject</label>
+                <select 
+                  value={formData.subject}
+                  onChange={(e) => handleInputChange("subject", e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-border px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none bg-white"
+                >
+                  <option>General inquiry</option>
+                  <option>Booking question</option>
+                  <option>Commercial project</option>
+                  <option>Press / media</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-dark">Message</label>
+                <textarea 
+                  rows={5} 
+                  value={formData.message}
+                  onChange={(e) => handleInputChange("message", e.target.value)}
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.message ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`}
+                  placeholder="Tell us a little about your project…" 
+                />
+                {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+              </div>
+              <button type="submit" className="w-full bg-primary hover:bg-primary-hover transition-colors text-white rounded-full py-4 font-semibold shadow-lg shadow-primary/10 hover:shadow-primary/20">Send Message</button>
+            </form>
+          )}
+          
           <div className="space-y-4">
             {[
               { icon: MapPin, t: "Visit Us", d: "24 Studio Lane, Suite 5, Brooklyn, NY 11201" },

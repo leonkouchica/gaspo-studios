@@ -23,7 +23,9 @@ const featured = {
   date: "May 28, 2026",
 };
 
-const posts = [
+import { BlogPost } from "../types";
+
+const posts: BlogPost[] = [
   { cat: "Tips", title: "How to Pose for Headshots: A Practical Guide", excerpt: "Small adjustments make a huge difference. Here's the cheat sheet we share with every client.", img: "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=800&q=80", date: "May 12, 2026", comments: 8 },
   { cat: "Studio", title: "Behind the Scenes of Our Latest Brand Shoot", excerpt: "A look inside our two-day campaign for an emerging skincare label.", img: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&q=80", date: "April 30, 2026", comments: 3 },
   { cat: "Gear", title: "Lenses We Reach For Every Single Shoot", excerpt: "From the workhorse 35mm to the dreamy 85, our editors share their favorite glass.", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80", date: "April 21, 2026", comments: 12 },

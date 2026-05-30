@@ -15,15 +15,17 @@ export const Route = createFileRoute("/shop")({
   component: ShopPage,
 });
 
-const products = [
-  { cat: "Camera", name: "Pro Mirrorless 35mm Body", price: "$2,499", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80" },
-  { cat: "Lens", name: "85mm f/1.4 Portrait Lens", price: "$1,299", img: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80" },
-  { cat: "Lighting", name: "Softbox Studio Kit", price: "$489", img: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80" },
-  { cat: "Bag", name: "Weatherproof Field Bag", price: "$229", img: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&q=80" },
-  { cat: "Tripod", name: "Carbon Travel Tripod", price: "$349", img: "https://images.unsplash.com/photo-1610917040803-1fccf9623064?w=600&q=80" },
-  { cat: "Print", name: 'Signed Fine Art Print 12"x18"', price: "$160", img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=80" },
-  { cat: "Lens", name: "24-70mm f/2.8 Zoom", price: "$1,899", img: "https://images.unsplash.com/photo-1617638924751-5e0b78ed5391?w=600&q=80" },
-  { cat: "Accessory", name: "Color Calibration Card", price: "$59", img: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=600&q=80" },
+import { Product } from "../types";
+
+const products: Product[] = [
+  { cat: "Camera", name: "Pro Mirrorless 35mm Body", price: "₦3,750,000", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80" },
+  { cat: "Lens", name: "85mm f/1.4 Portrait Lens", price: "₦1,950,000", img: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80" },
+  { cat: "Lighting", name: "Softbox Studio Kit", price: "₦735,000", img: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80" },
+  { cat: "Bag", name: "Weatherproof Field Bag", price: "₦345,000", img: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&q=80" },
+  { cat: "Tripod", name: "Carbon Travel Tripod", price: "₦525,000", img: "https://images.unsplash.com/photo-1610917040803-1fccf9623064?w=600&q=80" },
+  { cat: "Print", name: 'Signed Fine Art Print 12"x18"', price: "₦240,000", img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=80" },
+  { cat: "Lens", name: "24-70mm f/2.8 Zoom", price: "₦2,850,000", img: "https://images.unsplash.com/photo-1617638924751-5e0b78ed5391?w=600&q=80" },
+  { cat: "Accessory", name: "Color Calibration Card", price: "₦89,000", img: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&q=80" },
 ];
 
 function ShopPage() {
