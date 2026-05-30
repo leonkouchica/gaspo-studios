@@ -122,7 +122,7 @@ function Index() {
 
         {/* Content */}
         <div className="container-x relative z-20 pt-24 pb-16 md:pt-32 md:pb-20">
-          <div className="max-w-4xl text-white">
+          <div key={heroIndex} className="max-w-4xl text-white animate-in fade-in slide-in-from-bottom-8 duration-700">
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
               {heroSlides[heroIndex].label}
             </p>
@@ -440,7 +440,13 @@ function Index() {
         <div className="container-x">
           <ScrollReveal>
             <div className="bg-dark rounded-3xl p-10 md:p-16 relative overflow-hidden animate-gradient-slow">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(225,45,45,0.3),transparent_60%)] rounded-3xl" />
+              {/* Background Image */}
+              <img 
+                src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1920&q=80" 
+                alt="Studio Background" 
+                className="absolute inset-0 w-full h-full object-cover opacity-[0.29] mix-blend-overlay"
+              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(225,45,45,0.4),transparent_60%)]" />
               <div className="relative text-center">
                 <h2 className="text-3xl md:text-5xl font-bold text-white">Ready to Capture Your Next Moment?</h2>
                 <p className="text-white/70 max-w-2xl mx-auto mt-5 text-lg">

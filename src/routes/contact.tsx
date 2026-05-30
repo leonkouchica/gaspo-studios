@@ -62,7 +62,12 @@ function ContactPage() {
 
   return (
     <>
-      <PageHeader title="Get in Touch" crumb="Contact" subtitle="Have questions? We're here to help every step of the way." />
+      <PageHeader 
+        title="Get in Touch" 
+        crumb="Contact" 
+        subtitle="Have questions? We're here to help every step of the way." 
+        image="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
+      />
       
       <section className="py-20 md:py-28">
         <div className="container-x grid lg:grid-cols-2 gap-10">

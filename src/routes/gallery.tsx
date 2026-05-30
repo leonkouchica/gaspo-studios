@@ -40,7 +40,12 @@ function GalleryPage() {
 
   return (
     <>
-      <PageHeader title="Our Portfolio" crumb="Gallery" subtitle="Explore our collection of weddings, portraits, and commercial work." />
+      <PageHeader 
+        title="Our Portfolio" 
+        crumb="Gallery" 
+        subtitle="Explore our collection of weddings, portraits, and commercial work." 
+        image="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1920&q=80"
+      />
 
       <section className="py-12">
         <div className="container-x">

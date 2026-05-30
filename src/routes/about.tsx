@@ -28,7 +28,12 @@ const team: TeamMember[] = [
 function AboutPage() {
   return (
     <>
-      <PageHeader title="About Gaspo Studios" crumb="About" subtitle="Where technology meets artistry in photography." />
+      <PageHeader 
+        title="About Gaspo Studios" 
+        crumb="About" 
+        subtitle="Where technology meets artistry in photography." 
+        image="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1920&q=80"
+      />
 
       <section className="py-20 md:py-28">
         <div className="container-x grid md:grid-cols-2 gap-12 items-center">

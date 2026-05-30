@@ -5,15 +5,15 @@ import { Logo } from "./Logo";
 export function Footer() {
   return (
     <footer className="bg-dark text-white">
-      <div className="container-x py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-        <div>
+      <div className="container-x py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="lg:col-span-2">
           <div className="[&_span.text-dark]:text-white">
             <Logo light />
           </div>
           <p className="text-white/60 text-sm mt-4 max-w-xs">
             Where art meets precision in photography. Capturing your most treasured moments since 2014.
           </p>
-          <form className="mt-6 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+          <form className="mt-6 flex flex-col sm:flex-row gap-2 max-w-md" onSubmit={(e) => e.preventDefault()}>
             <input
               type="email"
               placeholder="Your email"

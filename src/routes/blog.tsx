@@ -37,7 +37,12 @@ const posts: BlogPost[] = [
 function BlogPage() {
   return (
     <>
-      <PageHeader title="Photography Insights" crumb="Blog" subtitle="Tips, studio updates, and featured shoots from the Gaspo team." />
+      <PageHeader 
+        title="Photography Insights" 
+        crumb="Blog" 
+        subtitle="Tips, studio updates, and featured shoots from the Gaspo team." 
+        image="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1920&q=80"
+      />
 
       <section className="py-20 md:py-28">
         <div className="container-x">
