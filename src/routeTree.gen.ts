@@ -9,16 +9,40 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GalleryRouteImport } from './routes/gallery'
-import { Route as EventsRouteImport } from './routes/events'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
+import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
+import { Route as AdminSponsorPortalRouteImport } from './routes/admin/sponsor-portal'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
+import { Route as AdminHomepageIndexRouteImport } from './routes/admin/homepage/index'
+import { Route as AdminGalleryIndexRouteImport } from './routes/admin/gallery/index'
+import { Route as AdminEventsIndexRouteImport } from './routes/admin/events/index'
+import { Route as AdminBookingsIndexRouteImport } from './routes/admin/bookings/index'
+import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
+import { Route as AdminEventsNewRouteImport } from './routes/admin/events/new'
+import { Route as AdminBlogNewRouteImport } from './routes/admin/blog/new'
+import { Route as AdminEventsEventIdEditRouteImport } from './routes/admin/events/$eventId/edit'
+import { Route as AdminEventsEventIdCheckInRouteImport } from './routes/admin/events/$eventId/check-in'
+import { Route as AdminBlogPostIdEditRouteImport } from './routes/admin/blog/$postId/edit'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -29,14 +53,19 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -54,6 +83,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -64,53 +98,209 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogPostIdRoute = BlogPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => BlogRoute,
+} as any)
+const AdminSponsorPortalRoute = AdminSponsorPortalRouteImport.update({
+  id: '/sponsor-portal',
+  path: '/sponsor-portal',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminHomepageIndexRoute = AdminHomepageIndexRouteImport.update({
+  id: '/homepage/',
+  path: '/homepage/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGalleryIndexRoute = AdminGalleryIndexRouteImport.update({
+  id: '/gallery/',
+  path: '/gallery/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsIndexRoute = AdminEventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBookingsIndexRoute = AdminBookingsIndexRouteImport.update({
+  id: '/bookings/',
+  path: '/bookings/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsNewRoute = AdminEventsNewRouteImport.update({
+  id: '/events/new',
+  path: '/events/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogNewRoute = AdminBlogNewRouteImport.update({
+  id: '/blog/new',
+  path: '/blog/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsEventIdEditRoute = AdminEventsEventIdEditRouteImport.update({
+  id: '/events/$eventId/edit',
+  path: '/events/$eventId/edit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsEventIdCheckInRoute =
+  AdminEventsEventIdCheckInRouteImport.update({
+    id: '/events/$eventId/check-in',
+    path: '/events/$eventId/check-in',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminBlogPostIdEditRoute = AdminBlogPostIdEditRouteImport.update({
+  id: '/blog/$postId/edit',
+  path: '/blog/$postId/edit',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
-  '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
+  '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/blog/$postId': typeof BlogPostIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/events/new': typeof AdminEventsNewRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/bookings/': typeof AdminBookingsIndexRoute
+  '/admin/events/': typeof AdminEventsIndexRoute
+  '/admin/gallery/': typeof AdminGalleryIndexRoute
+  '/admin/homepage/': typeof AdminHomepageIndexRoute
+  '/admin/blog/$postId/edit': typeof AdminBlogPostIdEditRoute
+  '/admin/events/$eventId/check-in': typeof AdminEventsEventIdCheckInRoute
+  '/admin/events/$eventId/edit': typeof AdminEventsEventIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
-  '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
+  '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/blog/$postId': typeof BlogPostIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/events/new': typeof AdminEventsNewRoute
+  '/admin/blog': typeof AdminBlogIndexRoute
+  '/admin/bookings': typeof AdminBookingsIndexRoute
+  '/admin/events': typeof AdminEventsIndexRoute
+  '/admin/gallery': typeof AdminGalleryIndexRoute
+  '/admin/homepage': typeof AdminHomepageIndexRoute
+  '/admin/blog/$postId/edit': typeof AdminBlogPostIdEditRoute
+  '/admin/events/$eventId/check-in': typeof AdminEventsEventIdCheckInRoute
+  '/admin/events/$eventId/edit': typeof AdminEventsEventIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
-  '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
+  '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/blog/$postId': typeof BlogPostIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/events/new': typeof AdminEventsNewRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/bookings/': typeof AdminBookingsIndexRoute
+  '/admin/events/': typeof AdminEventsIndexRoute
+  '/admin/gallery/': typeof AdminGalleryIndexRoute
+  '/admin/homepage/': typeof AdminHomepageIndexRoute
+  '/admin/blog/$postId/edit': typeof AdminBlogPostIdEditRoute
+  '/admin/events/$eventId/check-in': typeof AdminEventsEventIdCheckInRoute
+  '/admin/events/$eventId/edit': typeof AdminEventsEventIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/blog'
     | '/book'
     | '/contact'
-    | '/events'
+    | '/faq'
     | '/gallery'
+    | '/privacy'
     | '/shop'
     | '/sitemap.xml'
+    | '/terms'
+    | '/admin/analytics'
+    | '/admin/sponsor-portal'
+    | '/blog/$postId'
+    | '/events/$eventId'
+    | '/admin/'
+    | '/events/'
+    | '/admin/blog/new'
+    | '/admin/events/new'
+    | '/admin/blog/'
+    | '/admin/bookings/'
+    | '/admin/events/'
+    | '/admin/gallery/'
+    | '/admin/homepage/'
+    | '/admin/blog/$postId/edit'
+    | '/admin/events/$eventId/check-in'
+    | '/admin/events/$eventId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,37 +308,86 @@ export interface FileRouteTypes {
     | '/blog'
     | '/book'
     | '/contact'
-    | '/events'
+    | '/faq'
     | '/gallery'
+    | '/privacy'
     | '/shop'
     | '/sitemap.xml'
+    | '/terms'
+    | '/admin/analytics'
+    | '/admin/sponsor-portal'
+    | '/blog/$postId'
+    | '/events/$eventId'
+    | '/admin'
+    | '/events'
+    | '/admin/blog/new'
+    | '/admin/events/new'
+    | '/admin/blog'
+    | '/admin/bookings'
+    | '/admin/events'
+    | '/admin/gallery'
+    | '/admin/homepage'
+    | '/admin/blog/$postId/edit'
+    | '/admin/events/$eventId/check-in'
+    | '/admin/events/$eventId/edit'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/blog'
     | '/book'
     | '/contact'
-    | '/events'
+    | '/faq'
     | '/gallery'
+    | '/privacy'
     | '/shop'
     | '/sitemap.xml'
+    | '/terms'
+    | '/admin/analytics'
+    | '/admin/sponsor-portal'
+    | '/blog/$postId'
+    | '/events/$eventId'
+    | '/admin/'
+    | '/events/'
+    | '/admin/blog/new'
+    | '/admin/events/new'
+    | '/admin/blog/'
+    | '/admin/bookings/'
+    | '/admin/events/'
+    | '/admin/gallery/'
+    | '/admin/homepage/'
+    | '/admin/blog/$postId/edit'
+    | '/admin/events/$eventId/check-in'
+    | '/admin/events/$eventId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  BlogRoute: typeof BlogRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  BlogRoute: typeof BlogRouteWithChildren
   BookRoute: typeof BookRoute
   ContactRoute: typeof ContactRoute
-  EventsRoute: typeof EventsRoute
+  FaqRoute: typeof FaqRoute
   GalleryRoute: typeof GalleryRoute
+  PrivacyRoute: typeof PrivacyRoute
   ShopRoute: typeof ShopRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
+  EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsIndexRoute: typeof EventsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -163,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery': {
       id: '/gallery'
       path: '/gallery'
@@ -170,11 +416,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -198,6 +444,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -212,19 +465,180 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$postId': {
+      id: '/blog/$postId'
+      path: '/$postId'
+      fullPath: '/blog/$postId'
+      preLoaderRoute: typeof BlogPostIdRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/admin/sponsor-portal': {
+      id: '/admin/sponsor-portal'
+      path: '/sponsor-portal'
+      fullPath: '/admin/sponsor-portal'
+      preLoaderRoute: typeof AdminSponsorPortalRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/homepage/': {
+      id: '/admin/homepage/'
+      path: '/homepage'
+      fullPath: '/admin/homepage/'
+      preLoaderRoute: typeof AdminHomepageIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/gallery/': {
+      id: '/admin/gallery/'
+      path: '/gallery'
+      fullPath: '/admin/gallery/'
+      preLoaderRoute: typeof AdminGalleryIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events/': {
+      id: '/admin/events/'
+      path: '/events'
+      fullPath: '/admin/events/'
+      preLoaderRoute: typeof AdminEventsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/bookings/': {
+      id: '/admin/bookings/'
+      path: '/bookings'
+      fullPath: '/admin/bookings/'
+      preLoaderRoute: typeof AdminBookingsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/': {
+      id: '/admin/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminBlogIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events/new': {
+      id: '/admin/events/new'
+      path: '/events/new'
+      fullPath: '/admin/events/new'
+      preLoaderRoute: typeof AdminEventsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/new': {
+      id: '/admin/blog/new'
+      path: '/blog/new'
+      fullPath: '/admin/blog/new'
+      preLoaderRoute: typeof AdminBlogNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events/$eventId/edit': {
+      id: '/admin/events/$eventId/edit'
+      path: '/events/$eventId/edit'
+      fullPath: '/admin/events/$eventId/edit'
+      preLoaderRoute: typeof AdminEventsEventIdEditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events/$eventId/check-in': {
+      id: '/admin/events/$eventId/check-in'
+      path: '/events/$eventId/check-in'
+      fullPath: '/admin/events/$eventId/check-in'
+      preLoaderRoute: typeof AdminEventsEventIdCheckInRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/$postId/edit': {
+      id: '/admin/blog/$postId/edit'
+      path: '/blog/$postId/edit'
+      fullPath: '/admin/blog/$postId/edit'
+      preLoaderRoute: typeof AdminBlogPostIdEditRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminSponsorPortalRoute: typeof AdminSponsorPortalRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminBlogNewRoute: typeof AdminBlogNewRoute
+  AdminEventsNewRoute: typeof AdminEventsNewRoute
+  AdminBlogIndexRoute: typeof AdminBlogIndexRoute
+  AdminBookingsIndexRoute: typeof AdminBookingsIndexRoute
+  AdminEventsIndexRoute: typeof AdminEventsIndexRoute
+  AdminGalleryIndexRoute: typeof AdminGalleryIndexRoute
+  AdminHomepageIndexRoute: typeof AdminHomepageIndexRoute
+  AdminBlogPostIdEditRoute: typeof AdminBlogPostIdEditRoute
+  AdminEventsEventIdCheckInRoute: typeof AdminEventsEventIdCheckInRoute
+  AdminEventsEventIdEditRoute: typeof AdminEventsEventIdEditRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminSponsorPortalRoute: AdminSponsorPortalRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminBlogNewRoute: AdminBlogNewRoute,
+  AdminEventsNewRoute: AdminEventsNewRoute,
+  AdminBlogIndexRoute: AdminBlogIndexRoute,
+  AdminBookingsIndexRoute: AdminBookingsIndexRoute,
+  AdminEventsIndexRoute: AdminEventsIndexRoute,
+  AdminGalleryIndexRoute: AdminGalleryIndexRoute,
+  AdminHomepageIndexRoute: AdminHomepageIndexRoute,
+  AdminBlogPostIdEditRoute: AdminBlogPostIdEditRoute,
+  AdminEventsEventIdCheckInRoute: AdminEventsEventIdCheckInRoute,
+  AdminEventsEventIdEditRoute: AdminEventsEventIdEditRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface BlogRouteChildren {
+  BlogPostIdRoute: typeof BlogPostIdRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogPostIdRoute: BlogPostIdRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  BlogRoute: BlogRoute,
+  AdminRoute: AdminRouteWithChildren,
+  BlogRoute: BlogRouteWithChildren,
   BookRoute: BookRoute,
   ContactRoute: ContactRoute,
-  EventsRoute: EventsRoute,
+  FaqRoute: FaqRoute,
   GalleryRoute: GalleryRoute,
+  PrivacyRoute: PrivacyRoute,
   ShopRoute: ShopRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
+  EventsEventIdRoute: EventsEventIdRoute,
+  EventsIndexRoute: EventsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

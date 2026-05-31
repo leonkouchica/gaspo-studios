@@ -52,12 +52,7 @@ const steps = [
   { num: 3, title: "Confirm Booking", desc: "Secure your session with a simple deposit.", img: "https://images.unsplash.com/photo-1560472355-536de3962603?w=600&q=80" },
 ];
 
-const faqs = [
-  { q: "What types of photography do you offer?", a: "We specialize in weddings, portraits, corporate headshots, commercial work, and special events. Every shoot is tailored to your vision." },
-  { q: "How far in advance should I book?", a: "We recommend booking 2–6 months ahead for weddings and 2–4 weeks for portrait and corporate sessions." },
-  { q: "Do you offer photo editing services?", a: "Yes — every gallery is professionally color-graded and retouched. Advanced retouching is available as an add-on." },
-  { q: "Can I purchase prints or digital copies?", a: "Absolutely. High-resolution digital files are included with every package, and museum-grade prints are available through our shop." },
-];
+
 
 const heroSlides = [
   {
@@ -104,25 +99,25 @@ function Index() {
   return (
     <>
       {/* ─── HERO SLIDER ─── */}
-      <section className="relative h-[calc(75vh+87px)] flex items-center overflow-hidden bg-dark">
+      <section className="relative h-[calc(85vh+87px)] flex items-center justify-center overflow-hidden bg-[#F5F5F5]">
         {/* Slides */}
         {heroSlides.map((slide, i) => (
           <div
             key={i}
-            className={`absolute inset-0 transition-opacity duration-1000 ${i === heroIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+            className={`absolute top-2 bottom-4 left-4 right-4 md:top-2 md:bottom-6 md:left-6 md:right-6 transition-opacity duration-1000 overflow-hidden rounded-3xl md:rounded-[3rem] ${i === heroIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           >
             <img
               src={slide.img}
               alt={slide.headline}
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-dark/90 via-dark/60 to-dark/20" />
+            <div className="absolute inset-0 bg-dark/60" />
           </div>
         ))}
 
         {/* Content */}
-        <div className="container-x relative z-20 pt-24 pb-16 md:pt-32 md:pb-20">
-          <div key={heroIndex} className="max-w-4xl text-white animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="container-x relative z-20 w-full text-center flex flex-col items-center mt-10 md:mt-16">
+          <div key={heroIndex} className="max-w-4xl text-white animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center">
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
               {heroSlides[heroIndex].label}
             </p>
@@ -132,20 +127,20 @@ function Index() {
             <p className="text-xl md:text-2xl text-white/80 mt-4 font-light">
               {heroSlides[heroIndex].sub}
             </p>
-            <p className="text-base text-white/70 mt-6 leading-relaxed max-w-3xl">
+            <p className="text-base text-white/70 mt-6 leading-relaxed max-w-2xl">
               {heroSlides[heroIndex].body}
             </p>
-            <div className="flex flex-wrap gap-3 mt-10">
+            <div className="flex flex-wrap justify-center gap-4 mt-10">
               <Link
                 to={heroSlides[heroIndex].cta1.to}
-                className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-medium transition-all hover:scale-105"
+                className="group inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-3.5 font-medium transition-all hover:scale-105"
               >
                 {heroSlides[heroIndex].cta1.label}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to={heroSlides[heroIndex].cta2.to}
-                className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
+                className="inline-flex items-center justify-center gap-2 text-white border border-white/30 rounded-full px-8 py-3.5 font-medium hover:bg-white/10 transition-all"
               >
                 {heroSlides[heroIndex].cta2.label}
               </Link>
@@ -153,35 +148,37 @@ function Index() {
           </div>
         </div>
 
-        {/* Prev / Next arrows */}
-        <button
-          onClick={() => setHeroIndex((i) => (i - 1 + heroSlides.length) % heroSlides.length)}
-          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/10 hover:bg-primary backdrop-blur border border-white/20 text-white flex items-center justify-center transition-all"
+        {/* Navigation Arrows */}
+        <button 
+          onClick={() => setHeroIndex((i) => (i === 0 ? heroSlides.length - 1 : i - 1))}
+          className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-primary border border-white/20 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Previous slide"
         >
           <ChevronLeft size={20} />
         </button>
-        <button
+        <button 
           onClick={() => setHeroIndex((i) => (i + 1) % heroSlides.length)}
-          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/10 hover:bg-primary backdrop-blur border border-white/20 text-white flex items-center justify-center transition-all"
+          className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-primary border border-white/20 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Next slide"
         >
           <ChevronRight size={20} />
         </button>
-
-        {/* Dot indicators */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+        
+        {/* Indicators */}
+        <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
           {heroSlides.map((_, i) => (
             <button
               key={i}
               onClick={() => setHeroIndex(i)}
               className={`transition-all duration-300 rounded-full ${
-                i === heroIndex ? "w-8 h-2 bg-primary" : "w-2 h-2 bg-white/40 hover:bg-white/70"
+                i === heroIndex ? "w-8 h-2 bg-primary" : "w-2 h-2 bg-white/40 hover:bg-white/60"
               }`}
-              aria-label={`Slide ${i + 1}`}
+              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
+
+
       </section>
 
       {/* ─── TRUST / LOGO BAR ─── */}
@@ -201,7 +198,7 @@ function Index() {
       </section>
 
       {/* ─── ABOUT PREVIEW ─── */}
-      <section className="py-20 md:py-28 bg-background overflow-hidden">
+      <section className="pt-20 pb-12 md:pt-28 md:pb-16 bg-background overflow-hidden">
         <div className="container-x">
           {/* Header row: headline left, body right */}
           <ScrollReveal>
@@ -283,7 +280,7 @@ function Index() {
       </section>
 
       {/* ─── SERVICES ─── */}
-      <section className="py-20 md:py-28 bg-muted/40">
+      <section className="pt-12 pb-12 md:pt-16 md:pb-16 bg-muted/40">
         <div className="container-x">
           {/* Header row */}
           <ScrollReveal>
@@ -348,7 +345,7 @@ function Index() {
       </section>
 
       {/* ─── GALLERY PREVIEW ─── */}
-      <section className="py-20 md:py-28 bg-background overflow-hidden">
+      <section className="pt-12 pb-12 md:pt-16 md:pb-16 bg-background overflow-hidden">
         <div className="container-x grid md:grid-cols-2 gap-12 items-center">
           {/* Left: single main image + dark info overlay card */}
           <ScrollReveal direction="left">
@@ -436,7 +433,7 @@ function Index() {
       </section>
 
       {/* ─── BOOKING CTA — rounded dark container on light background ─── */}
-      <section className="py-20 md:py-28 bg-muted/40">
+      <section className="pt-12 pb-20 md:pt-16 md:pb-28 bg-muted/40">
         <div className="container-x">
           <ScrollReveal>
             <div className="bg-dark rounded-3xl p-10 md:p-16 relative overflow-hidden animate-gradient-slow">
@@ -501,67 +498,7 @@ function Index() {
         </div>
       </section>
 
-      {/* ─── FAQ ─── */}
-      <section className="py-20 md:py-28 bg-background overflow-hidden">
-        <div className="container-x">
-          {/* Centered heading above 2-col */}
-          <ScrollReveal>
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">FAQ</p>
-              <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Frequently Asked Questions</h2>
-              <p className="text-muted-foreground mt-4 leading-relaxed">
-                Clear and helpful answers to common questions about our photography services, booking timelines and long-term value.
-              </p>
-            </div>
-          </ScrollReveal>
 
-          {/* 2-col: FAQ left, image right */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <ScrollReveal direction="left" delay={150}>
-              <div>
-                <div className="divide-y divide-border border-t border-b border-border">
-                  {faqs.map((f, i) => (
-                    <div key={f.q}>
-                      <button
-                        onClick={() => setOpen(open === i ? -1 : i)}
-                        className="w-full flex items-center justify-between text-left py-5"
-                      >
-                        <span className="font-semibold text-dark text-lg pr-4">{f.q}</span>
-                        <span className="text-primary shrink-0 text-xl font-light">
-                          {open === i ? <Minus size={18} /> : <Plus size={18} />}
-                        </span>
-                      </button>
-                      <div className={`grid transition-all duration-300 ${open === i ? "grid-rows-[1fr] opacity-100 pb-5" : "grid-rows-[0fr] opacity-0"}`}>
-                        <p className="overflow-hidden text-muted-foreground leading-relaxed">{f.a}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 mt-8 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3 font-medium transition-colors"
-                >
-                  View All FAQ <ArrowRight size={18} />
-                </Link>
-              </div>
-            </ScrollReveal>
-
-            {/* Image with floating badge */}
-            <ScrollReveal direction="right" delay={250}>
-              <div className="relative">
-                <img
-                  src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=900&q=80"
-                  alt="Photographer at work"
-                  className="rounded-2xl w-full h-[520px] object-cover"
-                />
-                <div className="absolute bottom-6 right-6 bg-primary text-white rounded-full px-5 py-2.5 text-sm font-medium shadow-lg">
-                  Free Consultation
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

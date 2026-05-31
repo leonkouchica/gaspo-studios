@@ -33,6 +33,7 @@ export function Footer() {
             <li><Link to="/gallery" className="hover:text-primary">Gallery</Link></li>
             <li><Link to="/blog" className="hover:text-primary">Blog</Link></li>
             <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
+            <li><Link to="/faq" className="hover:text-primary">FAQ</Link></li>
           </ul>
         </div>
 
@@ -59,7 +60,13 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="container-x py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white/50 text-sm">
-          <p>© {new Date().getFullYear()} Gaspo Studios. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-center md:text-left">
+            <p>© {new Date().getFullYear()} Gaspo Studios. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             {[Instagram, Facebook, Twitter].map((Icon, i) => (
               <a key={i} href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary transition-colors flex items-center justify-center">
