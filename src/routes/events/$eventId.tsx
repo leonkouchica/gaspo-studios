@@ -7,42 +7,46 @@ import {
   Check, X, Award, Zap, Network, Lightbulb,
   Globe, Wifi, Landmark, Phone, Mail, Send,
 } from "lucide-react";
-import { getEventBySlug, type Event, type Speaker, type SponsorPackage } from "../../data/events";
+import { type Event, type Speaker, type SponsorPackage } from "../../data/events";
+import { fetchEvent } from "../../lib/actions/events";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
 export const Route = createFileRoute("/events/$eventId")({
-  head: ({ params }) => {
-    const event = getEventBySlug(params.eventId);
+  loader: async ({ params }) => {
+    try {
+      const event = await fetchEvent({ data: { slug: params.eventId } });
+      if (!event) throw notFound();
+      return event;
+    } catch (err) {
+      throw notFound();
+    }
+  },
+  head: ({ loaderData: event }) => {
     if (!event) return { meta: [{ title: "Event Not Found" }] };
     
-    const pathname = `/events/${params.eventId}`;
+    const pathname = `/events/${event.slug}`;
     
     return {
       meta: [
-        { title: `${event.seo.title || event.title} — Gaspo Studios` },
-        { name: "description", content: event.seo.description || event.summary },
+        { title: `${event.seo?.title || event.title} — Gaspo Studios` },
+        { name: "description", content: event.seo?.description || event.summary },
         
         /* OpenGraph / Facebook */
         { property: "og:type", content: "website" },
         { property: "og:url", content: `https://gaspotechstudios.com${pathname}` },
-        { property: "og:title", content: event.seo.title || event.title },
-        { property: "og:description", content: event.seo.description || event.summary },
-        { property: "og:image", content: event.seo.ogImage || event.bannerImage },
+        { property: "og:title", content: event.seo?.title || event.title },
+        { property: "og:description", content: event.seo?.description || event.summary },
+        { property: "og:image", content: event.seo?.ogImage || event.bannerImage },
         
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:url", content: `https://gaspotechstudios.com${pathname}` },
-        { name: "twitter:title", content: event.seo.title || event.title },
-        { name: "twitter:description", content: event.seo.description || event.summary },
-        { name: "twitter:image", content: event.seo.ogImage || event.bannerImage },
+        { name: "twitter:title", content: event.seo?.title || event.title },
+        { name: "twitter:description", content: event.seo?.description || event.summary },
+        { name: "twitter:image", content: event.seo?.ogImage || event.bannerImage },
       ],
       links: [{ rel: "canonical", href: `https://gaspotechstudios.com${pathname}` }],
     };
-  },
-  loader: ({ params }) => {
-    const event = getEventBySlug(params.eventId);
-    if (!event) throw notFound();
-    return event;
   },
   component: EventDetailPage,
   notFoundComponent: () => (

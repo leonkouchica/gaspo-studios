@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { Service } from "../types";
+import { createBooking } from "../lib/actions/bookings";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/book")({
   head: () => ({
@@ -83,6 +85,7 @@ function BookPage() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
   const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const yearNum = currentDate.getFullYear();
   const monthNum = currentDate.getMonth();
@@ -114,11 +117,39 @@ function BookPage() {
     return valid;
   };
 
-  const handleFinalSubmit = () => {
-    if (validate()) setIsSuccess(true);
-  };
-
   const selectedService = servicesList.find((s) => s.id === selected)!;
+
+  const handleFinalSubmit = async () => {
+    if (validate()) {
+      setSubmitting(true);
+      try {
+        const monthString = String(monthNum + 1).padStart(2, "0");
+        const dayString = String(date || 1).padStart(2, "0");
+        const preferredDate = `${yearNum}-${monthString}-${dayString}`;
+
+        await createBooking({
+          data: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            service: selectedService.name,
+            package: selectedService.id === "wedding" ? "Full Day Coverage" :
+                     selectedService.id === "portrait" ? "Tailored Session" :
+                     selectedService.id === "corporate" ? "Half Day Coverage" : "Standard Package",
+            preferredDate,
+            preferredTime: time,
+            message: formData.message,
+            totalValue: totalPrice,
+          }
+        });
+        setIsSuccess(true);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to submit booking. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
 
   return (
     <>
@@ -468,10 +499,11 @@ function BookPage() {
                     <p className="text-2xl font-bold text-dark">₦{depositPrice.toLocaleString()}</p>
                   </div>
                   <button
+                    disabled={submitting}
                     onClick={handleFinalSubmit}
-                    className="w-full bg-primary hover:bg-primary-hover transition-all text-white rounded-full py-4 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02]"
+                    className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 transition-all text-white rounded-full py-4 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] flex items-center justify-center gap-2"
                   >
-                    Confirm Booking & Pay Deposit
+                    {submitting ? "Confirming Booking..." : "Confirm Booking & Pay Deposit"}
                   </button>
                 </div>
               </div>

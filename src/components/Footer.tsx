@@ -51,8 +51,8 @@ export function Footer() {
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-widest text-white/80">Contact</h4>
           <ul className="mt-4 space-y-3 text-white/60 text-sm">
-            <li className="flex items-start gap-2"><MapPin size={16} className="mt-0.5 text-primary" /> 24 Studio Lane, Suite 5<br />Brooklyn, NY 11201</li>
-            <li className="flex items-center gap-2"><Phone size={16} className="text-primary" /> +1 (555) 014-2270</li>
+            <li className="flex items-start gap-2"><MapPin size={16} className="mt-0.5 text-primary" /> Phase 2, Charly Boy Bus/Stop, 4a Ajidagan St<br />Gbagada, Lagos 100101, Lagos</li>
+            <li className="flex items-center gap-2"><Phone size={16} className="text-primary" /> 0806 585 6429</li>
             <li className="flex items-center gap-2"><Mail size={16} className="text-primary" /> hello@gaspostudios.com</li>
           </ul>
         </div>

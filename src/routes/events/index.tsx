@@ -1,17 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   MapPin, CalendarDays, Users, ArrowRight, Search,
   Grid3X3, List, ChevronRight, Clock, Globe, Wifi, Landmark,
-  Star, TrendingUp, Zap,
+  Star, TrendingUp, Zap, Loader2,
 } from "lucide-react";
 import { ScrollReveal } from "../../components/ScrollReveal";
-import {
-  events,
-  pastEvents,
-  getFeaturedEvent,
-  type Event,
-} from "../../data/events";
+import { pastEvents, type Event } from "../../data/events";
+import { fetchEvents } from "../../lib/actions/events";
 
 export const Route = createFileRoute("/events/")({
   head: () => ({
@@ -89,7 +85,7 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
           <img
             src={event.bannerImage}
             alt={event.title}
-            className="w-full h-52 md:h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-52 md:h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-muted"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-dark/50 to-transparent md:bg-gradient-to-t" />
@@ -154,7 +150,7 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
         <img
           src={event.bannerImage}
           alt={event.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-muted"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-dark/70 to-transparent" />
@@ -227,7 +223,7 @@ function FeaturedHero({ event }: { event: Event }) {
       <img
         src={event.bannerImage}
         alt={event.title}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover bg-muted opacity-80"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/60 to-dark/20" />
 
@@ -295,12 +291,30 @@ function FeaturedHero({ event }: { event: Event }) {
 }
 
 function EventsListPage() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [view, setView] = useState<"grid" | "list">("grid");
 
-  const featured = getFeaturedEvent();
+  const loadEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchEvents({ data: { visibleOnly: true } });
+      setEvents(data as Event[]);
+    } catch (err) {
+      console.error("Failed to load events:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
+
+  const featured = events.find((e) => e.featured && e.status !== "completed") || events[0];
   const categories = Array.from(new Set(events.map((e) => e.category)));
 
   const filtered = events.filter((e) => {
@@ -316,183 +330,192 @@ function EventsListPage() {
 
   return (
     <>
-      {/* ── FEATURED HERO ── */}
-      {featured && <FeaturedHero event={featured} />}
-
-      {/* ── STATS BAR ── */}
-      <section className="bg-dark border-b border-border-dark">
-        <div className="container-x">
-          <div className="grid grid-cols-3 divide-x divide-border-dark">
-            {[
-              { icon: TrendingUp, label: "Upcoming Events", value: events.length },
-              { icon: Users, label: "Total Registered", value: events.reduce((s, e) => s + e.registrationCount, 0) },
-              { icon: Zap, label: "Cities", value: new Set(events.map((e) => e.city)).size },
-            ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-3 px-6 py-5">
-                <Icon size={20} className="text-primary shrink-0" />
-                <div>
-                  <p className="text-xl font-bold text-white">{value}</p>
-                  <p className="text-xs text-white/50">{label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {loading ? (
+        <div className="py-32 text-center text-muted-foreground min-h-[80vh] flex flex-col justify-center items-center">
+          <Loader2 size={32} className="animate-spin mx-auto mb-3 text-primary" />
+          <p className="text-sm">Loading events…</p>
         </div>
-      </section>
+      ) : (
+        <>
+          {/* ── FEATURED HERO ── */}
+          {featured && <FeaturedHero event={featured} />}
 
-      {/* ── EVENTS LISTING ── */}
-      <section className="py-20 md:py-28 bg-background">
-        <div className="container-x">
-          <ScrollReveal>
-            <div className="mb-10">
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
-                <span className="inline-block w-6 h-px bg-primary" />
-                What's Coming Up
-              </p>
-              <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Upcoming Events</h2>
-            </div>
-          </ScrollReveal>
-
-          {/* Filter bar */}
-          <ScrollReveal delay={100}>
-            <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <div className="relative flex-1">
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search events…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-full border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all bg-white"
-                />
-              </div>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="rounded-full border border-border px-4 py-3 text-sm bg-white focus:border-primary outline-none"
-              >
-                <option value="all">All Types</option>
-                <option value="physical">In-Person</option>
-                <option value="virtual">Virtual</option>
-                <option value="hybrid">Hybrid</option>
-              </select>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-full border border-border px-4 py-3 text-sm bg-white focus:border-primary outline-none"
-              >
-                <option value="all">All Categories</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+          {/* ── STATS BAR ── */}
+          <section className="bg-dark border-b border-border-dark">
+            <div className="container-x">
+              <div className="grid grid-cols-3 divide-x divide-border-dark">
+                {[
+                  { icon: TrendingUp, label: "Upcoming Events", value: events.length },
+                  { icon: Users, label: "Total Registered", value: events.reduce((s, e) => s + e.registrationCount, 0) },
+                  { icon: Zap, label: "Cities", value: new Set(events.map((e) => e.city)).size },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-3 px-6 py-5">
+                    <Icon size={20} className="text-primary shrink-0" />
+                    <div>
+                      <p className="text-xl font-bold text-white">{value}</p>
+                      <p className="text-xs text-white/50">{label}</p>
+                    </div>
+                  </div>
                 ))}
-              </select>
-              <div className="flex gap-1 bg-muted rounded-full p-1">
-                <button
-                  onClick={() => setView("grid")}
-                  className={`p-2.5 rounded-full transition-all ${view === "grid" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
-                  aria-label="Grid view"
-                >
-                  <Grid3X3 size={16} />
-                </button>
-                <button
-                  onClick={() => setView("list")}
-                  className={`p-2.5 rounded-full transition-all ${view === "list" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
-                  aria-label="List view"
-                >
-                  <List size={16} />
-                </button>
               </div>
             </div>
-          </ScrollReveal>
+          </section>
 
-          {/* Results */}
-          {filtered.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">No events match your filters. <button className="text-primary underline" onClick={() => { setSearch(""); setTypeFilter("all"); setCategoryFilter("all"); }}>Clear filters</button></p>
-            </div>
-          ) : view === "grid" ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((event, i) => (
-                <ScrollReveal key={event.id} delay={i * 80} className="h-full">
-                  <EventCard event={event} view="grid" />
-                </ScrollReveal>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filtered.map((event, i) => (
-                <ScrollReveal key={event.id} delay={i * 60}>
-                  <EventCard event={event} view="list" />
-                </ScrollReveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+          {/* ── EVENTS LISTING ── */}
+          <section className="py-20 md:py-28 bg-background">
+            <div className="container-x">
+              <ScrollReveal>
+                <div className="mb-10">
+                  <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
+                    <span className="inline-block w-6 h-px bg-primary" />
+                    What's Coming Up
+                  </p>
+                  <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Upcoming Events</h2>
+                </div>
+              </ScrollReveal>
 
-      {/* ── PAST EVENTS ── */}
-      <section className="py-20 md:py-28 bg-muted/40">
-        <div className="container-x">
-          <ScrollReveal>
-            <div className="mb-12">
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
-                <span className="inline-block w-6 h-px bg-primary" />
-                Look Back
-              </p>
-              <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Past Events</h2>
-            </div>
-          </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-6">
-            {pastEvents.map((p, i) => (
-              <ScrollReveal key={p.id} delay={i * 100}>
-                <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
-                  <img
-                    src={p.img}
-                    alt={p.title}
-                    className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-                    <p className="text-xs uppercase tracking-widest text-primary">{p.date}</p>
-                    <p className="font-bold text-lg mt-1">{p.title}</p>
-                    <p className="text-white/60 text-sm mt-1">{p.attendees} attendees</p>
+              {/* Filter bar */}
+              <ScrollReveal delay={100}>
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                  <div className="relative flex-1">
+                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search events…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-full border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all bg-white"
+                    />
+                  </div>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="rounded-full border border-border px-4 py-3 text-sm bg-white focus:border-primary outline-none"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="physical">In-Person</option>
+                    <option value="virtual">Virtual</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="rounded-full border border-border px-4 py-3 text-sm bg-white focus:border-primary outline-none"
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <div className="flex gap-1 bg-muted rounded-full p-1">
+                    <button
+                      onClick={() => setView("grid")}
+                      className={`p-2.5 rounded-full transition-all ${view === "grid" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
+                      aria-label="Grid view"
+                    >
+                      <Grid3X3 size={16} />
+                    </button>
+                    <button
+                      onClick={() => setView("list")}
+                      className={`p-2.5 rounded-full transition-all ${view === "list" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
+                      aria-label="List view"
+                    >
+                      <List size={16} />
+                    </button>
                   </div>
                 </div>
               </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── NEWSLETTER ── */}
-      <section className="py-16 bg-dark">
-        <div className="container-x text-center max-w-2xl">
-          <ScrollReveal>
-            <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Stay Updated</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-3">Never Miss an Event</h2>
-            <p className="text-white/60 mt-4 leading-relaxed">
-              Subscribe for early access to new events, registration reminders, and sponsorship opportunities.
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex flex-col sm:flex-row gap-3 mt-8 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                placeholder="your@email.com"
-                className="flex-1 rounded-full border border-white/20 bg-white/10 text-white placeholder:text-white/40 px-5 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-              />
-              <button
-                type="submit"
-                className="bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3 text-sm font-semibold transition-all hover:scale-105 whitespace-nowrap"
-              >
-                Subscribe
-              </button>
-            </form>
-          </ScrollReveal>
-        </div>
-      </section>
+              {/* Results */}
+              {filtered.length === 0 ? (
+                <div className="text-center py-20">
+                  <p className="text-muted-foreground">No events match your filters. <button className="text-primary underline" onClick={() => { setSearch(""); setTypeFilter("all"); setCategoryFilter("all"); }}>Clear filters</button></p>
+                </div>
+              ) : view === "grid" ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filtered.map((event, i) => (
+                    <ScrollReveal key={event.id} delay={i * 80} className="h-full">
+                      <EventCard event={event} view="grid" />
+                    </ScrollReveal>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {filtered.map((event, i) => (
+                    <ScrollReveal key={event.id} delay={i * 60}>
+                      <EventCard event={event} view="list" />
+                    </ScrollReveal>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ── PAST EVENTS ── */}
+          <section className="py-20 md:py-28 bg-muted/40">
+            <div className="container-x">
+              <ScrollReveal>
+                <div className="mb-12">
+                  <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
+                    <span className="inline-block w-6 h-px bg-primary" />
+                    Look Back
+                  </p>
+                  <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Past Events</h2>
+                </div>
+              </ScrollReveal>
+              <div className="grid md:grid-cols-3 gap-6">
+                {pastEvents.map((p, i) => (
+                  <ScrollReveal key={p.id} delay={i * 100}>
+                    <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
+                      <img
+                        src={p.img}
+                        alt={p.title}
+                        className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                        <p className="text-xs uppercase tracking-widest text-primary">{p.date}</p>
+                        <p className="font-bold text-lg mt-1">{p.title}</p>
+                        <p className="text-white/60 text-sm mt-1">{p.attendees} attendees</p>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── NEWSLETTER ── */}
+          <section className="py-16 bg-dark">
+            <div className="container-x text-center max-w-2xl">
+              <ScrollReveal>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Stay Updated</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mt-3">Never Miss an Event</h2>
+                <p className="text-white/60 mt-4 leading-relaxed">
+                  Subscribe for early access to new events, registration reminders, and sponsorship opportunities.
+                </p>
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="flex flex-col sm:flex-row gap-3 mt-8 max-w-md mx-auto"
+                >
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    className="flex-1 rounded-full border border-white/20 bg-white/10 text-white placeholder:text-white/40 px-5 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3 text-sm font-semibold transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              </ScrollReveal>
+            </div>
+          </section>
+        </>
+      )}
     </>
   );
 }

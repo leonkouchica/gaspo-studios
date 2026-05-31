@@ -16,11 +16,14 @@ export const Route = createFileRoute("/contact")({
 });
 
 import { useState } from "react";
+import { submitContactMessage } from "../lib/actions/contact";
+import { toast } from "sonner";
 
 function ContactPage() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", subject: "General inquiry", message: "" });
   const [errors, setErrors] = useState({ name: "", email: "", phone: "", message: "" });
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -53,10 +56,26 @@ function ContactPage() {
     return valid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setIsSuccess(true);
+      setSubmitting(true);
+      try {
+        await submitContactMessage({
+          data: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            subject: formData.subject,
+            message: formData.message,
+          }
+        });
+        setIsSuccess(true);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to send message. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -154,14 +173,24 @@ function ContactPage() {
                 />
                 {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
               </div>
-              <button type="submit" className="w-full bg-primary hover:bg-primary-hover transition-colors text-white rounded-full py-4 font-semibold shadow-lg shadow-primary/10 hover:shadow-primary/20">Send Message</button>
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="w-full bg-primary hover:bg-primary-hover transition-all text-white rounded-full py-4 font-semibold shadow-lg shadow-primary/10 hover:shadow-primary/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {submitting ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  "Send Message"
+                )}
+              </button>
             </form>
           )}
           
           <div className="space-y-4">
             {[
-              { icon: MapPin, t: "Visit Us", d: "24 Studio Lane, Suite 5, Brooklyn, NY 11201" },
-              { icon: Phone, t: "Call Us", d: "+1 (555) 014-2270" },
+              { icon: MapPin, t: "Visit Us", d: "Phase 2, Charly Boy Bus/Stop, 4a Ajidagan St, Gbagada, Lagos 100101, Lagos" },
+              { icon: Phone, t: "Call Us", d: "0806 585 6429" },
               { icon: Mail, t: "Email Us", d: "hello@gaspostudios.com" },
             ].map(({ icon: Icon, t, d }) => (
               <div key={t} className="bg-white rounded-xl p-5 border border-border flex items-start gap-4">
@@ -175,7 +204,7 @@ function ContactPage() {
 
             <iframe
               title="Studio map"
-              src="https://www.google.com/maps?q=Brooklyn%20NY&output=embed"
+              src="https://www.google.com/maps?q=4a%20Ajidagan%20St,%20Gbagada,%20Lagos&output=embed"
               className="rounded-2xl border border-border h-64 w-full"
               loading="lazy"
             />

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, Loader2, Image as ImageIcon } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
+import { fetchGalleryImages } from "../lib/actions/gallery";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
@@ -18,25 +19,45 @@ export const Route = createFileRoute("/gallery")({
 
 const categories = ["All", "Weddings", "Portraits", "Commercial", "Events"] as const;
 
-const items = [
-  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[4/5]" },
-  { cat: "Portraits", img: "/images/portrait_woman.webp", aspect: "aspect-square" },
-  { cat: "Commercial", img: "/images/corporate_team.webp", aspect: "aspect-[3/2]" },
-  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-[4/3]" },
-  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[16/9]" },
-  { cat: "Portraits", img: "/images/team_founder.webp", aspect: "aspect-[9/16]" },
-  { cat: "Commercial", img: "/images/photographer_hero.webp", aspect: "aspect-[4/5]" },
-  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-square" },
-  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[3/2]" },
-  { cat: "Portraits", img: "/images/portrait_woman.webp", aspect: "aspect-[4/3]" },
-  { cat: "Commercial", img: "/images/corporate_team.webp", aspect: "aspect-[16/9]" },
-  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-[9/16]" },
-];
+interface GalleryItem {
+  id: string;
+  src: string;
+  title: string;
+  alt: string;
+  category: string;
+  visible: boolean;
+  order: number;
+}
 
 function GalleryPage() {
   const [filter, setFilter] = useState<(typeof categories)[number]>("All");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const visible = filter === "All" ? items : items.filter((i) => i.cat === filter);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadGallery = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchGalleryImages({ data: { visibleOnly: true } });
+      setItems(data as GalleryItem[]);
+    } catch (err) {
+      console.error("Failed to load gallery images:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadGallery();
+  }, [loadGallery]);
+
+  const visible = filter === "All" ? items : items.filter((i) => i.category.toLowerCase() === filter.toLowerCase());
+
+  // Distribute aspects nicely based on index to create a masonry look
+  const getAspectClass = (index: number) => {
+    const aspects = ["aspect-[4/5]", "aspect-square", "aspect-[3/2]", "aspect-[4/3]", "aspect-[16/9]", "aspect-[9/16]"];
+    return aspects[index % aspects.length];
+  };
 
   return (
     <>
@@ -54,7 +75,7 @@ function GalleryPage() {
               <button
                 key={c}
                 onClick={() => setFilter(c)}
-                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all cursor-pointer ${
                   filter === c
                     ? "bg-primary text-white"
                     : "bg-white text-dark border border-border hover:border-primary"
@@ -69,21 +90,38 @@ function GalleryPage() {
 
       <section className="pb-20 md:pb-28">
         <div className="container-x">
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 [column-fill:_balance]">
-            {visible.map((it, i) => (
-              <button
-                key={i}
-                onClick={() => setLightbox(it.img)}
-                className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden ${it.aspect}`}
-              >
-                <img src={it.img} alt={it.cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                  <p className="uppercase text-xs tracking-[0.25em] text-primary">{it.cat}</p>
-                  <p className="font-bold text-lg mt-2">View Project</p>
-                </div>
-              </button>
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-20 text-muted-foreground">
+              <Loader2 size={32} className="animate-spin mx-auto mb-3 text-primary" />
+              <p className="text-sm">Loading portfolio images…</p>
+            </div>
+          ) : visible.length === 0 ? (
+            <div className="text-center py-20 text-muted-foreground border border-dashed border-border rounded-2xl max-w-md mx-auto p-8">
+              <ImageIcon size={40} className="mx-auto mb-3 opacity-30 text-primary" />
+              <p className="font-semibold text-dark text-sm">No Images Found</p>
+              <p className="text-xs mt-1">There are no images published in this category yet.</p>
+            </div>
+          ) : (
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 [column-fill:_balance]">
+              {visible.map((it, i) => (
+                <button
+                  key={it.id}
+                  onClick={() => setLightbox(it.src)}
+                  className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in ${getAspectClass(i)}`}
+                >
+                  <img 
+                    src={it.src} 
+                    alt={it.alt || it.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" 
+                  />
+                  <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4">
+                    <p className="uppercase text-xs tracking-[0.25em] text-primary">{it.category}</p>
+                    <p className="font-bold text-base mt-2 text-center line-clamp-2">{it.title}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

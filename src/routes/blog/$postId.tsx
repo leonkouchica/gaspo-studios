@@ -1,43 +1,46 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { getPostBySlug } from "../../data/blog";
+import { fetchBlogPost } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
 export const Route = createFileRoute("/blog/$postId")({
-  head: ({ params }) => {
-    const post = getPostBySlug(params.postId);
+  loader: async ({ params }) => {
+    try {
+      const post = await fetchBlogPost({ data: { slug: params.postId } });
+      if (!post) throw notFound();
+      return post;
+    } catch (err) {
+      throw notFound();
+    }
+  },
+  head: ({ loaderData: post }) => {
     if (!post) return { meta: [{ title: "Post Not Found" }] };
     
-    const pathname = `/blog/${params.postId}`;
+    const pathname = `/blog/${post.slug}`;
     
     return {
       meta: [
-        { title: `${post.seo.title || post.title} — Gaspo Studios` },
-        { name: "description", content: post.seo.description || post.excerpt },
+        { title: `${post.seo?.title || post.title} — Gaspo Studios` },
+        { name: "description", content: post.seo?.description || post.excerpt },
         
         /* OpenGraph / Facebook */
         { property: "og:type", content: "article" },
         { property: "og:url", content: `https://gaspotechstudios.com${pathname}` },
-        { property: "og:title", content: post.seo.title || post.title },
-        { property: "og:description", content: post.seo.description || post.excerpt },
-        { property: "og:image", content: post.seo.ogImage || post.featuredImage },
+        { property: "og:title", content: post.seo?.title || post.title },
+        { property: "og:description", content: post.seo?.description || post.excerpt },
+        { property: "og:image", content: post.seo?.ogImage || post.featuredImage },
         { property: "article:published_time", content: post.publishedAt || "" },
         
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:url", content: `https://gaspotechstudios.com${pathname}` },
-        { name: "twitter:title", content: post.seo.title || post.title },
-        { name: "twitter:description", content: post.seo.description || post.excerpt },
-        { name: "twitter:image", content: post.seo.ogImage || post.featuredImage },
+        { name: "twitter:title", content: post.seo?.title || post.title },
+        { name: "twitter:description", content: post.seo?.description || post.excerpt },
+        { name: "twitter:image", content: post.seo?.ogImage || post.featuredImage },
       ],
       links: [{ rel: "canonical", href: `https://gaspotechstudios.com${pathname}` }],
     };
-  },
-  loader: ({ params }) => {
-    const post = getPostBySlug(params.postId);
-    if (!post) throw notFound();
-    return post;
   },
   component: BlogPostDetail,
   notFoundComponent: () => (

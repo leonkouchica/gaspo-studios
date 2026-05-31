@@ -27,6 +27,9 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
 import { Route as AdminSponsorPortalRouteImport } from './routes/admin/sponsor-portal'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminMessagesRouteImport } from './routes/admin/messages'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as AdminHomepageIndexRouteImport } from './routes/admin/homepage/index'
 import { Route as AdminGalleryIndexRouteImport } from './routes/admin/gallery/index'
@@ -129,6 +132,21 @@ const AdminSponsorPortalRoute = AdminSponsorPortalRouteImport.update({
   path: '/sponsor-portal',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMessagesRoute = AdminMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -200,6 +218,9 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -229,6 +250,9 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -261,6 +285,9 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -294,6 +321,9 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/analytics'
+    | '/admin/login'
+    | '/admin/messages'
+    | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
@@ -323,6 +353,9 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/analytics'
+    | '/admin/login'
+    | '/admin/messages'
+    | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
@@ -354,6 +387,9 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/analytics'
+    | '/admin/login'
+    | '/admin/messages'
+    | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
@@ -517,6 +553,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSponsorPortalRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/messages': {
+      id: '/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminMessagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/analytics': {
       id: '/admin/analytics'
       path: '/analytics'
@@ -599,6 +656,9 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSponsorPortalRoute: typeof AdminSponsorPortalRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
@@ -615,6 +675,9 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminMessagesRoute: AdminMessagesRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminSponsorPortalRoute: AdminSponsorPortalRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
