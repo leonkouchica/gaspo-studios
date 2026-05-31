@@ -62,25 +62,35 @@ export const Route = createFileRoute("/events/$eventId")({
   ),
 });
 
-// ─── COUNTDOWN ───────────────────────────────────────────────────────────────
 function useCountdown(targetDate: string) {
-  const [t, setT] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
-  useEffect(() => {
-    const calc = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
-      if (diff <= 0) return setT({ days: 0, hours: 0, mins: 0, secs: 0 });
-      setT({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        mins: Math.floor((diff % 3600000) / 60000),
-        secs: Math.floor((diff % 60000) / 1000),
-      });
+  const calc = () => {
+    // Convert 'YYYY-MM-DDTHH:mm' to 'YYYY/MM/DD HH:mm:00' for cross-browser Safari/iOS support
+    const safeDate = targetDate.replace(/-/g, "/").replace("T", " ");
+    let time = new Date(`${safeDate}:00`).getTime();
+    if (isNaN(time)) time = new Date(safeDate).getTime();
+    if (isNaN(time)) time = new Date(targetDate).getTime();
+    
+    const diff = time - Date.now();
+    if (isNaN(diff) || diff <= 0) return { days: 0, hours: 0, mins: 0, secs: 0 };
+    return {
+      days: Math.floor(diff / 86400000),
+      hours: Math.floor((diff % 86400000) / 3600000),
+      mins: Math.floor((diff % 3600000) / 60000),
+      secs: Math.floor((diff % 60000) / 1000),
     };
-    calc();
-    const id = setInterval(calc, 1000);
+  };
+
+  const [t, setT] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setT(calc());
+    const id = setInterval(() => setT(calc()), 1000);
     return () => clearInterval(id);
   }, [targetDate]);
-  return t;
+
+  return mounted ? t : { days: 0, hours: 0, mins: 0, secs: 0 };
 }
 
 // ─── SPEAKER MODAL ───────────────────────────────────────────────────────────
@@ -151,7 +161,13 @@ function SponsorCard({ pkg }: { pkg: SponsorPackage }) {
           </li>
         ))}
       </ul>
-      <button className={`mt-6 w-full rounded-full py-3 text-sm font-semibold transition-all hover:scale-105 ${pkg.highlighted ? "bg-primary hover:bg-primary-hover text-white" : "border-2 border-dark text-dark hover:bg-dark hover:text-white"}`}>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        className={`mt-6 w-full block text-center rounded-full py-3 text-sm font-semibold transition-all hover:scale-105 ${pkg.highlighted ? "bg-primary hover:bg-primary-hover text-white" : "border-2 border-dark text-dark hover:bg-dark hover:text-white"}`}
+      >
         Select Package
       </button>
     </div>
@@ -736,7 +752,7 @@ function EventDetailPage() {
       </section>
 
       {/* ── CONTACT + MAP ── */}
-      <section className="py-20 md:py-28 bg-dark-secondary border-t border-border-dark">
+      <section id="contact" className="py-20 md:py-28 bg-dark-secondary border-t border-border-dark scroll-mt-20">
         <div className="container-x">
           <div className="grid lg:grid-cols-2 gap-12">
             <ScrollReveal direction="left">
