@@ -33,9 +33,9 @@ export const Route = createFileRoute("/")({
 });
 
 const services = [
-  { icon: Camera, title: "Wedding Photography", desc: "Let us capture the romance and joy of your special day with cinematic detail.", img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80" },
-  { icon: Building2, title: "Corporate Photography", desc: "Elevate your brand with professional photographs that make a lasting statement.", img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80" },
-  { icon: Users, title: "Special Events", desc: "From birthdays to graduations, treasure every moment with stunning photographs.", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80" },
+  { icon: Camera, title: "Wedding Photography", desc: "Let us capture the romance and joy of your special day with cinematic detail.", img: "/images/wedding_couple.webp" },
+  { icon: Building2, title: "Corporate Photography", desc: "Elevate your brand with professional photographs that make a lasting statement.", img: "/images/corporate_team.webp" },
+  { icon: Users, title: "Special Events", desc: "From birthdays to graduations, treasure every moment with stunning photographs.", img: "/images/events_crowd.webp" },
 ];
 
 const brands = [
@@ -47,16 +47,16 @@ const brands = [
 ];
 
 const steps = [
-  { num: 1, title: "Select Service", desc: "Choose from weddings, portraits, events or commercial.", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80" },
-  { num: 2, title: "Choose Your Date", desc: "Pick an available slot that fits your schedule.", img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
-  { num: 3, title: "Confirm Booking", desc: "Secure your session with a simple deposit.", img: "https://images.unsplash.com/photo-1560472355-536de3962603?w=600&q=80" },
+  { num: 1, title: "Select Service", desc: "Choose from weddings, portraits, events or commercial.", img: "/images/wedding_couple.webp" },
+  { num: 2, title: "Choose Your Date", desc: "Pick an available slot that fits your schedule.", img: "/images/portrait_woman.webp" },
+  { num: 3, title: "Confirm Booking", desc: "Secure your session with a simple deposit.", img: "/images/corporate_team.webp" },
 ];
 
 
 
 const heroSlides = [
   {
-    img: "https://images.unsplash.com/photo-1554080353-a576cf803bda?w=1920&q=80",
+    img: "/images/wedding_couple.webp",
     label: "Professional Photography Studio",
     headline: "Capture Your Moments with Gaspo Studios",
     sub: "Where Art Meets Precision in Photography",
@@ -65,7 +65,7 @@ const heroSlides = [
     cta2: { label: "View Gallery", to: "/gallery" },
   },
   {
-    img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80",
+    img: "/images/photographer_hero.webp",
     label: "Wedding & Portrait Specialists",
     headline: "Every Love Story Deserves a Masterpiece",
     sub: "Cinematic wedding coverage you'll treasure forever",
@@ -74,7 +74,7 @@ const heroSlides = [
     cta2: { label: "See Weddings", to: "/gallery" },
   },
   {
-    img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80",
+    img: "/images/corporate_team.webp",
     label: "Corporate & Commercial",
     headline: "Elevate Your Brand Through the Lens",
     sub: "Studio-quality commercial photography that converts",
@@ -226,7 +226,7 @@ function Index() {
             <ScrollReveal className="md:col-span-3 relative h-full" direction="left">
               <div className="h-full">
                 <img
-                  src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=900&q=80"
+                  src="/images/photographer_hero.webp"
                   alt="Studio"
                   className="w-full h-[480px] object-cover rounded-2xl shadow-xl"
                 />
@@ -351,7 +351,7 @@ function Index() {
           <ScrollReveal direction="left">
             <div className="relative h-[520px]">
               <img
-                src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&q=80"
+                src="/images/wedding_couple.webp"
                 alt="Gallery"
                 className="w-full h-full object-cover rounded-2xl"
               />
@@ -407,13 +407,8 @@ function Index() {
               {/* Two small thumbnails stacked */}
               <div className="grid grid-cols-2 gap-3 mt-8">
                 <img
-                  src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80"
-                  alt=""
-                  className="rounded-xl h-28 w-full object-cover"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80"
-                  alt=""
+                  src="/images/portrait_woman.webp"
+                  alt="Portrait"
                   className="rounded-xl h-28 w-full object-cover"
                 />
               </div>
@@ -439,7 +434,7 @@ function Index() {
             <div className="bg-dark rounded-3xl p-10 md:p-16 relative overflow-hidden animate-gradient-slow">
               {/* Background Image */}
               <img 
-                src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1920&q=80" 
+                src="/images/corporate_team.webp" 
                 alt="Studio Background" 
                 className="absolute inset-0 w-full h-full object-cover opacity-[0.29] mix-blend-overlay"
               />

@@ -19,10 +19,10 @@ export const Route = createFileRoute("/about")({
 import { TeamMember } from "../types";
 
 const team: TeamMember[] = [
-  { name: "Marco Gaspari", role: "Founder & Lead Photographer", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80", bio: "Two-time Sony World Photography finalist. Marco founded Gaspo in 2014." },
-  { name: "Elena Vasquez", role: "Creative Director", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80", bio: "Crafts the visual language of every brand and bride we work with." },
-  { name: "Daniel Okonkwo", role: "Senior Photographer", role2: true, img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80", bio: "Specialist in editorial and commercial campaigns." },
-  { name: "Aisha Patel", role: "Post-Production Lead", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80", bio: "The eye behind every color grade and final retouch." },
+  { name: "Marco Gaspari", role: "Founder & Lead Photographer", img: "/images/team_founder.webp", bio: "Two-time Sony World Photography finalist. Marco founded Gaspo in 2014." },
+  { name: "Elena Vasquez", role: "Creative Director", img: "/images/portrait_woman.webp", bio: "Crafts the visual language of every brand and bride we work with." },
+  { name: "Daniel Okonkwo", role: "Senior Photographer", role2: true, img: "/images/photographer_hero.webp", bio: "Specialist in editorial and commercial campaigns." },
+  { name: "Aisha Patel", role: "Post-Production Lead", img: "/images/portrait_woman.webp", bio: "The eye behind every color grade and final retouch." },
 ];
 
 function AboutPage() {
@@ -32,12 +32,12 @@ function AboutPage() {
         title="About Gaspo Studios" 
         crumb="About" 
         subtitle="Where technology meets artistry in photography." 
-        image="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1920&q=80"
+        image="/images/photographer_teaching.webp"
       />
 
-      <section className="py-20 md:py-28">
+      <section className="pt-20 md:pt-28 pb-10 md:pb-14">
         <div className="container-x grid md:grid-cols-2 gap-12 items-center">
-          <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=900&q=80" alt="Studio team" className="rounded-2xl w-full h-[560px] object-cover" />
+          <img src="/images/corporate_team.webp" alt="Studio team" className="rounded-2xl w-full h-[560px] object-cover" />
           <div>
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Our Story</p>
             <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Where Technology Meets Artistry in Photography</h2>
@@ -64,7 +64,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-muted/40">
+      <section className="pt-10 md:pt-14 pb-10 md:pb-14 bg-muted/40">
         <div className="container-x">
           <div className="text-center max-w-2xl mx-auto">
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Our Team</p>
@@ -90,7 +90,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-dark text-white">
+      <section className="pt-10 md:pt-14 pb-20 md:pb-28 bg-dark text-white">
         <div className="container-x">
           <div className="text-center max-w-2xl mx-auto">
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Why Us</p>

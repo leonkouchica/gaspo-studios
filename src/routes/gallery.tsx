@@ -19,18 +19,18 @@ export const Route = createFileRoute("/gallery")({
 const categories = ["All", "Weddings", "Portraits", "Commercial", "Events"] as const;
 
 const items = [
-  { cat: "Weddings", img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80" },
-  { cat: "Portraits", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&q=80" },
-  { cat: "Commercial", img: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=900&q=80" },
-  { cat: "Events", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80" },
-  { cat: "Weddings", img: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&q=80" },
-  { cat: "Portraits", img: "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=900&q=80" },
-  { cat: "Commercial", img: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=900&q=80" },
-  { cat: "Events", img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=900&q=80" },
-  { cat: "Weddings", img: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=900&q=80" },
-  { cat: "Portraits", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900&q=80" },
-  { cat: "Commercial", img: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=900&q=80" },
-  { cat: "Events", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=900&q=80" },
+  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[4/5]" },
+  { cat: "Portraits", img: "/images/portrait_woman.webp", aspect: "aspect-square" },
+  { cat: "Commercial", img: "/images/corporate_team.webp", aspect: "aspect-[3/2]" },
+  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-[4/3]" },
+  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[16/9]" },
+  { cat: "Portraits", img: "/images/team_founder.webp", aspect: "aspect-[9/16]" },
+  { cat: "Commercial", img: "/images/photographer_hero.webp", aspect: "aspect-[4/5]" },
+  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-square" },
+  { cat: "Weddings", img: "/images/wedding_couple.webp", aspect: "aspect-[3/2]" },
+  { cat: "Portraits", img: "/images/portrait_woman.webp", aspect: "aspect-[4/3]" },
+  { cat: "Commercial", img: "/images/corporate_team.webp", aspect: "aspect-[16/9]" },
+  { cat: "Events", img: "/images/events_crowd.webp", aspect: "aspect-[9/16]" },
 ];
 
 function GalleryPage() {
@@ -44,7 +44,7 @@ function GalleryPage() {
         title="Our Portfolio" 
         crumb="Gallery" 
         subtitle="Explore our collection of weddings, portraits, and commercial work." 
-        image="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1920&q=80"
+        image="/images/photographer_hero.webp"
       />
 
       <section className="py-12">
@@ -74,9 +74,9 @@ function GalleryPage() {
               <button
                 key={i}
                 onClick={() => setLightbox(it.img)}
-                className="mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden"
+                className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden ${it.aspect}`}
               >
-                <img src={it.img} alt={it.cat} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={it.img} alt={it.cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
                   <p className="uppercase text-xs tracking-[0.25em] text-primary">{it.cat}</p>
                   <p className="font-bold text-lg mt-2">View Project</p>

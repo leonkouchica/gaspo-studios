@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   MapPin, CalendarDays, Clock, Users, ArrowRight, Share2,
   Linkedin, Twitter, Facebook, ExternalLink, ChevronDown,
@@ -414,7 +415,19 @@ function EventDetailPage() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: event.title, url: window.location.href });
+      try {
+        await navigator.share({ title: event.title, url: window.location.href });
+        return;
+      } catch (err) {
+        console.error("Error sharing", err);
+      }
+    }
+    
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy link");
     }
   };
 

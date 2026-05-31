@@ -28,7 +28,7 @@ const servicesList: (Service & { icon: React.ElementType; color: string; img: st
     price: "₦3,600,000",
     icon: Camera,
     color: "text-rose-500 bg-rose-50 border-rose-200",
-    img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
+    img: "/images/wedding_couple.webp",
     includes: ["2 photographers", "8 hours coverage", "600+ edited images", "Online gallery", "Print-ready files"],
   },
   {
@@ -38,7 +38,7 @@ const servicesList: (Service & { icon: React.ElementType; color: string; img: st
     price: "₦675,000",
     icon: Users,
     color: "text-blue-500 bg-blue-50 border-blue-200",
-    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80",
+    img: "/images/portrait_woman.webp",
     includes: ["1 photographer", "90 min session", "50+ edited images", "1 outfit change", "Digital download"],
   },
   {
@@ -48,7 +48,7 @@ const servicesList: (Service & { icon: React.ElementType; color: string; img: st
     price: "₦1,800,000",
     icon: Building2,
     color: "text-emerald-500 bg-emerald-50 border-emerald-200",
-    img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80",
+    img: "/images/corporate_team.webp",
     includes: ["1 photographer", "4 hours coverage", "300+ edited images", "Same-day previews", "Commercial license"],
   },
   {
@@ -58,7 +58,7 @@ const servicesList: (Service & { icon: React.ElementType; color: string; img: st
     price: "From ₦2,700,000",
     icon: Briefcase,
     color: "text-violet-500 bg-violet-50 border-violet-200",
-    img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80",
+    img: "/images/events_crowd.webp",
     includes: ["1–2 photographers", "Full day shoot", "Styled set direction", "Raw + edited files", "Usage license"],
   },
 ];
@@ -126,7 +126,7 @@ function BookPage() {
         title="Book Your Photo Shoot"
         crumb="Book"
         subtitle="Simple, convenient, and tailored to your needs."
-        image="https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=1920&q=80"
+        image="/images/photographer_hero.webp"
       />
 
       <section className="py-20 md:py-28 bg-background">

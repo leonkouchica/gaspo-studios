@@ -61,7 +61,7 @@ export function ScrollReveal({
   const baseStyle: React.CSSProperties = {
     transitionDuration: `${duration}ms`,
     transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
-    transitionProperty: "opacity, transform",
+    transitionProperty: "all",
   };
 
   return (

@@ -66,7 +66,7 @@ function ContactPage() {
         title="Get in Touch" 
         crumb="Contact" 
         subtitle="Have questions? We're here to help every step of the way." 
-        image="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
+        image="/images/photographer_hero.webp"
       />
       
       <section className="py-20 md:py-28">

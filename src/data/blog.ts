@@ -36,13 +36,13 @@ export interface BlogPostFull {
 
 const marcoAuthor: BlogAuthor = {
   name: "Marco Gaspo",
-  avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&q=80",
+  avatar: "/images/team_founder.webp",
   role: "Founder & Senior Photographer",
 };
 
 const aishaAuthor: BlogAuthor = {
   name: "Aisha Bello",
-  avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80",
+  avatar: "/images/portrait_woman.webp",
   role: "Lead Retoucher & Editor",
 };
 
@@ -62,7 +62,7 @@ export const blogPosts: BlogPostFull[] = [
     tags: ["wedding", "tips", "behind-the-scenes"],
     author: marcoAuthor,
     featuredImage:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+      "/images/wedding_couple.webp",
     status: "published",
     publishedAt: "2026-05-28T08:00:00Z",
     views: 1842,
@@ -88,7 +88,7 @@ export const blogPosts: BlogPostFull[] = [
     tags: ["headshots", "posing", "portrait"],
     author: marcoAuthor,
     featuredImage:
-      "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=800&q=80",
+      "/images/photographer_hero.webp",
     status: "published",
     publishedAt: "2026-05-12T09:00:00Z",
     views: 962,
@@ -112,7 +112,7 @@ export const blogPosts: BlogPostFull[] = [
     tags: ["commercial", "behind-the-scenes", "brand"],
     author: aishaAuthor,
     featuredImage:
-      "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&q=80",
+      "/images/corporate_team.webp",
     status: "published",
     publishedAt: "2026-04-30T10:00:00Z",
     views: 541,
@@ -182,7 +182,7 @@ export const blogPosts: BlogPostFull[] = [
     tags: ["printing", "philosophy", "archiving"],
     author: marcoAuthor,
     featuredImage:
-      "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&q=80",
+      "/images/photographer_hero.webp",
     status: "scheduled",
     publishedAt: null,
     scheduledFor: "2026-06-15T09:00:00Z",

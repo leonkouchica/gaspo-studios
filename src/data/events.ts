@@ -229,11 +229,11 @@ export const events: Event[] = [
     mapEmbedUrl:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7!2d3.4282!3d6.4281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMjUnNDEuMiJOIDPCsDI1JzQxLjUiRQ!5e0!3m2!1sen!2sng!4v1234567890",
     bannerImage:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&q=80",
+      "/images/events_crowd.webp",
     galleryImages: [
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80",
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80",
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80",
+      "/images/events_crowd.webp",
+      "/images/corporate_team.webp",
+      "/images/portrait_woman.webp",
     ],
     speakers: [
       {
@@ -243,7 +243,7 @@ export const events: Event[] = [
         company: "TechNova Africa",
         bio: "Dr. Emily Carter is a pioneering AI researcher with over 15 years of experience building machine learning systems for emerging markets. She leads TechNova Africa's research division and has published 40+ peer-reviewed papers on ethical AI development.",
         photo:
-          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
+          "/images/portrait_woman.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -254,7 +254,7 @@ export const events: Event[] = [
         company: "FutureStack",
         bio: "Elon Park is the co-founder of FutureStack, a Silicon Valley-backed startup redefining enterprise automation. A serial entrepreneur and angel investor, Elon has built and sold three companies across fintech and AI verticals.",
         photo:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+          "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
       },
       {
@@ -264,7 +264,7 @@ export const events: Event[] = [
         company: "DeepMind Lagos",
         bio: "Laura Kim leads engineering at DeepMind Lagos, overseeing a team of 120 engineers building next-generation AI infrastructure. Prior to DeepMind, she held senior roles at Google Brain and OpenAI.",
         photo:
-          "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+          "/images/portrait_woman.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -275,7 +275,7 @@ export const events: Event[] = [
         company: "University of Lagos",
         bio: "Dr. Alan Foster is Nigeria's foremost authority on AI governance and ethics. His research on bias in algorithmic decision-making has influenced policy across 12 African nations. He advises the African Union on digital transformation.",
         photo:
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+          "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
       },
     ],
@@ -337,7 +337,7 @@ export const events: Event[] = [
       description:
         "Join 500+ tech leaders at the Future of AI & Networking conference in Lagos. Expert keynotes, workshops, and unmatched networking. Register now.",
       ogImage:
-        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80",
+        "/images/events_crowd.webp",
     },
     createdAt: "2026-04-01T10:00:00Z",
     updatedAt: "2026-05-20T14:30:00Z",
@@ -382,7 +382,7 @@ export const events: Event[] = [
     city: "Lagos",
     country: "Nigeria",
     bannerImage:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1920&q=80",
+      "/images/photographer_hero.webp",
     speakers: [
       {
         id: "spk-005",
@@ -391,7 +391,7 @@ export const events: Event[] = [
         company: "Gaspo Studios",
         bio: "Marco Gaspo is the founder of Gaspo Studios and a photographer with over 12 years of experience spanning weddings, editorial, and commercial work. His images have appeared in Vogue, Forbes Africa, and TED stages globally.",
         photo:
-          "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&q=80",
+          "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -469,7 +469,7 @@ export const events: Event[] = [
     city: "Victoria Island, Lagos",
     country: "Nigeria",
     bannerImage:
-      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1920&q=80",
+      "/images/wedding_couple.webp",
     speakers: [],
     agenda: [
       { time: "18:30", title: "Arrivals & Drinks" },
@@ -500,7 +500,7 @@ export const pastEvents = [
     id: "past-001",
     title: "Spring Portrait Marathon",
     date: "March 2026",
-    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
+    img: "/images/portrait_woman.webp",
     attendees: 45,
     recap: "An incredible two-day sprint with 45 participants across 6 shooting stations.",
   },
@@ -508,7 +508,7 @@ export const pastEvents = [
     id: "past-002",
     title: "Brand Photography Masterclass",
     date: "February 2026",
-    img: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&q=80",
+    img: "/images/corporate_team.webp",
     attendees: 28,
     recap: "Full-day commercial photography workshop covering product, lifestyle, and editorial techniques.",
   },
@@ -516,7 +516,7 @@ export const pastEvents = [
     id: "past-003",
     title: "New Year Studio Open House",
     date: "January 2026",
-    img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80",
+    img: "/images/events_crowd.webp",
     attendees: 120,
     recap: "Our biggest open house yet — tours, live shoots, and a panel on the year ahead in photography.",
   },

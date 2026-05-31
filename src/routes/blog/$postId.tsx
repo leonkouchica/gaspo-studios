@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { getPostBySlug } from "../../data/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
@@ -58,7 +59,20 @@ function BlogPostDetail() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: post.title, url: window.location.href });
+      try {
+        await navigator.share({ title: post.title, url: window.location.href });
+        return;
+      } catch (err) {
+        // User may have cancelled, or it failed. We'll fallback to clipboard just in case.
+        console.error("Error sharing", err);
+      }
+    }
+    
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy link");
     }
   };
 

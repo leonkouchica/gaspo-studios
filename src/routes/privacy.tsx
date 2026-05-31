@@ -15,7 +15,7 @@ function PrivacyPolicy() {
         title="Privacy Policy" 
         crumb="Privacy" 
         subtitle="How we collect, use, and protect your data."
-        image="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=80"
+        image="/images/photographer_hero.webp"
       />
       
       <div className="container-x py-20 max-w-4xl">

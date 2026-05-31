@@ -30,7 +30,7 @@ function FAQPage() {
       <PageHeader 
         title="Frequently Asked Questions"
         subtitle="Clear and helpful answers to common questions about our photography services, booking timelines and long-term value."
-        image="/faq-hero.png"
+        image="/faq-hero.webp"
       />
 
       <section className="py-20 md:py-28 bg-background overflow-hidden">
@@ -70,7 +70,7 @@ function FAQPage() {
             <ScrollReveal direction="right" delay={150}>
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=900&q=80"
+                  src="/images/photographer_hero.webp"
                   alt="Photographer at work"
                   className="rounded-2xl w-full h-[520px] object-cover"
                 />

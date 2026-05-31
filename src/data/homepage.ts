@@ -79,7 +79,7 @@ export const homepageContent: HomepageContent = {
   heroSlides: [
     {
       id: "slide-1",
-      img: "https://images.unsplash.com/photo-1554080353-a576cf803bda?w=1920&q=80",
+      img: "/images/wedding_couple.webp",
       label: "Professional Photography Studio",
       headline: "Capture Your Moments with Gaspo Studios",
       sub: "Where Art Meets Precision in Photography",
@@ -89,7 +89,7 @@ export const homepageContent: HomepageContent = {
     },
     {
       id: "slide-2",
-      img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80",
+      img: "/images/photographer_hero.webp",
       label: "Wedding & Portrait Specialists",
       headline: "Every Love Story Deserves a Masterpiece",
       sub: "Cinematic wedding coverage you'll treasure forever",
@@ -99,7 +99,7 @@ export const homepageContent: HomepageContent = {
     },
     {
       id: "slide-3",
-      img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80",
+      img: "/images/corporate_team.webp",
       label: "Corporate & Commercial",
       headline: "Elevate Your Brand Through the Lens",
       sub: "Studio-quality commercial photography that converts",
@@ -112,7 +112,7 @@ export const homepageContent: HomepageContent = {
     eyebrow: "About Us",
     headline: "Building Visual Stories That Last Forever",
     body: "At Gaspo Studios, we believe in creating memorable images that last a lifetime. Founded over a decade ago, our studio has been at the forefront of capturing stunning visual stories — blending creativity, reliability, and uncompromising craft.",
-    image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=900&q=80",
+    image: "/images/photographer_hero.webp",
     experienceBadge: "10+ Years Experience",
     stats: [
       { id: "stat-1", value: "200+", label: "Weddings" },
@@ -145,21 +145,21 @@ export const homepageContent: HomepageContent = {
         icon: "Camera",
         title: "Wedding Photography",
         desc: "Let us capture the romance and joy of your special day with cinematic detail.",
-        img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
+        img: "/images/wedding_couple.webp",
       },
       {
         id: "svc-2",
         icon: "Building2",
         title: "Corporate Photography",
         desc: "Elevate your brand with professional photographs that make a lasting statement.",
-        img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80",
+        img: "/images/corporate_team.webp",
       },
       {
         id: "svc-3",
         icon: "Users",
         title: "Special Events",
         desc: "From birthdays to graduations, treasure every moment with stunning photographs.",
-        img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80",
+        img: "/images/events_crowd.webp",
       },
     ],
   },
@@ -168,10 +168,10 @@ export const homepageContent: HomepageContent = {
     headline: "Stunning Visuals for Every Occasion",
     body: "Explore a curated selection of weddings, portraits, and brand work spanning more than a decade. Every project is a collaboration — and the proof is in the gallery.",
     mainImage:
-      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&q=80",
+      "/images/wedding_couple.webp",
     thumbnails: [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80",
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80",
+      "/images/portrait_woman.webp",
+      "/images/events_crowd.webp",
     ],
   },
   bookingCta: {
@@ -180,7 +180,7 @@ export const homepageContent: HomepageContent = {
     buttonLabel: "Book Your Session Today",
     buttonTo: "/book",
     backgroundImage:
-      "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1920&q=80",
+      "/images/photographer_hero.webp",
   },
   faq: [
     {
