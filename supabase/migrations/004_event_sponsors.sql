@@ -55,7 +55,8 @@ CREATE INDEX IF NOT EXISTS idx_event_registrations_type ON public.event_registra
 CREATE INDEX IF NOT EXISTS idx_event_registrations_sponsor ON public.event_registrations(linked_sponsor_id);
 CREATE INDEX IF NOT EXISTS idx_email_log_ref ON public.email_log(reference_id);
 
--- 5. Updated_at trigger for event_sponsors
+-- 5. Updated_at trigger for event_sponsors (safe re-run)
+DROP TRIGGER IF EXISTS set_event_sponsors_updated_at ON public.event_sponsors;
 CREATE TRIGGER set_event_sponsors_updated_at
     BEFORE UPDATE ON public.event_sponsors
     FOR EACH ROW
@@ -64,6 +65,7 @@ CREATE TRIGGER set_event_sponsors_updated_at
 -- 6. RLS policies for event_sponsors
 ALTER TABLE public.event_sponsors ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can manage event_sponsors" ON public.event_sponsors;
 CREATE POLICY "Admins can manage event_sponsors"
     ON public.event_sponsors
     FOR ALL
@@ -75,6 +77,7 @@ CREATE POLICY "Admins can manage event_sponsors"
     ));
 
 -- Allow public insert for sponsor registration
+DROP POLICY IF EXISTS "Public can insert event_sponsors" ON public.event_sponsors;
 CREATE POLICY "Public can insert event_sponsors"
     ON public.event_sponsors
     FOR INSERT
@@ -84,6 +87,7 @@ CREATE POLICY "Public can insert event_sponsors"
 -- 7. RLS policies for email_log
 ALTER TABLE public.email_log ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view email_log" ON public.email_log;
 CREATE POLICY "Admins can view email_log"
     ON public.email_log
     FOR SELECT

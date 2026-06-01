@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAdmin } from "../admin";
 import {
-  CreditCard, Users, Settings as SettingsIcon, Save,
+  CreditCard, Users, Settings as SettingsIcon, Save, Loader2,
   Plus, Shield, Key, Eye, EyeOff, UserMinus, ToggleLeft, ToggleRight, Trash2, Mail
 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import {
   updateUserRole,
   deleteStaffUser
 } from "../../lib/actions/auth";
+import { fetchHomepageContent, updateHomepageContent } from "../../lib/actions/homepage";
 
 export const Route = createFileRoute("/admin/settings")({
   component: AdminSettingsPage,
@@ -61,11 +62,46 @@ function AdminSettingsPage() {
   const [newRole, setNewRole] = useState<"admin" | "editor" | "photographer" | "viewer">("viewer");
   const [submittingStaff, setSubmittingStaff] = useState(false);
 
-  // Site info state (mock)
+  // Site info state
   const [studioName, setStudioName] = useState("Gaspo Studios");
   const [studioEmail, setStudioEmail] = useState("info@gaspostudios.com");
   const [studioPhone, setStudioPhone] = useState("0806 585 6429");
   const [studioAddress, setStudioAddress] = useState("Phase 2, Charly Boy Bus/Stop, 4a Ajidagan St, Gbagada, Lagos 100101, Lagos");
+  const [savingSite, setSavingSite] = useState(false);
+  const [siteLoaded, setSiteLoaded] = useState(false);
+
+  // Load site info from database
+  useEffect(() => {
+    fetchHomepageContent().then((content: any) => {
+      if (content?.siteInfo) {
+        setStudioName(content.siteInfo.studioName || "Gaspo Studios");
+        setStudioEmail(content.siteInfo.studioEmail || "info@gaspostudios.com");
+        setStudioPhone(content.siteInfo.studioPhone || "0806 585 6429");
+        setStudioAddress(content.siteInfo.studioAddress || "");
+      }
+      setSiteLoaded(true);
+    }).catch(() => setSiteLoaded(true));
+  }, []);
+
+  const handleSaveSite = async () => {
+    setSavingSite(true);
+    try {
+      const content: any = await fetchHomepageContent();
+      await updateHomepageContent({
+        data: {
+          content: {
+            ...(content || {}),
+            siteInfo: { studioName, studioEmail, studioPhone, studioAddress },
+          },
+        },
+      });
+      toast.success("Site info saved successfully!");
+    } catch (err: any) {
+      toast.error(`Failed to save: ${err.message}`);
+    } finally {
+      setSavingSite(false);
+    }
+  };
 
   // Load payment settings
   const loadPayments = async () => {
@@ -536,7 +572,7 @@ function AdminSettingsPage() {
         <div className="bg-white rounded-2xl border border-border shadow-sm p-6 space-y-6">
           <div className="border-b border-border pb-4">
             <h3 className="font-bold text-dark">Studio & Profile Settings</h3>
-            <p className="text-xs text-muted-foreground">Customize contact values and visual branding preferences (Static Preview).</p>
+            <p className="text-xs text-muted-foreground">Customize studio contact details — saved to the database.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -579,10 +615,11 @@ function AdminSettingsPage() {
           </div>
 
           <button
-            onClick={() => toast.success("Site info preferences updated! (Preview mode)")}
-            className="bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl px-6 py-2.5 text-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            onClick={handleSaveSite}
+            disabled={savingSite}
+            className="bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl px-6 py-2.5 text-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60"
           >
-            <Save size={15} /> Save Settings
+            {savingSite ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Save Settings
           </button>
         </div>
       )}

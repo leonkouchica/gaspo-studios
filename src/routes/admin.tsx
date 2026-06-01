@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useNavigate, useLocation, redirect } from "@tanstack/react-router";
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Image, Home,
   Camera, ChevronLeft, ChevronRight, Menu, X, Bell, Search,
@@ -135,6 +135,8 @@ function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -216,6 +218,32 @@ function AdminLayout() {
       navigate({ to: "/admin/login" });
     }
   }, [loading, session, location.pathname, navigate]);
+
+  // Inactivity auto-logout: 30 minutes of no mouse/keyboard/touch activity
+  useEffect(() => {
+    // Don't track inactivity on the login page
+    if (location.pathname === "/admin/login") return;
+    if (!session) return;
+
+    const resetTimer = () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = setTimeout(() => {
+        supabase.auth.signOut();
+        toast.error("Session expired due to inactivity. Please log in again.");
+        navigate({ to: "/admin/login" });
+      }, INACTIVITY_LIMIT);
+    };
+
+    const events = ["mousedown", "keydown", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+
+    resetTimer(); // Start the timer
+
+    return () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, [session, location.pathname, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
