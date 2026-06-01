@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Search, Plus, Eye, Pencil, Trash2, RefreshCw, AlertCircle, Loader2
 } from "lucide-react";
-import { fetchBlogPosts, deleteBlogPost } from "../../../lib/actions/blog";
+import { fetchBlogPosts, deleteBlogPost, publishScheduledPosts } from "../../../lib/actions/blog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/blog/")({
@@ -48,20 +48,36 @@ function AdminBlogPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchBlogPosts({ data: { status: statusFilter, search } });
-      setPosts(data as BlogPost[]);
+      const result = await fetchBlogPosts({ data: { status: statusFilter, search, page, limit: 10 } });
+      // Handle new paginated response format
+      if (result && typeof result === "object" && "items" in result) {
+        const r = result as any;
+        setPosts(r.items as BlogPost[]);
+        setTotalPages(r.totalPages || 1);
+        setTotal(r.total || 0);
+      } else {
+        setPosts((result as BlogPost[]) || []);
+        setTotalPages(1);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search]);
+  }, [statusFilter, search, page]);
+
+  useEffect(() => {
+    setPage(1); // Reset to page 1 when filters change
+  }, [search, statusFilter]);
 
   useEffect(() => {
     const timeout = setTimeout(() => loadPosts(), search ? 400 : 0);
@@ -88,7 +104,7 @@ function AdminBlogPage() {
         <div>
           <h1 className="text-2xl font-bold text-dark">Blog Posts</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {loading ? "Loading…" : `${posts.length} total posts`}
+            {loading ? "Loading…" : `${total} total posts`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -106,6 +122,25 @@ function AdminBlogPage() {
           >
             <Plus size={16} /> New Post
           </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const result = await publishScheduledPosts();
+                const r = result as any;
+                if (r.published > 0) {
+                  toast.success(`Published ${r.published} scheduled post(s): ${r.posts.join(", ")}`);
+                  loadPosts();
+                } else {
+                  toast.info(r.message || "No scheduled posts ready.");
+                }
+              } catch (err: any) { toast.error(err.message); }
+            }}
+            className="inline-flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 text-violet-700 hover:bg-violet-500/20 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
+            title="Publish all scheduled posts whose time has arrived"
+          >
+            ⏰ Publish Scheduled
+          </button>
         </div>
       </div>
 
@@ -261,6 +296,29 @@ function AdminBlogPage() {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-3 py-2 rounded-xl border border-border text-sm hover:bg-muted disabled:opacity-30 transition-colors"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-muted-foreground px-3">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            className="px-3 py-2 rounded-xl border border-border text-sm hover:bg-muted disabled:opacity-30 transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

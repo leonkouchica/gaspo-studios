@@ -7,11 +7,18 @@ import {
 } from "lucide-react";
 import { Logo } from "../components/Logo";
 import { supabase } from "../lib/supabase";
+import { fetchUnreadMessageCount } from "../lib/actions/contact";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
     if (location.pathname === "/admin/login") {
+      return;
+    }
+    // Skip session check during SSR — Supabase sessions live in localStorage,
+    // which isn't available on the server. The client-side AdminLayout
+    // useEffect will redirect to /admin/login if no session is found.
+    if (typeof document === "undefined") {
       return;
     }
     const { data: { session } } = await supabase.auth.getSession();
@@ -132,6 +139,19 @@ function AdminLayout() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        // Sync session to a cookie so server functions can verify auth
+        const projectRef = "fhhxbjwcgfslvbznrvab";
+        const cookieValue = btoa(JSON.stringify({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at,
+        }));
+        const maxAge = session.expires_at
+          ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
+          : 3600;
+        document.cookie = `sb-${projectRef}-auth-token=${encodeURIComponent(cookieValue)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      }
       if (session?.user) {
         fetchUserRole(session.user.id);
         fetchUnreadCount();
@@ -142,6 +162,19 @@ function AdminLayout() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        // Sync session to a cookie so server functions can verify auth
+        const projectRef = "fhhxbjwcgfslvbznrvab";
+        const cookieValue = btoa(JSON.stringify({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at,
+        }));
+        const maxAge = session.expires_at
+          ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
+          : 3600;
+        document.cookie = `sb-${projectRef}-auth-token=${encodeURIComponent(cookieValue)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      }
       if (session?.user) {
         fetchUserRole(session.user.id);
         fetchUnreadCount();
@@ -171,11 +204,8 @@ function AdminLayout() {
 
   async function fetchUnreadCount() {
     try {
-      const { count } = await supabase
-        .from("contact_messages")
-        .select("*", { count: "exact", head: true })
-        .eq("read", false);
-      setUnreadCount(count || 0);
+      const result = await fetchUnreadMessageCount();
+      setUnreadCount((result as any).count || 0);
     } catch {
       setUnreadCount(0);
     }

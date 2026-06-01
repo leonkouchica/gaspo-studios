@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
+import { requireAuth, requireRole } from "../auth-guard.server.ts";
 
 const postStatusSchema = z.enum(["draft", "published", "scheduled"]);
 
@@ -18,36 +19,46 @@ const seoSchema = z.object({
 });
 
 export const fetchBlogPosts = createServerFn({ method: "GET" })
-  .inputValidator((input: { category?: string; status?: string; search?: string; limit?: number } | undefined) => input)
+  .inputValidator((input: { category?: string; status?: string; search?: string; page?: number; limit?: number } | undefined) => input)
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
+    const page = data?.page || 1;
+    const limit = data?.limit || 20;
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination
+    let countQuery = supabase.from("blog_posts").select("*", { count: "exact", head: true });
+    if (data?.category && data.category !== "all" && data.category !== "All") {
+      countQuery = countQuery.eq("category", data.category);
+    }
+    if (data?.status && data.status !== "all") {
+      countQuery = countQuery.eq("status", data.status);
+    }
+    if (data?.search) {
+      countQuery = countQuery.or(`title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`);
+    }
+    const { count: total } = await countQuery;
+
     let query = supabase
       .from("blog_posts")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (data?.category && data.category !== "all" && data.category !== "All") {
       query = query.eq("category", data.category);
     }
-
     if (data?.status && data.status !== "all") {
       query = query.eq("status", data.status);
     }
-
     if (data?.search) {
       query = query.or(`title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`);
     }
 
-    if (data?.limit) {
-      query = query.limit(data.limit);
-    }
-
     const { data: posts, error } = await query;
-    if (error) {
-      throw new Error(`Failed to fetch blog posts: ${error.message}`);
-    }
+    if (error) throw new Error(`Failed to fetch blog posts: ${error.message}`);
 
-    return (posts || []).map((p) => ({
+    const items = (posts || []).map((p) => ({
       id: p.id,
       slug: p.slug,
       title: p.title,
@@ -74,6 +85,8 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
       createdAt: p.created_at,
       updatedAt: p.updated_at,
     }));
+
+    return { items, total: total || 0, page, totalPages: Math.ceil((total || 0) / limit) };
   });
 
 export const fetchBlogPost = createServerFn({ method: "GET" })
@@ -89,13 +102,6 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
     if (error) {
       throw new Error(`Failed to fetch blog post: ${error.message}`);
     }
-
-    // Increment views counter
-    const newViews = (p.views || 0) + 1;
-    await supabase
-      .from("blog_posts")
-      .update({ views: newViews })
-      .eq("id", p.id);
 
     return {
       id: p.id,
@@ -114,7 +120,7 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
       status: p.status,
       publishedAt: p.published_at,
       scheduledFor: p.scheduled_for || undefined,
-      views: newViews,
+      views: p.views || 0,
       comments: p.comments || 0,
       seo: {
         title: p.seo_title || p.title,
@@ -126,6 +132,93 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
     };
   });
 
+export const fetchBlogPostById = createServerFn({ method: "GET" })
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseAdmin();
+    const { data: p, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to fetch blog post: ${error.message}`);
+    }
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      body: p.body,
+      category: p.category,
+      tags: p.tags || [],
+      author: {
+        name: p.author_name,
+        avatar: p.author_avatar,
+        role: p.author_role,
+      },
+      featuredImage: p.featured_image,
+      status: p.status,
+      publishedAt: p.published_at,
+      scheduledFor: p.scheduled_for || undefined,
+      views: p.views || 0,
+      comments: p.comments || 0,
+      seo: {
+        title: p.seo_title || p.title,
+        description: p.seo_description || p.excerpt,
+        ogImage: p.seo_og_image || undefined,
+      },
+      createdAt: p.created_at,
+      updatedAt: p.updated_at,
+    };
+  });
+
+// Separate POST endpoint for view counting — keeps GET idempotent
+export const recordBlogPostView = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      slug: z.string(),
+      // Optional deduplication token from the client to prevent double-counting
+      dedupeToken: z.string().optional(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseAdmin();
+
+    // Get current post for the ID
+    const { data: post, error: fetchErr } = await supabase
+      .from("blog_posts")
+      .select("id, views")
+      .eq("slug", data.slug)
+      .single();
+
+    if (fetchErr || !post) {
+      // Don't throw — silently ignore view tracking for non-existent posts
+      return { views: 0 };
+    }
+
+    // Increment views counter
+    const newViews = (post.views || 0) + 1;
+    await supabase
+      .from("blog_posts")
+      .update({ views: newViews })
+      .eq("id", post.id);
+
+    return { views: newViews };
+  });
+
+// Reusable base64 decoder — web-standard, no Node.js Buffer dependency
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 export const uploadBlogImage = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
@@ -135,9 +228,9 @@ export const uploadBlogImage = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    // Decode base64 back to a Buffer
-    const buffer = Buffer.from(data.fileBase64, "base64");
-    // Create a File-like object that convertAndUploadImage can consume
+    requireRole(["admin", "editor"]);
+    // Decode base64 using web-standard APIs
+    const buffer = base64ToBytes(data.fileBase64);
     const file = new File([buffer], data.fileName, { type: data.mimeType });
     const publicUrl = await convertAndUploadImage(file, "blog");
     return { url: publicUrl };
@@ -160,6 +253,7 @@ export const createBlogPost = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
     const author = data.author || {
       name: "Marco Gaspo",
@@ -218,6 +312,7 @@ export const updateBlogPost = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
     const author = data.author || {
       name: "Marco Gaspo",
@@ -275,6 +370,7 @@ export const updateBlogPost = createServerFn({ method: "POST" })
 export const deleteBlogPost = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
 
     // Get featured image first
@@ -305,4 +401,34 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
     }
 
     return { success: true };
+  });
+
+// ── Blog scheduling: auto-publish posts whose scheduled_for time has passed ──
+export const publishScheduledPosts = createServerFn({ method: "POST" })
+  .handler(async () => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+    const now = new Date().toISOString();
+
+    const { data: scheduled, error: fetchErr } = await supabase
+      .from("blog_posts")
+      .select("id, title")
+      .eq("status", "scheduled")
+      .lte("scheduled_for", now);
+
+    if (fetchErr) throw new Error(`Failed to fetch scheduled posts: ${fetchErr.message}`);
+
+    if (!scheduled || scheduled.length === 0) {
+      return { published: 0, message: "No scheduled posts are ready to publish." };
+    }
+
+    const ids = scheduled.map((p) => p.id);
+    const { error: updateErr } = await supabase
+      .from("blog_posts")
+      .update({ status: "published", published_at: now })
+      .in("id", ids);
+
+    if (updateErr) throw new Error(`Failed to publish posts: ${updateErr.message}`);
+
+    return { published: ids.length, posts: scheduled.map((p) => p.title) };
   });

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
+import { requireAuth, requireRole } from "../auth-guard.server.ts";
 
 export const fetchContactMessages = createServerFn({ method: "GET" })
   .inputValidator((input: { filter?: "all" | "unread" | "read"; search?: string } | undefined) => input)
@@ -36,6 +37,22 @@ export const fetchContactMessages = createServerFn({ method: "GET" })
       submittedAt: m.submitted_at,
       read: m.read,
     }));
+  });
+
+/** Lightweight count-only fetch for the admin sidebar badge — runs via service role, no RLS issues. */
+export const fetchUnreadMessageCount = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const supabase = getSupabaseAdmin();
+    const { count, error } = await supabase
+      .from("contact_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("read", false);
+
+    if (error) {
+      throw new Error(`Failed to count unread messages: ${error.message}`);
+    }
+
+    return { count: count || 0 };
   });
 
 export const submitContactMessage = createServerFn({ method: "POST" })
@@ -87,6 +104,7 @@ export const markMessageRead = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireRole(["admin"]);
     const supabase = getSupabaseAdmin();
     const { data: updated, error } = await supabase
       .from("contact_messages")
@@ -114,6 +132,7 @@ export const markMessageRead = createServerFn({ method: "POST" })
 export const deleteContactMessage = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
+    requireRole(["admin"]);
     const supabase = getSupabaseAdmin();
     const { error } = await supabase
       .from("contact_messages")

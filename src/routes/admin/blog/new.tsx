@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { ChevronLeft, Save, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { createBlogPost, uploadBlogImage } from "../../../lib/actions/blog";
+import RichTextEditor from "../../../components/RichTextEditor";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/blog/new")({

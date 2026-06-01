@@ -9,6 +9,18 @@ export const Route = createFileRoute("/admin/login")({
   component: AdminLoginPage,
 });
 
+/** Set the Supabase session cookie so the server-side auth middleware can read it. */
+function setSessionCookie(session: { access_token: string; refresh_token: string; expires_at?: number }) {
+  const projectRef = "fhhxbjwcgfslvbznrvab";
+  const cookieName = `sb-${projectRef}-auth-token`;
+  const cookieValue = btoa(JSON.stringify(session));
+  // Set cookie for all paths, expires based on session expiry (default 1 hour)
+  const maxAge = session.expires_at
+    ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
+    : 3600;
+  document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+}
+
 function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,10 +28,11 @@ function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect to admin if already logged in
+  // Redirect to admin if already logged in — also sync the cookie for server functions
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        setSessionCookie(session);
         navigate({ to: "/admin" });
       }
     });
@@ -42,6 +55,7 @@ function AdminLoginPage() {
       if (error) {
         toast.error(error.message || "Invalid login credentials.");
       } else if (data.session) {
+        setSessionCookie(data.session);
         toast.success("Welcome back! Logging in...");
         navigate({ to: "/admin" });
       }

@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as EventsConfirmationRouteImport } from './routes/events/confirmation'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
 import { Route as AdminSponsorPortalRouteImport } from './routes/admin/sponsor-portal'
@@ -116,6 +117,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const EventsConfirmationRoute = EventsConfirmationRouteImport.update({
+  id: '/events/confirmation',
+  path: '/events/confirmation',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdRoute = EventsEventIdRouteImport.update({
   id: '/events/$eventId',
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/confirmation': typeof EventsConfirmationRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -256,6 +263,7 @@ export interface FileRoutesByTo {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/confirmation': typeof EventsConfirmationRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/events': typeof EventsIndexRoute
@@ -291,6 +299,7 @@ export interface FileRoutesById {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/confirmation': typeof EventsConfirmationRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -327,6 +336,7 @@ export interface FileRouteTypes {
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
+    | '/events/confirmation'
     | '/admin/'
     | '/blog/'
     | '/events/'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
+    | '/events/confirmation'
     | '/admin'
     | '/blog'
     | '/events'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/admin/sponsor-portal'
     | '/blog/$postId'
     | '/events/$eventId'
+    | '/events/confirmation'
     | '/admin/'
     | '/blog/'
     | '/events/'
@@ -422,6 +434,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsConfirmationRoute: typeof EventsConfirmationRoute
   EventsIndexRoute: typeof EventsIndexRoute
 }
 
@@ -531,6 +544,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/events/confirmation': {
+      id: '/events/confirmation'
+      path: '/events/confirmation'
+      fullPath: '/events/confirmation'
+      preLoaderRoute: typeof EventsConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/events/$eventId': {
       id: '/events/$eventId'
@@ -720,6 +740,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   EventsEventIdRoute: EventsEventIdRoute,
+  EventsConfirmationRoute: EventsConfirmationRoute,
   EventsIndexRoute: EventsIndexRoute,
 }
 export const routeTree = rootRouteImport

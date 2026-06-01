@@ -6,7 +6,7 @@ import {
   Star, TrendingUp, Zap, Loader2,
 } from "lucide-react";
 import { ScrollReveal } from "../../components/ScrollReveal";
-import { pastEvents, type Event } from "../../data/events";
+import { type Event } from "../../data/events";
 import { fetchEvents } from "../../lib/actions/events";
 
 export const Route = createFileRoute("/events/")({
@@ -464,7 +464,7 @@ function EventsListPage() {
                 </div>
               </ScrollReveal>
               <div className="grid md:grid-cols-3 gap-6">
-                {pastEvents.map((p, i) => (
+                {events.filter(e => ["completed", "archived"].includes(e.status)).map((p, i) => (
                   <ScrollReveal key={p.id} delay={i * 100}>
                     <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
                       <img

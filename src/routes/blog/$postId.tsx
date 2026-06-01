@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { fetchBlogPost } from "../../lib/actions/blog";
+import { useEffect } from "react";
+import { fetchBlogPost, recordBlogPostView } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
 export const Route = createFileRoute("/blog/$postId")({
@@ -59,6 +60,15 @@ export const Route = createFileRoute("/blog/$postId")({
 function BlogPostDetail() {
   const post = Route.useLoaderData();
   if (!post) return null;
+
+  // Record view on client-side — keeps fetchBlogPost (GET) idempotent
+  useEffect(() => {
+    if (post?.slug) {
+      recordBlogPostView({ data: { slug: post.slug } }).catch(() => {
+        // Silently ignore view-tracking failures — non-critical
+      });
+    }
+  }, [post?.slug]);
 
   const handleShare = async () => {
     if (navigator.share) {

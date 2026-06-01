@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
+import { requireAuth } from "../auth-guard.server.ts";
 
 export const fetchPaymentSettings = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -34,6 +35,7 @@ export const upsertPaymentSettings = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     
     // Check if secretKey is provided, if not, do not overwrite existing secret key

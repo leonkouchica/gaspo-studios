@@ -1,59 +1,71 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Building2, Search, Upload, Eye, CheckCircle2, AlertCircle, FileText, Download } from "lucide-react";
-import { events } from "../../data/events";
+import { useState, useEffect, useCallback } from "react";
+import { Building2, Search, CheckCircle2, AlertCircle, Eye, Loader2, RefreshCw, CalendarDays } from "lucide-react";
+import { fetchEventSponsors } from "../../lib/actions/sponsors";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/sponsor-portal")({
   component: SponsorPortalPage,
 });
 
-// Mock Sponsors Data
-const sponsorsData = [
-  {
-    id: "sp-1",
-    name: "TechNova Corp",
-    logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop&q=80",
-    eventSlug: "future-of-ai-networking-2026",
-    package: "Gold Sponsor",
-    amount: "₦6,000,000",
-    status: "Active",
-    materialsUploaded: true,
-    views: 12450,
-    clicks: 840,
-  },
-  {
-    id: "sp-2",
-    name: "CreativeFlow Agency",
-    logo: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=100&h=100&fit=crop&q=80",
-    eventSlug: "portrait-lighting-masterclass",
-    package: "Silver Sponsor",
-    amount: "₦4,000,000",
-    status: "Pending Materials",
-    materialsUploaded: false,
-    views: 0,
-    clicks: 0,
-  },
-  {
-    id: "sp-3",
-    name: "Lagos Tech Hub",
-    logo: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=100&h=100&fit=crop&q=80",
-    eventSlug: "future-of-ai-networking-2026",
-    package: "Official Partner",
-    amount: "₦2,500,000",
-    status: "Active",
-    materialsUploaded: true,
-    views: 8900,
-    clicks: 420,
-  }
-];
+interface EventSponsor {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  eventSlug: string;
+  packageName: string;
+  packagePrice: number;
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  paymentRef: string;
+  paymentStatus: string;
+  paidAt: string;
+  status: string;
+}
 
 function SponsorPortalPage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"directory" | "requests">("directory");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sponsors, setSponsors] = useState<EventSponsor[]>([]);
 
-  const filteredSponsors = sponsorsData.filter(s => 
-    !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.package.toLowerCase().includes(search.toLowerCase())
+  const loadSponsors = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchEventSponsors({ data: {} });
+      setSponsors(data as EventSponsor[]);
+    } catch (err: any) {
+      setError(err.message || "Failed to load sponsor data.");
+      toast.error("Failed to load sponsor data from database.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSponsors();
+  }, [loadSponsors]);
+
+  const filteredSponsors = sponsors.filter(
+    (s) =>
+      !search ||
+      s.companyName.toLowerCase().includes(search.toLowerCase()) ||
+      s.packageName.toLowerCase().includes(search.toLowerCase()) ||
+      s.eventTitle.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const paidSponsors = sponsors.filter(s => s.paymentStatus === "paid");
+  const totalPaidValue = paidSponsors.reduce((sum, s) => sum + Number(s.packagePrice), 0);
+
+  const formatNaira = (val: number) => {
+    if (val >= 1_000_000) return `₦${(val / 1_000_000).toFixed(1)}M`;
+    if (val >= 1_000) return `₦${(val / 1_000).toFixed(0)}K`;
+    return `₦${val.toLocaleString()}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -61,30 +73,52 @@ function SponsorPortalPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-dark">Sponsor Portal</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage event sponsorships, materials, and performance metrics.</p>
+          <p className="text-muted-foreground text-sm mt-1">Manage event sponsorships and track payments.</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105">
-          <Building2 size={16} /> Add Sponsor
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadSponsors}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-white border border-border text-dark rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-border p-5">
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Sponsors</p>
-          <p className="text-2xl font-bold text-dark mt-2">18</p>
+          {loading ? (
+            <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
+          ) : (
+            <p className="text-2xl font-bold text-dark mt-2">{sponsors.length}</p>
+          )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Active Deals</p>
-          <p className="text-2xl font-bold text-green-600 mt-2">₦24.5M</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Paid Sponsors</p>
+          {loading ? (
+            <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
+          ) : (
+            <p className="text-2xl font-bold text-green-600 mt-2">{paidSponsors.length}</p>
+          )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pending Materials</p>
-          <p className="text-2xl font-bold text-amber-600 mt-2">3</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Value</p>
+          {loading ? (
+            <div className="w-20 h-7 bg-muted animate-pulse rounded-lg mt-2" />
+          ) : (
+            <p className="text-2xl font-bold text-primary mt-2">{formatNaira(totalPaidValue)}</p>
+          )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Reach</p>
-          <p className="text-2xl font-bold text-dark mt-2">45K+</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pending</p>
+          {loading ? (
+            <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
+          ) : (
+            <p className="text-2xl font-bold text-amber-600 mt-2">{sponsors.filter(s => s.paymentStatus === "pending").length}</p>
+          )}
         </div>
       </div>
 
@@ -92,17 +126,29 @@ function SponsorPortalPage() {
       <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
         <button
           onClick={() => setActiveTab("directory")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "directory" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            activeTab === "directory" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"
+          }`}
         >
-          Sponsor Directory
+          Sponsor Packages
         </button>
         <button
           onClick={() => setActiveTab("requests")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeTab === "requests" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+            activeTab === "requests" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"
+          }`}
         >
-          New Requests <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+          New Requests{" "}
+          <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 text-red-700">
+          <AlertCircle size={18} className="mt-0.5 shrink-0" />
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
       {activeTab === "directory" && (
         <div className="bg-white rounded-2xl border border-border overflow-hidden">
@@ -112,71 +158,76 @@ function SponsorPortalPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search sponsors…"
+                placeholder="Search sponsor packages…"
                 className="w-full pl-10 pr-4 py-2 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm bg-muted/30"
               />
             </div>
-            <button className="px-3 py-2 text-sm font-medium border border-border rounded-xl text-dark hover:bg-muted">Filter</button>
           </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/40 border-b border-border">
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sponsor</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Event & Package</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Materials</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Performance</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-3.5"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filteredSponsors.map(sponsor => {
-                  const event = events.find(e => e.slug === sponsor.eventSlug);
-                  return (
+
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={28} className="animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredSponsors.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Building2 size={36} className="mx-auto mb-3 opacity-30" />
+              <p className="font-medium text-dark">No sponsor packages found</p>
+              <p className="text-sm mt-1">
+                {search
+                  ? "No results match your search."
+                  : "Add sponsor packages to events via the Events manager to see them here."}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/40 border-b border-border">
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Package</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Event</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-5 py-3.5"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredSponsors.map((sponsor) => (
                     <tr key={sponsor.id} className="hover:bg-muted/20 transition-colors">
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <img src={sponsor.logo} alt={sponsor.name} className="w-10 h-10 rounded-lg object-cover border border-border shrink-0" />
-                          <p className="font-semibold text-dark">{sponsor.name}</p>
-                        </div>
+                        <p className="font-semibold text-dark">{sponsor.packageName}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-dark font-medium line-clamp-1">{event?.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{sponsor.package} · {sponsor.amount}</p>
+                        <p className="text-dark font-medium line-clamp-1">{sponsor.eventTitle}</p>
                       </td>
                       <td className="px-5 py-4">
-                        {sponsor.materialsUploaded ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-500/10 px-2 py-1 rounded-md border border-green-500/20">
-                            <CheckCircle2 size={12} /> Received
-                          </span>
-                        ) : (
-                          <button className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded-md border border-amber-500/20 transition-colors">
-                            <AlertCircle size={12} /> Request Upload
-                          </button>
-                        )}
+                        <p className="text-sm font-medium text-dark">{formatNaira(sponsor.packagePrice)}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-xs text-dark"><span className="font-semibold">{sponsor.views.toLocaleString()}</span> views</p>
-                        <p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-dark">{sponsor.clicks.toLocaleString()}</span> clicks</p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${sponsor.status === 'Active' ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}`}>
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded-full border ${
+                            sponsor.status === "Active"
+                              ? "bg-green-500/10 text-green-600 border-green-500/20"
+                              : "bg-muted text-muted-foreground border-border"
+                          }`}
+                        >
                           {sponsor.status}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <button className="w-8 h-8 inline-flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-dark transition-colors">
+                        <a
+                          href={`/admin/events`}
+                          className="w-8 h-8 inline-flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-dark transition-colors"
+                          title="View event"
+                        >
                           <Eye size={16} />
-                        </button>
+                        </a>
                       </td>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -185,7 +236,7 @@ function SponsorPortalPage() {
           <Building2 size={40} className="mx-auto mb-3 text-muted-foreground/40" />
           <p className="font-semibold text-dark">Sponsorship Inquiries</p>
           <p className="text-sm mt-1 max-w-sm mx-auto">
-            When Supabase is connected in Phase 3, public sponsorship requests from the event pages will appear here for your approval.
+            Public sponsorship requests from event pages will appear here. Enable sponsorship on an event to start receiving applications.
           </p>
         </div>
       )}

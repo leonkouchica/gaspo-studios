@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
+import { requireAuth } from "../auth-guard.server.ts";
 
 const bookingStatusSchema = z.enum(["new", "reviewed", "confirmed", "completed", "cancelled"]);
 
@@ -54,6 +55,7 @@ export const updateBookingStatus = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     const updatePayload: Record<string, any> = { status: data.status };
     if (data.adminNotes !== undefined) {

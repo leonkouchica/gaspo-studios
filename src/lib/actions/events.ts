@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
+import { requireAuth } from "../auth-guard.server.ts";
 
 const eventStatusSchema = z.enum([
   "draft",
@@ -178,7 +179,8 @@ export const uploadEventImage = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    const buffer = Buffer.from(data.fileBase64, "base64");
+    requireAuth();
+    const buffer = Buffer.from(data.fileBase64, "base64"); // upload handler
     const file = new File([buffer], data.fileName, { type: data.mimeType });
     const publicUrl = await convertAndUploadImage(file, "events");
     return { url: publicUrl };
@@ -220,6 +222,7 @@ export const createEvent = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     const { data: inserted, error } = await supabase
       .from("events")
@@ -303,6 +306,7 @@ export const updateEvent = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     const { data: updated, error } = await supabase
       .from("events")
@@ -413,6 +417,10 @@ export const fetchEventRegistrations = createServerFn({ method: "GET" })
       howHeard: r.how_heard,
       ticketType: r.ticket_type || undefined,
       paymentStatus: r.payment_status,
+      registrationType: r.registration_type || "participant",
+      linkedSponsorId: r.linked_sponsor_id || undefined,
+      eventInterest: r.event_interest || [],
+      confirmationSent: r.confirmation_sent || false,
       registeredAt: r.registered_at,
       qrCode: r.qr_code || undefined,
       checkedIn: r.checked_in,
@@ -435,6 +443,9 @@ export const registerForEvent = createServerFn({ method: "POST" })
       howHeard: z.string(),
       ticketType: z.string().optional(),
       paymentStatus: z.string().default("pending"),
+      registrationType: z.enum(["participant","sponsor_guest","speaker","staff","vip"]).default("participant"),
+      linkedSponsorId: z.string().optional(),
+      eventInterest: z.array(z.string()).default([]),
     })
   )
   .handler(async ({ data }) => {
@@ -456,8 +467,12 @@ export const registerForEvent = createServerFn({ method: "POST" })
         how_heard: data.howHeard,
         ticket_type: data.ticketType || null,
         payment_status: data.paymentStatus,
+        registration_type: data.registrationType,
+        linked_sponsor_id: data.linkedSponsorId || null,
+        event_interest: data.eventInterest,
+        confirmation_sent: false,
         registered_at: new Date().toISOString(),
-        qr_code: `qr_${Math.random().toString(36).substring(2, 10)}`, // Simple mockup QR identifier
+        qr_code: `qr_${Math.random().toString(36).substring(2, 10)}`,
         checked_in: false,
       })
       .select()
@@ -491,6 +506,10 @@ export const registerForEvent = createServerFn({ method: "POST" })
       howHeard: inserted.how_heard,
       ticketType: inserted.ticket_type || undefined,
       paymentStatus: inserted.payment_status,
+      registrationType: inserted.registration_type,
+      linkedSponsorId: inserted.linked_sponsor_id || undefined,
+      eventInterest: inserted.event_interest || [],
+      confirmationSent: inserted.confirmation_sent,
       registeredAt: inserted.registered_at,
       qrCode: inserted.qr_code || undefined,
       checkedIn: inserted.checked_in,
@@ -506,6 +525,7 @@ export const checkInAttendee = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     const { data: updated, error } = await supabase
       .from("event_registrations")
@@ -540,4 +560,38 @@ export const checkInAttendee = createServerFn({ method: "POST" })
       checkedIn: updated.checked_in,
       checkedInAt: updated.checked_in_at || undefined,
     };
+  });
+
+export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" })
+  .handler(async () => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: events, error: fetchError } = await supabase
+      .from("events")
+      .select("id, sponsorship_enabled");
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch events: ${fetchError.message}`);
+    }
+
+    const toUpdate = (events || []).filter((e) => !e.sponsorship_enabled);
+
+    if (toUpdate.length === 0) {
+      return { updatedCount: 0, message: "All events already have sponsorship enabled." };
+    }
+
+    const { error: updateError } = await supabase
+      .from("events")
+      .update({ sponsorship_enabled: true })
+      .in(
+        "id",
+        toUpdate.map((e) => e.id)
+      );
+
+    if (updateError) {
+      throw new Error(`Failed to enable sponsorship: ${updateError.message}`);
+    }
+
+    return { updatedCount: toUpdate.length };
   });

@@ -3,9 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Plus, Search, Eye, Pencil, Trash2, ChevronUp, ChevronDown,
   CalendarDays, Users, ArrowRight, Globe, Wifi, Landmark, QrCode,
-  RefreshCw, AlertCircle, Loader2, UserCheck, UserMinus, ArrowLeft, CheckCircle2
+  RefreshCw, AlertCircle, Loader2, UserCheck, UserMinus, ArrowLeft, CheckCircle2, Sparkles
 } from "lucide-react";
-import { fetchEvents, deleteEvent, fetchEventRegistrations, checkInAttendee } from "../../../lib/actions/events";
+import { fetchEvents, deleteEvent, fetchEventRegistrations, checkInAttendee, enableSponsorshipForAllEvents } from "../../../lib/actions/events";
+import { fetchEventSponsors, updateSponsorStatus } from "../../../lib/actions/sponsors";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/events/")({
@@ -87,6 +88,11 @@ function AdminEventsPage() {
   const [loadingRegs, setLoadingRegs] = useState(false);
   const [regSearch, setRegSearch] = useState("");
 
+  // Sponsor states
+  const [sponsors, setSponsors] = useState<any[]>([]);
+  const [loadingSponsors, setLoadingSponsors] = useState(false);
+  const [sponsorPaymentFilter, setSponsorPaymentFilter] = useState("all");
+
   const loadEvents = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -115,6 +121,22 @@ function AdminEventsPage() {
       setLoadingRegs(false);
     }
   }, []);
+
+  const loadSponsors = useCallback(async () => {
+    setLoadingSponsors(true);
+    try {
+      const data = await fetchEventSponsors({ data: { paymentStatus: sponsorPaymentFilter } });
+      setSponsors(data as any[]);
+    } catch (err: any) {
+      toast.error(`Failed to load sponsors: ${err.message}`);
+    } finally {
+      setLoadingSponsors(false);
+    }
+  }, [sponsorPaymentFilter]);
+
+  useEffect(() => {
+    if (activeTab === "sponsors") loadSponsors();
+  }, [activeTab, loadSponsors]);
 
   const handleSelectEventForRegs = (event: Event) => {
     setSelectedEvent(event);
@@ -220,6 +242,23 @@ function AdminEventsPage() {
           >
             <Plus size={16} /> Create Event
           </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!confirm("Enable sponsorship for ALL existing events? This will make the Sponsor section visible on every event page.")) return;
+              try {
+                const result = await enableSponsorshipForAllEvents();
+                toast.success(`Sponsorship enabled for ${(result as any).updatedCount} events.`);
+                loadEvents();
+              } catch (err: any) {
+                toast.error(`Failed: ${err.message}`);
+              }
+            }}
+            className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-700 hover:bg-amber-500/20 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
+            title="Enable sponsorship for all existing events so sponsors appear on event pages"
+          >
+            <Sparkles size={14} /> Enable Sponsors
+          </button>
         </div>
       </div>
 
@@ -550,10 +589,117 @@ function AdminEventsPage() {
       )}
 
       {activeTab === "sponsors" && (
-        <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground">
-          <CalendarDays size={40} className="mx-auto mb-3 text-muted-foreground/40 text-primary" />
-          <p className="font-semibold text-dark">Sponsorship Enquiries</p>
-          <p className="text-sm mt-1">Sponsor submissions and packages are managed inside specific events.</p>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <select
+              value={sponsorPaymentFilter}
+              onChange={(e) => setSponsorPaymentFilter(e.target.value)}
+              className="rounded-xl border border-border px-3 py-2 text-sm bg-white focus:border-primary outline-none"
+            >
+              <option value="all">All Payments</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+            </select>
+            <button onClick={() => loadSponsors()} className="text-sm text-primary hover:underline">Refresh</button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Company</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Event</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Package</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Amount</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Payment</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Status</th>
+                    <th className="px-5 py-3.5" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {loadingSponsors ? (
+                    <tr>
+                      <td colSpan={7} className="px-5 py-16 text-center text-muted-foreground">
+                        <Loader2 size={24} className="animate-spin mx-auto mb-3 text-primary" />
+                        <p className="text-sm">Loading sponsors…</p>
+                      </td>
+                    </tr>
+                  ) : sponsors.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-5 py-16 text-center text-muted-foreground">
+                        <CalendarDays size={32} className="mx-auto mb-3 text-muted-foreground/40" />
+                        <p className="font-semibold text-dark">No sponsors yet</p>
+                        <p className="text-sm mt-1">Sponsor submissions will appear here when visitors sponsor an event.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    sponsors.map((s) => (
+                      <tr key={s.id} className="hover:bg-muted/20 transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold text-dark">{s.companyName}</p>
+                          <p className="text-xs text-muted-foreground">{s.contactName} • {s.contactEmail}</p>
+                        </td>
+                        <td className="px-5 py-4 text-muted-foreground text-xs">{s.eventTitle}</td>
+                        <td className="px-5 py-4">
+                          <span className="text-dark font-medium">{s.packageName}</span>
+                        </td>
+                        <td className="px-5 py-4 font-semibold text-dark">₦{Number(s.packagePrice).toLocaleString()}</td>
+                        <td className="px-5 py-4">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            s.paymentStatus === "paid" ? "bg-green-500/10 text-green-600" :
+                            s.paymentStatus === "failed" ? "bg-red-500/10 text-red-600" :
+                            "bg-amber-500/10 text-amber-600"
+                          }`}>
+                            {s.paymentStatus}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            s.status === "active" ? "bg-blue-500/10 text-blue-600" :
+                            s.status === "completed" ? "bg-green-500/10 text-green-600" :
+                            "bg-muted text-muted-foreground"
+                          }`}>
+                            {s.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-1">
+                            {s.status === "active" && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await updateSponsorStatus({ data: { sponsorId: s.id, status: "completed" } });
+                                    toast.success("Sponsor marked as completed.");
+                                    loadSponsors();
+                                  } catch (err: any) { toast.error(err.message); }
+                                }}
+                                className="text-xs text-green-600 hover:underline px-2"
+                              >Complete</button>
+                            )}
+                            {s.status !== "cancelled" && (
+                              <button
+                                onClick={async () => {
+                                  if (!confirm(`Cancel sponsorship from ${s.companyName}?`)) return;
+                                  try {
+                                    await updateSponsorStatus({ data: { sponsorId: s.id, status: "cancelled" } });
+                                    toast.success("Sponsor cancelled.");
+                                    loadSponsors();
+                                  } catch (err: any) { toast.error(err.message); }
+                                }}
+                                className="text-xs text-red-500 hover:underline px-2"
+                              >Cancel</button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
     </div>

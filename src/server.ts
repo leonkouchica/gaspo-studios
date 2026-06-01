@@ -31,11 +31,7 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   }
 
   const errorMsg = consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`);
-  console.error(errorMsg);
-  try {
-    const fs = await import("fs");
-    fs.writeFileSync("error2.log", String((errorMsg as any)?.stack || (errorMsg as any)?.message || errorMsg));
-  } catch(e) {}
+  console.error("SSR error recovered by error-capture:", errorMsg);
   
   return new Response(renderErrorPage(), {
     status: 500,
@@ -50,11 +46,7 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error: any) {
-      console.error(error);
-      try {
-        const fs = await import("fs");
-        fs.writeFileSync("error.log", String(error.stack || error.message || error));
-      } catch(e) {}
+      console.error("Unhandled SSR error:", error);
       return new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },

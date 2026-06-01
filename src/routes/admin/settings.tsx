@@ -22,9 +22,10 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 function AdminSettingsPage() {
-  const { role } = useAdmin();
+  const { role, session } = useAdmin();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"payments" | "staff" | "site">("payments");
+  const currentUserId = session?.user?.id || "";
 
   // Redirect if not admin
   useEffect(() => {
@@ -151,7 +152,8 @@ function AdminSettingsPage() {
         data: {
           email: newEmail,
           password: newPassword,
-          role: newRole
+          role: newRole,
+          requestingUserId: currentUserId,
         }
       });
       toast.success(`Staff user ${newEmail} created successfully.`);
@@ -178,7 +180,8 @@ function AdminSettingsPage() {
       await updateUserRole({
         data: {
           userId,
-          role: targetRole
+          role: targetRole,
+          requestingUserId: currentUserId,
         }
       });
       toast.success(`Role updated to ${targetRole.toUpperCase()}`);
@@ -193,7 +196,7 @@ function AdminSettingsPage() {
     if (!confirm(`Are you sure you want to remove staff member ${email}?`)) return;
 
     try {
-      await deleteStaffUser({ data: { userId } });
+      await deleteStaffUser({ data: { userId, requestingUserId: currentUserId } });
       toast.success(`Staff user ${email} removed.`);
       loadStaff();
     } catch (err: any) {

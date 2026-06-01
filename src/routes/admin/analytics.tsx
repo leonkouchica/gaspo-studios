@@ -164,7 +164,7 @@ function AnalyticsPage() {
         <StatCard
           title="Total Revenue"
           value={formatNaira(overview.totalRevenue)}
-          trend="+14.2%"
+          trend="Selected period"
           isPositive={true}
           icon={Wallet}
           loading={loading}
@@ -172,7 +172,7 @@ function AnalyticsPage() {
         <StatCard
           title="Total Bookings"
           value={overview.totalBookings}
-          trend="+8.2%"
+          trend="Selected period"
           isPositive={true}
           icon={CalendarDays}
           loading={loading}
@@ -180,7 +180,7 @@ function AnalyticsPage() {
         <StatCard
           title="Event Registrations"
           value={overview.totalRegistrations}
-          trend="+22.8%"
+          trend="Selected period"
           isPositive={true}
           icon={Users}
           loading={loading}
@@ -188,7 +188,7 @@ function AnalyticsPage() {
         <StatCard
           title="Active Events"
           value={overview.activeEvents}
-          trend="+5.0%"
+          trend="Selected period"
           isPositive={true}
           icon={TrendingUp}
           loading={loading}

@@ -39,7 +39,7 @@ function BlogPage() {
     setLoading(true);
     try {
       const data = await fetchBlogPosts({ data: { status: "published" } });
-      setPosts(data as BlogPost[]);
+      setPosts(data.items as BlogPost[]);
     } catch (err) {
       console.error("Failed to load blog posts:", err);
     } finally {

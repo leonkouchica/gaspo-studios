@@ -1,12 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
+import { requireAuth } from "../auth-guard.server.ts";
+
+const passwordSchema = z
+  .string()
+  .min(12, "Password must be at least 12 characters")
+  .max(128, "Password must be at most 128 characters")
+  .refine((pw) => /[A-Z]/.test(pw), "Password must contain at least one uppercase letter")
+  .refine((pw) => /[a-z]/.test(pw), "Password must contain at least one lowercase letter")
+  .refine((pw) => /[0-9]/.test(pw), "Password must contain at least one number")
+  .refine(
+    (pw) => /[^A-Za-z0-9]/.test(pw),
+    "Password must contain at least one special character",
+  );
 
 export const listStaffUsers = createServerFn({ method: "GET" })
   .handler(async () => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
     
-    // Fetch all roles from user_roles
     const { data: dbRoles, error: rolesError } = await supabase
       .from("user_roles")
       .select("*")
@@ -16,16 +29,15 @@ export const listStaffUsers = createServerFn({ method: "GET" })
       throw new Error(`Failed to list staff roles: ${rolesError.message}`);
     }
 
-    // Fetch actual users from auth.users (requires service role key)
     const { data: authResult, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
-      console.warn("Could not list auth users from admin API (possibly missing service role privileges). Matching using DB fallback.");
+      console.warn("Could not list auth users from admin API. Matching using DB fallback.");
       return (dbRoles || []).map((r) => ({
         id: r.id,
         userId: r.user_id,
         role: r.role,
-        email: "staff@gaspostudios.com", // Fallback email
+        email: "staff@gaspostudios.com",
         createdAt: r.created_at,
       }));
     }
@@ -46,14 +58,15 @@ export const createStaffUser = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       email: z.string().email(),
-      password: z.string().min(6),
+      password: passwordSchema,
       role: z.enum(["admin", "editor", "photographer", "viewer"]),
-    })
+      requestingUserId: z.string().min(1),
+    }),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
 
-    // 1. Create the user in Auth
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email: data.email,
       password: data.password,
@@ -68,18 +81,13 @@ export const createStaffUser = createServerFn({ method: "POST" })
       throw new Error("Failed to create auth user: user returned null");
     }
 
-    // 2. Insert into user_roles
     const { data: roleRecord, error: roleError } = await supabase
       .from("user_roles")
-      .insert({
-        user_id: authUser.user.id,
-        role: data.role,
-      })
+      .insert({ user_id: authUser.user.id, role: data.role })
       .select()
       .single();
 
     if (roleError) {
-      // Clean up user if role insert failed to prevent orphaned auth users
       await supabase.auth.admin.deleteUser(authUser.user.id);
       throw new Error(`Failed to assign user role: ${roleError.message}`);
     }
@@ -98,10 +106,19 @@ export const updateUserRole = createServerFn({ method: "POST" })
     z.object({
       userId: z.string(),
       role: z.enum(["admin", "editor", "photographer", "viewer"]),
-    })
+      requestingUserId: z.string().min(1),
+    }),
   )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
+
+    // Prevent self-demotion
+    const currentUser = requireAuth();
+    if (data.userId === currentUser.userId) {
+      throw new Error("You cannot modify your own account. Ask another admin.");
+    }
+
     const { data: updated, error } = await supabase
       .from("user_roles")
       .update({ role: data.role })
@@ -122,13 +139,41 @@ export const updateUserRole = createServerFn({ method: "POST" })
   });
 
 export const deleteStaffUser = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ userId: z.string() }))
+  .inputValidator(
+    z.object({
+      userId: z.string(),
+      requestingUserId: z.string().min(1),
+    }),
+  )
   .handler(async ({ data }) => {
+    requireAuth();
     const supabase = getSupabaseAdmin();
 
-    // Delete user from auth (will cascade delete user_roles via FK constraint)
-    const { error } = await supabase.auth.admin.deleteUser(data.userId);
+    // Prevent self-deletion
+    const currentUser = requireAuth();
+    if (data.userId === currentUser.userId) {
+      throw new Error("You cannot delete your own account. Ask another admin.");
+    }
 
+    // Prevent deleting the last admin
+    const { count: adminCount } = await supabase
+      .from("user_roles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "admin");
+
+    if (adminCount !== null && adminCount <= 1) {
+      const { data: targetRole } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.userId)
+        .single();
+
+      if (targetRole?.role === "admin") {
+        throw new Error("Cannot delete the last admin. Assign another admin first.");
+      }
+    }
+
+    const { error } = await supabase.auth.admin.deleteUser(data.userId);
     if (error) {
       throw new Error(`Failed to delete staff user: ${error.message}`);
     }

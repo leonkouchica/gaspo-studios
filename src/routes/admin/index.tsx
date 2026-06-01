@@ -4,11 +4,7 @@ import {
   CalendarDays, Camera, Image, BookOpen, TrendingUp,
   ArrowRight, CheckCircle2, AlertCircle, Mail,
 } from "lucide-react";
-import { fetchBookings } from "../../lib/actions/bookings";
-import { fetchBlogPosts } from "../../lib/actions/blog";
-import { fetchGalleryImages } from "../../lib/actions/gallery";
-import { fetchEvents } from "../../lib/actions/events";
-import { fetchContactMessages } from "../../lib/actions/contact";
+import { fetchDashboardSummary } from "../../lib/actions/dashboard";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -73,20 +69,25 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 interface DashboardData {
-  bookings: any[];
-  posts: any[];
-  images: any[];
-  events: any[];
+  upcomingEvents: number;
+  upcomingEventsList: any[];
+  totalRegistrations: number;
+  newBookings: number;
+  totalBookings: number;
+  publishedPosts: number;
+  draftPosts: number;
+  visibleImages: number;
+  hiddenImages: number;
   unreadMessages: number;
+  recentBookings: any[];
+  recentPosts: any[];
 }
 
 function AdminDashboard() {
   const [data, setData] = useState<DashboardData>({
-    bookings: [],
-    posts: [],
-    images: [],
-    events: [],
-    unreadMessages: 0,
+    upcomingEvents: 0, upcomingEventsList: [], totalRegistrations: 0, newBookings: 0, totalBookings: 0,
+    publishedPosts: 0, draftPosts: 0, visibleImages: 0, hiddenImages: 0,
+    unreadMessages: 0, recentBookings: [], recentPosts: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -94,26 +95,10 @@ function AdminDashboard() {
     async function load() {
       setLoading(true);
       try {
-        const [bookingsData, postsData, imagesData, eventsData, messagesData] = await Promise.allSettled([
-          fetchBookings({ data: {} }),
-          fetchBlogPosts({ data: { limit: 5 } }),
-          fetchGalleryImages({ data: {} }),
-          fetchEvents({ data: {} }),
-          fetchContactMessages({ data: { search: "" } }),
-        ]);
-
-        setData({
-          bookings: bookingsData.status === "fulfilled" ? (bookingsData.value as any[]) : [],
-          posts: postsData.status === "fulfilled" ? (postsData.value as any[]) : [],
-          images: imagesData.status === "fulfilled" ? (imagesData.value as any[]) : [],
-          events: eventsData.status === "fulfilled" ? (eventsData.value as any[]) : [],
-          unreadMessages:
-            messagesData.status === "fulfilled"
-              ? (messagesData.value as any[]).filter((m: any) => !m.read).length
-              : 0,
-        });
+        const summary = await fetchDashboardSummary();
+        setData(summary as DashboardData);
       } catch {
-        // Partial data is fine — individual sections will show what's available
+        // Dashboard stays at zero counts if fetch fails
       } finally {
         setLoading(false);
       }
@@ -121,14 +106,15 @@ function AdminDashboard() {
     load();
   }, []);
 
-  const upcomingEvents = data.events.filter((e) => ["upcoming", "published"].includes(e.status));
-  const totalRegistrations = data.events.reduce((s: number, e: any) => s + (e.registrationCount || 0), 0);
-  const newBookings = data.bookings.filter((b) => b.status === "new").length;
-  const publishedPosts = data.posts.filter((p) => p.status === "published").length;
-  const visibleImages = data.images.filter((i) => i.visible).length;
+  const upcomingEvents = data.upcomingEvents;
+  const upcomingEventsList = data.upcomingEventsList;
+  const totalRegistrations = data.totalRegistrations;
+  const newBookings = data.newBookings;
+  const publishedPosts = data.publishedPosts;
+  const visibleImages = data.visibleImages;
 
-  const recentBookings = data.bookings.slice(0, 5);
-  const recentPosts = data.posts.slice(0, 3);
+  const recentBookings = data.recentBookings;
+  const recentPosts = data.recentPosts;
 
   return (
     <div className="space-y-8">
@@ -145,7 +131,7 @@ function AdminDashboard() {
         <StatCard
           icon={CalendarDays}
           label="Upcoming Events"
-          value={upcomingEvents.length}
+          value={upcomingEvents}
           sub={`${totalRegistrations} total registrations`}
           color="bg-primary/10 text-primary"
           loading={loading}
@@ -162,7 +148,7 @@ function AdminDashboard() {
           icon={BookOpen}
           label="Published Posts"
           value={publishedPosts}
-          sub={loading ? "…" : `${data.posts.length - publishedPosts} draft(s)`}
+          sub={loading ? "…" : `${data.draftPosts} draft(s)`}
           color="bg-violet-500/10 text-violet-500"
           loading={loading}
         />
@@ -170,7 +156,7 @@ function AdminDashboard() {
           icon={Image}
           label="Gallery Images"
           value={visibleImages}
-          sub={loading ? "…" : `${data.images.length - visibleImages} hidden`}
+          sub={loading ? "…" : `${data.hiddenImages} hidden`}
           color="bg-emerald-500/10 text-emerald-500"
           loading={loading}
         />
@@ -336,10 +322,10 @@ function AdminDashboard() {
                   </div>
                 </div>
               ))
-            ) : upcomingEvents.length === 0 ? (
+            ) : upcomingEventsList.length === 0 ? (
               <p className="text-xs text-muted-foreground">No upcoming events scheduled.</p>
             ) : (
-              upcomingEvents.slice(0, 3).map((e: any) => (
+              upcomingEventsList.slice(0, 3).map((e: any) => (
                 <div key={e.id} className="flex items-center gap-3 py-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">

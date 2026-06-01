@@ -5,10 +5,11 @@ import {
   MapPin, CalendarDays, Clock, Users, ArrowRight, Share2,
   Linkedin, Twitter, Facebook, ExternalLink, ChevronDown,
   Check, X, Award, Zap, Network, Lightbulb,
-  Globe, Wifi, Landmark, Phone, Mail, Send,
+  Globe, Wifi, Landmark, Phone, Mail, Send, Loader2, CreditCard,
 } from "lucide-react";
 import { type Event, type Speaker, type SponsorPackage } from "../../data/events";
-import { fetchEvent } from "../../lib/actions/events";
+import { fetchEvent, registerForEvent } from "../../lib/actions/events";
+import { initSponsorPayment } from "../../lib/actions/sponsors";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
 export const Route = createFileRoute("/events/$eventId")({
@@ -141,7 +142,7 @@ function SpeakerModal({ speaker, onClose }: { speaker: Speaker; onClose: () => v
 }
 
 // ─── SPONSORSHIP CARD ────────────────────────────────────────────────────────
-function SponsorCard({ pkg }: { pkg: SponsorPackage }) {
+function SponsorCard({ pkg, onSelect }: { pkg: SponsorPackage; onSelect: (pkg: SponsorPackage) => void }) {
   return (
     <div className={`rounded-2xl border p-6 flex flex-col ${pkg.highlighted ? "bg-dark text-white border-primary shadow-xl shadow-primary/20 scale-[1.02]" : "bg-white border-border"}`}>
       {pkg.highlighted && (
@@ -162,10 +163,7 @@ function SponsorCard({ pkg }: { pkg: SponsorPackage }) {
         ))}
       </ul>
       <button
-        onClick={(e) => {
-          e.preventDefault();
-          document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-        }}
+        onClick={() => onSelect(pkg)}
         className={`mt-6 w-full block text-center rounded-full py-3 text-sm font-semibold transition-all hover:scale-105 ${pkg.highlighted ? "bg-primary hover:bg-primary-hover text-white" : "border-2 border-dark text-dark hover:bg-dark hover:text-white"}`}
       >
         Select Package
@@ -174,11 +172,134 @@ function SponsorCard({ pkg }: { pkg: SponsorPackage }) {
   );
 }
 
+// ─── SPONSOR CHECKOUT ────────────────────────────────────────────────────────
+function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg: SponsorPackage; onBack: () => void; onSuccess: () => void }) {
+  const [step, setStep] = useState<"info" | "confirm" | "paying">("info");
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    companyName: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+  });
+
+  const handleProceed = async () => {
+    if (!form.companyName || !form.contactName || !form.contactEmail || !form.contactPhone) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    setStep("confirm");
+  };
+
+  const handlePay = async () => {
+    setLoading(true);
+    try {
+      const result = await initSponsorPayment({
+        data: {
+          eventId: event.id,
+          companyName: form.companyName,
+          contactName: form.contactName,
+          contactEmail: form.contactEmail,
+          contactPhone: form.contactPhone,
+          packageId: pkg.id,
+          packageName: pkg.name,
+          packagePrice: pkg.price,
+        },
+      });
+      const res = result as any;
+      if (res.isMock) {
+        toast.success("Payment simulated! Sponsor record created.");
+        onSuccess();
+      } else {
+        window.location.href = res.authorizationUrl;
+      }
+    } catch (err: any) {
+      toast.error(`Payment initiation failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl p-8 max-w-lg mx-auto text-dark animate-in fade-in zoom-in-95 duration-300">
+      {step === "info" && (
+        <>
+          <div className="flex items-center gap-3 mb-6">
+            <button onClick={onBack} className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors">
+              <X size={14} />
+            </button>
+            <div>
+              <h3 className="font-bold text-lg">Sponsor This Event</h3>
+              <p className="text-sm text-muted-foreground">{pkg.name} — ₦{pkg.price.toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {[
+              { key: "companyName", label: "Company Name *", placeholder: "Your Company Ltd" },
+              { key: "contactName", label: "Contact Person *", placeholder: "Full Name" },
+              { key: "contactEmail", label: "Email Address *", placeholder: "you@company.com", type: "email" },
+              { key: "contactPhone", label: "Phone Number *", placeholder: "+234 800 000 0000", type: "tel" },
+            ].map(({ key, label, placeholder, type }) => (
+              <div key={key}>
+                <label className="text-sm font-semibold text-dark block mb-1.5">{label}</label>
+                <input
+                  type={type || "text"}
+                  value={(form as any)[key]}
+                  onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                  className="w-full rounded-xl border border-border px-4 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                  placeholder={placeholder}
+                />
+              </div>
+            ))}
+            <button
+              onClick={handleProceed}
+              className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-3.5 font-bold text-base transition-all hover:scale-[1.02]"
+            >
+              Continue to Review
+            </button>
+          </div>
+        </>
+      )}
+
+      {step === "confirm" && (
+        <>
+          <div className="flex items-center gap-3 mb-6">
+            <button onClick={() => setStep("info")} className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors">
+              <ArrowRight size={14} className="rotate-180" />
+            </button>
+            <h3 className="font-bold text-lg">Confirm Sponsorship</h3>
+          </div>
+          <div className="space-y-3 mb-6">
+            <div className="bg-muted/50 rounded-2xl p-4 space-y-2">
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Event</span><span className="font-semibold">{event.title}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Package</span><span className="font-semibold">{pkg.name}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Company</span><span className="font-semibold">{form.companyName}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Contact</span><span className="font-semibold">{form.contactName}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Email</span><span className="font-semibold">{form.contactEmail}</span></div>
+              <hr className="border-border" />
+              <div className="flex justify-between text-base"><span className="font-bold">Total</span><span className="font-bold text-primary">₦{pkg.price.toLocaleString()}</span></div>
+            </div>
+            <button
+              onClick={handlePay}
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-3.5 font-bold text-base transition-all hover:scale-[1.02] disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+              {loading ? "Processing…" : `Pay ₦${pkg.price.toLocaleString()}`}
+            </button>
+            <p className="text-xs text-muted-foreground text-center">Secured by Paystack • You'll be redirected to complete payment</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── REGISTRATION FORM ───────────────────────────────────────────────────────
 function RegistrationForm({ event }: { event: Event }) {
   const countdown = useCountdown(`${event.date}T${event.time}`);
   const [submitted, setSubmitted] = useState(false);
-  const [paymentStep, setPaymentStep] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullName: "", email: "", phone: "", company: "", jobTitle: "",
     country: "", city: "", linkedin: "", howHeard: "", interests: [] as string[],
@@ -194,15 +315,42 @@ function RegistrationForm({ event }: { event: Event }) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For Phase 4 demo: always show payment step
-    setPaymentStep(true);
-  };
+    if (!form.fullName || !form.email || !form.phone || !form.company || !form.jobTitle || !form.country || !form.city || !form.howHeard) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    if (!form.consent) {
+      toast.error("Please agree to receive event communications.");
+      return;
+    }
 
-  const handlePaymentSuccess = () => {
-    setPaymentStep(false);
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      await registerForEvent({
+        data: {
+          eventId: event.id,
+          fullName: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          company: form.company,
+          jobTitle: form.jobTitle,
+          country: form.country,
+          city: form.city,
+          linkedin: form.linkedin || undefined,
+          howHeard: form.howHeard,
+          registrationType: "participant",
+          eventInterest: form.interests,
+        },
+      });
+      setSubmitted(true);
+      toast.success("Registration successful! Check your email for confirmation.");
+    } catch (err: any) {
+      toast.error(`Registration failed: ${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -215,48 +363,6 @@ function RegistrationForm({ event }: { event: Event }) {
         <p className="text-white/60 mt-4 max-w-sm mx-auto leading-relaxed">
           Thank you, <strong className="text-white">{form.fullName}</strong>! A confirmation has been sent to <strong className="text-white">{form.email}</strong>. Check your inbox for your attendee ID.
         </p>
-      </div>
-    );
-  }
-
-  if (paymentStep) {
-    return (
-      <div className="bg-white rounded-3xl p-8 max-w-md mx-auto text-dark animate-in fade-in zoom-in-95 duration-300">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-[#0ba4db]/10 flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.5 2C6.25 2 2 6.25 2 11.5C2 16.75 6.25 21 11.5 21C16.75 21 21 16.75 21 11.5C21 6.25 16.75 2 11.5 2ZM11.5 19.5C7.08 19.5 3.5 15.92 3.5 11.5C3.5 7.08 7.08 3.5 11.5 3.5C15.92 3.5 19.5 7.08 19.5 11.5C19.5 15.92 15.92 19.5 11.5 19.5Z" fill="#0ba4db"/>
-              <path d="M15.53 8.46997H8.46997V10.97H14.03C14.86 10.97 15.53 11.64 15.53 12.47V13.53C15.53 14.36 14.86 15.03 14.03 15.03H8.46997V17.53H15.53C16.36 17.53 17.03 16.86 17.03 16.03V13.53C17.03 12.7 16.36 12.03 15.53 12.03H9.96997V10.97H15.53V8.46997Z" fill="#0ba4db"/>
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold">Paystack Checkout (Mock)</h3>
-          <p className="text-sm text-muted-foreground mt-1">{form.email}</p>
-        </div>
-        
-        <div className="bg-muted/50 rounded-2xl p-4 mb-6 border border-border flex justify-between items-center">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total to Pay</p>
-            <p className="font-bold text-dark mt-0.5">Event Ticket Fee</p>
-          </div>
-          <p className="text-xl font-bold text-dark">₦15,000</p>
-        </div>
-
-        <button 
-          onClick={handlePaymentSuccess}
-          className="w-full bg-[#0ba4db] hover:bg-[#0ba4db]/90 text-white rounded-full py-4 font-bold text-base transition-all hover:scale-[1.02]"
-        >
-          Pay ₦15,000
-        </button>
-        <button 
-          onClick={() => setPaymentStep(false)}
-          className="w-full mt-3 text-sm text-muted-foreground hover:text-dark py-2 font-medium"
-        >
-          Cancel Payment
-        </button>
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          Secured by Paystack
-        </div>
       </div>
     );
   }
@@ -374,9 +480,10 @@ function RegistrationForm({ event }: { event: Event }) {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-4 font-bold text-base transition-all hover:scale-[1.02] shadow-lg shadow-primary/30"
+            disabled={submitting}
+            className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-4 font-bold text-base transition-all hover:scale-[1.02] shadow-lg shadow-primary/30 disabled:opacity-60 disabled:pointer-events-none"
           >
-            Register Now — It's Free
+            {submitting ? <Loader2 size={20} className="animate-spin mx-auto" /> : "Register Now — It's Free"}
           </button>
         </form>
       </div>
@@ -429,6 +536,8 @@ function EventDetailPage() {
 
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [agendaOpen, setAgendaOpen] = useState<number | null>(0);
+  const [sponsorStep, setSponsorStep] = useState<"select" | "checkout" | "success">("select");
+  const [selectedPackage, setSelectedPackage] = useState<SponsorPackage | null>(null);
 
   const TypeIcon = { physical: Landmark, virtual: Wifi, hybrid: Globe }[event.type];
   const typeLabel = { physical: "In-Person", virtual: "Virtual", hybrid: "Hybrid" }[event.type];
@@ -727,7 +836,7 @@ function EventDetailPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
               {event.sponsorPackages.map((pkg, i) => (
                 <ScrollReveal key={pkg.id} delay={i * 60}>
-                  <SponsorCard pkg={pkg} />
+                  <SponsorCard pkg={pkg} onSelect={(pkg) => { setSelectedPackage(pkg); setSponsorStep("checkout"); }} />
                 </ScrollReveal>
               ))}
             </div>
@@ -834,6 +943,58 @@ function EventDetailPage() {
       {/* ── SPEAKER MODAL ── */}
       {selectedSpeaker && (
         <SpeakerModal speaker={selectedSpeaker} onClose={() => setSelectedSpeaker(null)} />
+      )}
+
+      {/* ── SPONSOR CHECKOUT MODAL ── */}
+      {sponsorStep === "checkout" && selectedPackage && (
+        <div className="fixed inset-0 z-[70] bg-dark/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <SponsorCheckout
+            event={event}
+            pkg={selectedPackage}
+            onBack={() => { setSponsorStep("select"); setSelectedPackage(null); }}
+            onSuccess={() => setSponsorStep("success")}
+          />
+        </div>
+      )}
+
+      {/* ── SPONSOR SUCCESS ── */}
+      {sponsorStep === "success" && (
+        <div className="fixed inset-0 z-[70] bg-dark/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-6">
+              <Check size={36} />
+            </div>
+            <h3 className="text-2xl font-bold text-dark">Sponsorship Confirmed!</h3>
+            <p className="text-muted-foreground mt-3 leading-relaxed">
+              Thank you for sponsoring <strong>{event.title}</strong> as a <strong>{selectedPackage?.name}</strong>.
+              A confirmation email will be sent to your inbox shortly.
+            </p>
+            <button
+              onClick={() => { setSponsorStep("select"); setSelectedPackage(null); }}
+              className="mt-6 bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-3 font-semibold transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── SPONSOR SUCCESS INLINE ── */}
+      {sponsorStep === "success" && event.sponsorshipEnabled && event.sponsorPackages.length > 0 && (
+        <section className="py-20 md:py-28 bg-green-50">
+          <div className="container-x text-center">
+            <div className="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-6">
+              <Check size={36} />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-dark">Thank You for Your Sponsorship!</h2>
+            <p className="text-muted-foreground mt-4 max-w-xl mx-auto leading-relaxed">
+              Your sponsorship for <strong>{event.title}</strong> has been received. We'll be in touch with event details and your sponsorship benefits soon.
+            </p>
+            <a href="#register" className="mt-6 inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all">
+              Register to Attend <ArrowRight size={16} />
+            </a>
+          </div>
+        </section>
       )}
     </>
   );

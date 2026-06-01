@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
+import { requireAuth, requireRole } from "../auth-guard.server.ts";
 
 export const fetchGalleryImages = createServerFn({ method: "GET" })
   .inputValidator((input: { category?: string; visibleOnly?: boolean } | undefined) => input)
@@ -37,6 +38,16 @@ export const fetchGalleryImages = createServerFn({ method: "GET" })
     }));
   });
 
+// Web-standard base64 decoder — no Node.js Buffer dependency
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 export const uploadGalleryImage = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
@@ -50,8 +61,9 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    // Decode base64 to buffer then reconstruct a File
-    const buffer = Buffer.from(data.fileBase64, "base64");
+    requireAuth();
+    // Decode base64 using web-standard APIs
+    const buffer = base64ToBytes(data.fileBase64);
     const file = new File([buffer], data.fileName, { type: data.mimeType });
 
     // 1. Process and upload to storage via server WebP pipeline
@@ -96,6 +108,7 @@ export const toggleImageVisibility = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
     const { data: updated, error } = await supabase
       .from("gallery_images")
@@ -131,6 +144,7 @@ export const updateImageMeta = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
     const { data: updated, error } = await supabase
       .from("gallery_images")
@@ -163,6 +177,7 @@ export const updateImageMeta = createServerFn({ method: "POST" })
 export const deleteGalleryImage = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
 
     // 1. Get image src to find file path in storage

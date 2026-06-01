@@ -5,6 +5,19 @@ import sharp from "sharp";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 
 /**
+ * Decode a base64 string to a Uint8Array using web-standard APIs.
+ * Replaces Node.js Buffer.from(data, "base64") for cross-runtime compatibility.
+ */
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+/**
  * Converts any image upload to WebP with high quality (90)
  * and uploads it to the 'gaspo-media' Supabase Storage bucket.
  * 
@@ -17,27 +30,41 @@ export async function convertAndUploadImage(file: any, folder: "gallery" | "blog
     throw new Error("No file was provided for upload");
   }
 
-  // 1. Convert File/Blob to Node Buffer
-  let buffer: Buffer;
+  // Size check: warn if > 5MB (base64 encoding will amplify this)
+  let fileSize = 0;
+  if (typeof file.size === "number") fileSize = file.size;
+  else if (file instanceof Uint8Array) fileSize = file.byteLength;
+  if (fileSize > 5 * 1024 * 1024) {
+    throw new Error(`Image too large (${(fileSize / 1024 / 1024).toFixed(1)}MB). Please resize to under 5MB before uploading.`);
+  }
+
+  // 1. Convert File/Blob to Uint8Array (web-standard, cross-runtime)
+  let buffer: Uint8Array;
   try {
     if (typeof file.arrayBuffer === "function") {
       const arrayBuffer = await file.arrayBuffer();
-      buffer = Buffer.from(arrayBuffer);
-    } else if (Buffer.isBuffer(file)) {
+      buffer = new Uint8Array(arrayBuffer);
+    } else if (file instanceof Uint8Array) {
       buffer = file;
+    } else if (typeof Buffer !== "undefined" && Buffer.isBuffer(file)) {
+      // Node.js fallback for backward compat
+      buffer = new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
     } else {
-      throw new Error("Unsupported file type: must be File, Blob or Buffer");
+      throw new Error("Unsupported file type: must be File, Blob or Uint8Array");
     }
   } catch (err: any) {
     throw new Error(`Failed to read upload buffer: ${err.message}`);
   }
 
   // 2. Process image with sharp: convert to WebP, quality 90
-  let webpBuffer: Buffer;
+  // Note: sharp is a native Node.js module. On non-Node.js runtimes (Cloudflare Workers),
+  // use a WASM-based alternative or a serverless image processing service.
+  let webpBuffer: Uint8Array;
   try {
-    webpBuffer = await sharp(buffer)
+    const result = await sharp(buffer)
       .webp({ quality: 90 })
       .toBuffer();
+    webpBuffer = new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
   } catch (err: any) {
     throw new Error(`Sharp WebP processing failed: ${err.message}. Ensure the file is a valid image.`);
   }

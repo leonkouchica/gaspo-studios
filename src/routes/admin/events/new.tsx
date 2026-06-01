@@ -79,7 +79,7 @@ function NewEventPage() {
     registrationOpen: true,
     registrationDeadline: "",
     capacity: "",
-    sponsorshipEnabled: false,
+    sponsorshipEnabled: true,
   });
 
   // Speakers State
@@ -183,6 +183,35 @@ function NewEventPage() {
     setSpeakers((prev) => prev.filter((s) => s.id !== id));
   };
 
+  // Sponsor Packages State
+  interface SponsorPkg { id: string; name: string; price: number; benefits: string[]; highlighted: boolean; }
+  const [sponsorPackages, setSponsorPackages] = useState<SponsorPkg[]>([]);
+  const [sponsorForm, setSponsorForm] = useState({ name: "", price: "", benefit: "", benefits: [] as string[] });
+
+  const addSponsorBenefit = () => {
+    if (!sponsorForm.benefit.trim()) return;
+    setSponsorForm((p) => ({ ...p, benefits: [...p.benefits, p.benefit.trim()], benefit: "" }));
+  };
+  const removeSponsorBenefit = (i: number) => {
+    setSponsorForm((p) => ({ ...p, benefits: p.benefits.filter((_, idx) => idx !== i) }));
+  };
+  const addSponsorPackage = () => {
+    if (!sponsorForm.name.trim() || !sponsorForm.price) return toast.error("Package name and price are required.");
+    const pkg: SponsorPkg = {
+      id: `sp_${Math.random().toString(36).substring(2, 9)}`,
+      name: sponsorForm.name.trim(),
+      price: parseInt(sponsorForm.price, 10) || 0,
+      benefits: sponsorForm.benefits,
+      highlighted: sponsorPackages.length === 0,
+    };
+    setSponsorPackages((prev) => [...prev, pkg]);
+    setSponsorForm({ name: "", price: "", benefit: "", benefits: [] });
+    toast.success("Sponsor package added!");
+  };
+  const removeSponsorPackage = (id: string) => {
+    setSponsorPackages((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
     const status = statusOverride || form.status;
 
@@ -222,6 +251,10 @@ function NewEventPage() {
         capacity: form.capacity ? parseInt(form.capacity, 10) : undefined,
         sponsorshipEnabled: form.sponsorshipEnabled,
         speakers: speakers,
+        sponsorPackages: sponsorPackages.map((p) => ({
+          id: p.id, name: p.name, price: p.price, currency: "NGN",
+          benefits: p.benefits, highlighted: p.highlighted,
+        })),
         featured: false,
         seo: {
           title: form.title,
@@ -765,6 +798,49 @@ function NewEventPage() {
               />
             </FormField>
           </div>
+
+          {/* Sponsor Packages */}
+          {form.sponsorshipEnabled && (
+            <div className="border-t border-border pt-5 space-y-4">
+              <h4 className="font-semibold text-dark text-sm flex items-center gap-2">
+                💰 Sponsor Packages ({sponsorPackages.length})
+              </h4>
+              <div className="grid md:grid-cols-3 gap-3">
+                <input value={sponsorForm.name} onChange={(e) => setSponsorForm((p) => ({ ...p, name: e.target.value }))} placeholder="Package name (e.g. Gold)" className={inputCls} />
+                <input value={sponsorForm.price} onChange={(e) => setSponsorForm((p) => ({ ...p, price: e.target.value }))} type="number" placeholder="Price in NGN" className={inputCls} />
+                <button type="button" onClick={addSponsorPackage} className="bg-primary hover:bg-primary-hover text-white rounded-xl px-4 py-2.5 text-xs font-semibold transition-all flex items-center justify-center gap-1">
+                  <Plus size={14} /> Add Package
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <input value={sponsorForm.benefit} onChange={(e) => setSponsorForm((p) => ({ ...p, benefit: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSponsorBenefit())} placeholder="Add benefit (e.g. Logo on banner)" className={`${inputCls} flex-1`} />
+                <button type="button" onClick={addSponsorBenefit} className="bg-muted hover:bg-muted/80 text-dark rounded-xl px-3 py-2 text-xs font-semibold border border-border">+</button>
+              </div>
+              {sponsorForm.benefits.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {sponsorForm.benefits.map((b, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full">
+                      {b}
+                      <button type="button" onClick={() => removeSponsorBenefit(i)} className="hover:text-red-500 ml-0.5">&times;</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {sponsorPackages.length > 0 && (
+                <div className="space-y-2">
+                  {sponsorPackages.map((pkg) => (
+                    <div key={pkg.id} className="flex items-center justify-between border border-border rounded-xl p-3 bg-muted/10">
+                      <div>
+                        <p className="font-semibold text-dark text-sm">{pkg.name} {pkg.highlighted && <span className="text-primary text-xs ml-1">⭐ Featured</span>}</p>
+                        <p className="text-xs text-muted-foreground">₦{pkg.price.toLocaleString()} · {pkg.benefits.length} benefits</p>
+                      </div>
+                      <button type="button" onClick={() => removeSponsorPackage(pkg.id)} className="text-muted-foreground hover:text-red-500 p-1"><Trash2 size={14} /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
