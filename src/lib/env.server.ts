@@ -50,6 +50,9 @@ const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().default(""),
   VITE_SUPABASE_URL: z.string().optional().default(""),
   VITE_SUPABASE_ANON_KEY: z.string().optional().default(""),
+  VAPID_PRIVATE_KEY: z.string().optional().default(""),
+  VAPID_SUBJECT: z.string().optional().default("mailto:admin@gaspostudios.com"),
+  VITE_VAPID_PUBLIC_KEY: z.string().optional().default(""),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -71,6 +74,19 @@ function readEnv(): ServerEnv {
       (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SUPABASE_ANON_KEY) ||
       process.env.VITE_SUPABASE_ANON_KEY ||
       dotEnvVars.VITE_SUPABASE_ANON_KEY ||
+      "",
+    VAPID_PRIVATE_KEY:
+      process.env.VAPID_PRIVATE_KEY ||
+      dotEnvVars.VAPID_PRIVATE_KEY ||
+      "",
+    VAPID_SUBJECT:
+      process.env.VAPID_SUBJECT ||
+      dotEnvVars.VAPID_SUBJECT ||
+      "mailto:admin@gaspostudios.com",
+    VITE_VAPID_PUBLIC_KEY:
+      (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_VAPID_PUBLIC_KEY) ||
+      process.env.VITE_VAPID_PUBLIC_KEY ||
+      dotEnvVars.VITE_VAPID_PUBLIC_KEY ||
       "",
   };
 

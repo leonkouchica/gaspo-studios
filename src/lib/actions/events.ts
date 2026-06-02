@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
+import { sendPushNotifications } from "../push-notification.server.ts";
 
 const eventStatusSchema = z.enum([
   "draft",
@@ -266,6 +267,17 @@ export const createEvent = createServerFn({ method: "POST" })
       throw new Error(`Failed to create event: ${error.message}`);
     }
 
+    // Fire-and-forget: send push notification for published/upcoming events
+    if (inserted.status === "published" || inserted.status === "upcoming") {
+      sendPushNotifications({
+        type: "event",
+        title: inserted.title,
+        body: inserted.summary,
+        url: `/events/${inserted.slug}`,
+        dateString: inserted.date,
+      }).catch((err) => console.error("Push notification failed for event create:", err));
+    }
+
     return inserted;
   });
 
@@ -308,6 +320,14 @@ export const updateEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     requireAuth();
     const supabase = getSupabaseAdmin();
+
+    // Get current status to detect transition to published/upcoming
+    const { data: currentEvent } = await supabase
+      .from("events")
+      .select("status")
+      .eq("id", data.id)
+      .single();
+
     const { data: updated, error } = await supabase
       .from("events")
       .update({
@@ -349,6 +369,20 @@ export const updateEvent = createServerFn({ method: "POST" })
 
     if (error) {
       throw new Error(`Failed to update event: ${error.message}`);
+    }
+
+    // Fire-and-forget: send push if transitioning to published/upcoming
+    const isNewlyPublic = (data.status === "published" || data.status === "upcoming") &&
+      currentEvent?.status !== "published" &&
+      currentEvent?.status !== "upcoming";
+    if (isNewlyPublic) {
+      sendPushNotifications({
+        type: "event",
+        title: updated.title,
+        body: updated.summary,
+        url: `/events/${updated.slug}`,
+        dateString: updated.date,
+      }).catch((err) => console.error("Push notification failed for event update:", err));
     }
 
     return updated;

@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import { NotificationManager } from "../components/NotificationManager";
 import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
@@ -128,6 +129,7 @@ function RootComponent() {
         <Outlet />
       </main>
       {!isAdmin && <Footer />}
+      <NotificationManager />
       <Toaster />
     </QueryClientProvider>
   );

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
+import { sendPushNotifications } from "../push-notification.server.ts";
 
 const postStatusSchema = z.enum(["draft", "published", "scheduled"]);
 
@@ -291,6 +292,16 @@ export const createBlogPost = createServerFn({ method: "POST" })
       throw new Error(`Failed to create blog post: ${error.message}`);
     }
 
+    // Fire-and-forget: send push notification for published posts (not scheduled)
+    if (inserted.status === "published") {
+      sendPushNotifications({
+        type: "blog",
+        title: inserted.title,
+        body: inserted.excerpt,
+        url: `/blog/${inserted.slug}`,
+      }).catch((err) => console.error("Push notification failed for blog create:", err));
+    }
+
     return inserted;
   });
 
@@ -362,6 +373,16 @@ export const updateBlogPost = createServerFn({ method: "POST" })
 
     if (error) {
       throw new Error(`Failed to update blog post: ${error.message}`);
+    }
+
+    // Fire-and-forget: send push if transitioning to published (not from already-published)
+    if (data.status === "published" && currentPost?.status !== "published") {
+      sendPushNotifications({
+        type: "blog",
+        title: updated.title,
+        body: updated.excerpt,
+        url: `/blog/${updated.slug}`,
+      }).catch((err) => console.error("Push notification failed for blog update:", err));
     }
 
     return updated;
