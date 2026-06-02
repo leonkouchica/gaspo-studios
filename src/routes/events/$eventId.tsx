@@ -10,6 +10,7 @@ import {
 import { type Event, type Speaker, type SponsorPackage } from "../../data/events";
 import { fetchEvent, registerForEvent } from "../../lib/actions/events";
 import { initSponsorPayment } from "../../lib/actions/sponsors";
+import { ShareButton } from "../../components/ShareButton";
 import { ScrollReveal } from "../../components/ScrollReveal";
 
 export const Route = createFileRoute("/events/$eventId")({
@@ -542,24 +543,6 @@ function EventDetailPage() {
   const TypeIcon = { physical: Landmark, virtual: Wifi, hybrid: Globe }[event.type];
   const typeLabel = { physical: "In-Person", virtual: "Virtual", hybrid: "Hybrid" }[event.type];
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: event.title, url: window.location.href });
-        return;
-      } catch (err) {
-        console.error("Error sharing", err);
-      }
-    }
-    
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
-    } catch (err) {
-      toast.error("Failed to copy link");
-    }
-  };
-
   return (
     <>
       {/* ── HERO ── */}
@@ -606,13 +589,11 @@ function EventDetailPage() {
                   Become a Sponsor
                 </a>
               )}
-              <button
-                onClick={handleShare}
-                className="w-11 h-11 rounded-full border border-white/30 text-white hover:bg-white/10 flex items-center justify-center transition-all"
-                aria-label="Share"
-              >
-                <Share2 size={16} />
-              </button>
+              <ShareButton
+                title={event.title}
+                summary={event.summary}
+                className="w-11 h-11 rounded-full border border-white/30 text-white hover:bg-white/10"
+              />
             </div>
           </div>
         </div>

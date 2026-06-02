@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { useEffect } from "react";
 import { fetchBlogPost, recordBlogPostView } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
+import { ShareButton } from "../../components/ShareButton";
 
 export const Route = createFileRoute("/blog/$postId")({
   loader: async ({ params }) => {
@@ -70,25 +70,6 @@ function BlogPostDetail() {
     }
   }, [post?.slug]);
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: post.title, url: window.location.href });
-        return;
-      } catch (err) {
-        // User may have cancelled, or it failed. We'll fallback to clipboard just in case.
-        console.error("Error sharing", err);
-      }
-    }
-    
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
-    } catch (err) {
-      toast.error("Failed to copy link");
-    }
-  };
-
   return (
     <>
       <article className="bg-background min-h-screen pb-20">
@@ -149,9 +130,7 @@ function BlogPostDetail() {
               
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-dark">Share:</span>
-                <button onClick={handleShare} className="w-10 h-10 rounded-full bg-muted text-dark flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Share2 size={16} />
-                </button>
+                <ShareButton title={post.title} summary={post.excerpt} />
               </div>
             </div>
             
