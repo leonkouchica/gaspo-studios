@@ -463,7 +463,7 @@ function BookPage() {
           {/* STEP 3 — CONFIRM */}
           {step === 3 && !isSuccess && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-2xl mx-auto">
-              <div className="text-center mb-10">
+              <div className="text-center mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-dark">Review your booking</h2>
                 <p className="text-muted-foreground mt-2">Check everything looks right before we confirm.</p>
               </div>
@@ -547,8 +547,8 @@ function BookPage() {
       </section>
 
       {/* ── Trust badges ── */}
-      <section className="py-16 bg-muted/40">
-        <div className="container-x grid md:grid-cols-3 gap-6">
+      <section className="py-12 bg-muted/40">
+        <div className="container-x grid md:grid-cols-3 gap-4">
           {[
             { icon: ShieldCheck, t: "Secure Payment", d: "256-bit SSL checkout — your data is always protected." },
             { icon: Zap, t: "Instant Confirmation", d: "You'll receive a confirmation email within seconds." },
