@@ -1,8 +1,9 @@
 // src/components/NotificationManager.tsx
 // User-facing push notification opt-in UI with channel checkboxes.
 // Renders a floating panel / card for notification preferences.
+// Auto-dismisses after user accepts or declines.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, BellRing, X, Loader2 } from "lucide-react";
 import { usePushNotification, type UserPreferences } from "../hooks/use-push-notification";
 import { Switch } from "./ui/switch";
@@ -21,6 +22,18 @@ export function NotificationManager() {
   } = usePushNotification();
 
   const [dismissed, setDismissed] = useState(false);
+  const [justSubscribed, setJustSubscribed] = useState(false);
+
+  // Auto-dismiss the "Notifications Active" panel 5 seconds after subscribing
+  useEffect(() => {
+    if (justSubscribed) {
+      const timer = setTimeout(() => {
+        setDismissed(true);
+        setJustSubscribed(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [justSubscribed]);
 
   // Don't show anything if unsupported or permanently dismissed
   if (permission === "unsupported" || dismissed) return null;
@@ -53,14 +66,23 @@ export function NotificationManager() {
     );
   }
 
-  // Subscribed state — show preference toggles
+  // Subscribed state — show preference toggles (auto-dismisses after 5s)
   if (subscribed) {
     return (
       <div className="fixed bottom-6 right-6 z-50 max-w-sm animate-in slide-in-from-bottom-4 duration-300">
         <div className="bg-white rounded-2xl border border-border shadow-lg p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <BellRing size={18} className="text-primary" />
-            <p className="text-sm font-semibold text-dark">Notifications Active</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <BellRing size={18} className="text-primary" />
+              <p className="text-sm font-semibold text-dark">Notifications Active</p>
+            </div>
+            <button
+              onClick={() => setDismissed(true)}
+              className="text-muted-foreground hover:text-dark shrink-0"
+              aria-label="Dismiss"
+            >
+              <X size={16} />
+            </button>
           </div>
 
           <div className="space-y-3">
@@ -124,7 +146,10 @@ export function NotificationManager() {
         )}
 
         <Button
-          onClick={() => subscribe(preferences)}
+          onClick={async () => {
+            await subscribe(preferences);
+            setJustSubscribed(true);
+          }}
           disabled={loading}
           className="w-full"
           size="sm"
