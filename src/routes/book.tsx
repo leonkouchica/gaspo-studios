@@ -547,7 +547,7 @@ function BookPage() {
       </section>
 
       {/* ── Trust badges ── */}
-      <section className="py-8 bg-muted/40">
+      <section className="pt-4 pb-8 bg-muted/40">
         <div className="container-x grid md:grid-cols-3 gap-3">
           {[
             { icon: ShieldCheck, t: "Secure Payment", d: "256-bit SSL checkout — your data is always protected." },
