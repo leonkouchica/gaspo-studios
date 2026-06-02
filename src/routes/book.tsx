@@ -547,20 +547,20 @@ function BookPage() {
       </section>
 
       {/* ── Trust badges ── */}
-      <section className="py-12 bg-muted/40">
-        <div className="container-x grid md:grid-cols-3 gap-4">
+      <section className="py-8 bg-muted/40">
+        <div className="container-x grid md:grid-cols-3 gap-3">
           {[
             { icon: ShieldCheck, t: "Secure Payment", d: "256-bit SSL checkout — your data is always protected." },
             { icon: Zap, t: "Instant Confirmation", d: "You'll receive a confirmation email within seconds." },
             { icon: Award, t: "Satisfaction Guaranteed", d: "Love your photos — or your deposit back, no questions." },
           ].map(({ icon: Icon, t, d }) => (
-            <div key={t} className="bg-white rounded-2xl p-6 border border-border flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Icon size={22} />
+            <div key={t} className="bg-white rounded-2xl p-4 border border-border flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Icon size={18} />
               </div>
               <div>
-                <p className="font-semibold text-dark">{t}</p>
-                <p className="text-sm text-muted-foreground mt-1">{d}</p>
+                <p className="font-semibold text-dark text-sm">{t}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{d}</p>
               </div>
             </div>
           ))}
