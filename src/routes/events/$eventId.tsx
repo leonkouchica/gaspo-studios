@@ -627,7 +627,7 @@ function EventDetailPage() {
       </section>
 
       {/* ── ABOUT & AGENDA ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-16 md:py-20 bg-background">
         <div className="container-x">
           <div className="grid lg:grid-cols-[1fr_380px] gap-12 items-start">
             {/* Left — description */}
@@ -725,10 +725,10 @@ function EventDetailPage() {
       </section>
 
       {/* ── WHY ATTEND ── */}
-      <section className="py-20 md:py-28 bg-dark">
+      <section className="py-16 md:py-20 bg-dark">
         <div className="container-x">
           <ScrollReveal>
-            <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="text-center max-w-2xl mx-auto mb-10">
               <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Attend</p>
               <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Why Attend?</h2>
             </div>
@@ -759,10 +759,10 @@ function EventDetailPage() {
 
       {/* ── KEYNOTE SPEAKERS ── */}
       {event.speakers.length > 0 && (
-        <section className="py-20 md:py-28 bg-background">
+        <section className="py-16 md:py-20 bg-background">
           <div className="container-x">
             <ScrollReveal>
-              <div className="mb-14">
+              <div className="mb-10">
                 <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
                   <span className="inline-block w-6 h-px bg-primary" /> Speakers
                 </p>
@@ -803,10 +803,10 @@ function EventDetailPage() {
 
       {/* ── SPONSORSHIP ── */}
       {event.sponsorshipEnabled && event.sponsorPackages.length > 0 && (
-        <section id="sponsorship" className="py-20 md:py-28 bg-muted/40 scroll-mt-20">
+        <section id="sponsorship" className="py-16 md:py-20 bg-muted/40 scroll-mt-20">
           <div className="container-x">
             <ScrollReveal>
-              <div className="text-center max-w-2xl mx-auto mb-14">
+              <div className="text-center max-w-2xl mx-auto mb-10">
                 <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Sponsorship</p>
                 <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Become a Sponsor</h2>
                 <p className="text-muted-foreground mt-4 leading-relaxed">
@@ -826,10 +826,10 @@ function EventDetailPage() {
       )}
 
       {/* ── REGISTER + CONTACT + MAP ── */}
-      <section id="register" className="py-20 md:py-28 bg-dark scroll-mt-20">
+      <section id="register" className="py-16 md:py-20 bg-dark scroll-mt-20">
         <div className="container-x">
           <ScrollReveal>
-            <div className="mb-14">
+            <div className="mb-10">
               <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
                 <span className="inline-block w-6 h-px bg-primary" /> Registration
               </p>
@@ -842,7 +842,7 @@ function EventDetailPage() {
       </section>
 
       {/* ── CONTACT + MAP ── */}
-      <section id="contact" className="py-20 md:py-28 bg-dark-secondary border-t border-border-dark scroll-mt-20">
+      <section id="contact" className="py-16 md:py-20 bg-dark-secondary border-t border-border-dark scroll-mt-20">
         <div className="container-x">
           <div className="grid lg:grid-cols-2 gap-12">
             <ScrollReveal direction="left">
@@ -962,7 +962,7 @@ function EventDetailPage() {
 
       {/* ── SPONSOR SUCCESS INLINE ── */}
       {sponsorStep === "success" && event.sponsorshipEnabled && event.sponsorPackages.length > 0 && (
-        <section className="py-20 md:py-28 bg-green-50">
+        <section className="py-16 md:py-20 bg-green-50">
           <div className="container-x text-center">
             <div className="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-6">
               <Check size={36} />
