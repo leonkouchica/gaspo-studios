@@ -17,7 +17,7 @@ interface ShareButtonProps {
   title: string;
   url?: string;
   summary?: string;
-  variant?: "icon" | "text";
+  variant?: "icon" | "text" | "dark";
   className?: string;
 }
 
@@ -157,9 +157,11 @@ export function ShareButton({
       <button
         onClick={handleClick}
         className={
-          variant === "text"
-            ? `inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-dark transition-colors ${className}`
-            : `w-10 h-10 rounded-full bg-muted text-dark flex items-center justify-center hover:bg-primary hover:text-white transition-colors ${className}`
+          variant === "dark"
+            ? `w-11 h-11 rounded-full border border-white/30 text-white hover:bg-white/10 flex items-center justify-center transition-all ${className ?? ""}`
+            : variant === "text"
+              ? `inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-dark transition-colors ${className ?? ""}`
+              : `w-10 h-10 rounded-full bg-muted text-dark flex items-center justify-center hover:bg-primary hover:text-white transition-colors ${className ?? ""}`
         }
         aria-label="Share"
       >

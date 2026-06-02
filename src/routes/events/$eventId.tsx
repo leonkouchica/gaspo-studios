@@ -592,7 +592,7 @@ function EventDetailPage() {
               <ShareButton
                 title={event.title}
                 summary={event.summary}
-                className="w-11 h-11 rounded-full border border-white/30 text-white hover:bg-white/10"
+                variant="dark"
               />
             </div>
           </div>
