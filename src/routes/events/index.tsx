@@ -167,7 +167,7 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 p-5">
+      <div className="flex flex-col flex-1 p-4">
         <div className="flex items-center gap-2 mb-2">
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted rounded-full px-2.5 py-1">
             <TypeIcon size={11} /> {TYPE_LABELS[event.type]}
@@ -175,9 +175,9 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
           <CountdownPill date={event.date} />
         </div>
         <h3 className="text-lg font-bold text-dark leading-tight">{event.title}</h3>
-        <p className="text-muted-foreground text-sm mt-2 line-clamp-3 flex-1">{event.summary}</p>
+        <p className="text-muted-foreground text-sm mt-1.5 line-clamp-3 flex-1">{event.summary}</p>
 
-        <div className="mt-4 space-y-1.5 text-xs text-muted-foreground">
+        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <CalendarDays size={12} className="text-primary shrink-0" />
             {new Date(event.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })} · {event.time}
@@ -189,7 +189,7 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
         </div>
 
         {spotsLeft !== null && event.capacity && (
-          <div className="mt-4">
+          <div className="mt-3">
             <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
               <span>{event.registrationCount} registered</span>
               <span>{spotsLeft} spots left</span>
@@ -362,10 +362,10 @@ function EventsListPage() {
           </section>
 
           {/* ── EVENTS LISTING ── */}
-          <section className="py-20 md:py-28 bg-background">
+          <section className="py-16 md:py-20 bg-background">
             <div className="container-x">
               <ScrollReveal>
-                <div className="mb-10">
+                <div className="mb-6">
                   <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
                     <span className="inline-block w-6 h-px bg-primary" />
                     What's Coming Up
@@ -432,7 +432,7 @@ function EventsListPage() {
                   <p className="text-muted-foreground">No events match your filters. <button className="text-primary underline" onClick={() => { setSearch(""); setTypeFilter("all"); setCategoryFilter("all"); }}>Clear filters</button></p>
                 </div>
               ) : view === "grid" ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filtered.map((event, i) => (
                     <ScrollReveal key={event.id} delay={i * 80} className="h-full">
                       <EventCard event={event} view="grid" />
@@ -440,7 +440,7 @@ function EventsListPage() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {filtered.map((event, i) => (
                     <ScrollReveal key={event.id} delay={i * 60}>
                       <EventCard event={event} view="list" />
@@ -452,10 +452,10 @@ function EventsListPage() {
           </section>
 
           {/* ── PAST EVENTS ── */}
-          <section className="py-20 md:py-28 bg-muted/40">
+          <section className="py-16 md:py-20 bg-muted/40">
             <div className="container-x">
               <ScrollReveal>
-                <div className="mb-12">
+                <div className="mb-8">
                   <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
                     <span className="inline-block w-6 h-px bg-primary" />
                     Look Back
