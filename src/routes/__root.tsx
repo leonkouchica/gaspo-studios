@@ -15,6 +15,7 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { NotificationManager } from "../components/NotificationManager";
 import { Toaster } from "../components/ui/sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 function NotFoundComponent() {
   return (
@@ -131,6 +132,7 @@ function RootComponent() {
       {!isAdmin && <Footer />}
       <NotificationManager />
       <Toaster />
+      <Analytics />
     </QueryClientProvider>
   );
 }
