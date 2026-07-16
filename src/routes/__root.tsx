@@ -134,7 +134,7 @@ function RootComponent() {
       <NotificationManager />
       <Toaster />
       <Analytics />
-      <SpeedInsights />
+      <SpeedInsights route={location.pathname} />
     </QueryClientProvider>
   );
 }
