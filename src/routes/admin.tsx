@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, createContext, useContext } from "react";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Image, Home,
   Camera, ChevronLeft, ChevronRight, Menu, X, Bell, Search,
-  LogOut, Settings, User, ExternalLink, BarChart2, Building2, Mail
+  LogOut, Settings, User, ExternalLink, BarChart2, Building2, Mail, Mailbox
 } from "lucide-react";
 import { Logo } from "../components/Logo";
 import { supabase } from "../lib/supabase";
@@ -60,6 +60,7 @@ const nav = [
       { to: "/admin/homepage" as const, icon: Home, label: "Homepage" },
       { to: "/admin/blog" as const, icon: BookOpen, label: "Blog Posts" },
       { to: "/admin/gallery" as const, icon: Image, label: "Gallery" },
+      { to: "/admin/newsletter" as const, icon: Mailbox, label: "Newsletters" },
     ],
   },
   {
@@ -270,7 +271,7 @@ function AdminLayout() {
         return item.label === "Gallery";
       }
       if (role === "editor") {
-        return ["Dashboard", "Analytics", "Homepage", "Blog Posts", "Gallery", "Events"].includes(item.label);
+        return ["Dashboard", "Analytics", "Homepage", "Blog Posts", "Gallery", "Events", "Newsletters"].includes(item.label);
       }
       if (role === "viewer") {
         return ["Dashboard", "Analytics", "Events", "Sponsor Portal", "Book a Shoot", "Messages"].includes(item.label);

@@ -29,6 +29,7 @@ import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
 import { Route as AdminSponsorPortalRouteImport } from './routes/admin/sponsor-portal'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminNewsletterRouteImport } from './routes/admin/newsletter'
 import { Route as AdminMessagesRouteImport } from './routes/admin/messages'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
@@ -143,6 +144,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminNewsletterRoute = AdminNewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMessagesRoute = AdminMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/blog/$postId': typeof BlogPostIdRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/login'
     | '/admin/messages'
+    | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/login'
     | '/admin/messages'
+    | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/login'
     | '/admin/messages'
+    | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
     | '/blog/$postId'
@@ -580,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/newsletter': {
+      id: '/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AdminNewsletterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/messages': {
       id: '/admin/messages'
       path: '/messages'
@@ -678,6 +697,7 @@ interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSponsorPortalRoute: typeof AdminSponsorPortalRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -697,6 +717,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMessagesRoute: AdminMessagesRoute,
+  AdminNewsletterRoute: AdminNewsletterRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSponsorPortalRoute: AdminSponsorPortalRoute,
   AdminIndexRoute: AdminIndexRoute,
