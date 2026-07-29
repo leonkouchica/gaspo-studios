@@ -26,6 +26,7 @@ const speakerSchema = z.object({
   photo: z.string(),
   linkedin: z.string().optional(),
   twitter: z.string().optional(),
+  instagram: z.string().optional(),
 });
 
 const agendaItemSchema = z.object({

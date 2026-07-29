@@ -41,6 +41,7 @@ interface Speaker {
   photo: string;
   linkedin?: string;
   twitter?: string;
+  instagram?: string;
 }
 
 function FormField({
@@ -111,6 +112,7 @@ function EditEventPage() {
     photo: "",
     linkedin: "",
     twitter: "",
+    instagram: "",
   });
   const [speakerUploading, setSpeakerUploading] = useState(false);
   const speakerFileRef = useRef<HTMLInputElement>(null);
@@ -215,6 +217,7 @@ function EditEventPage() {
       photo: speakerForm.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(speakerForm.name)}&background=1a1a1a&color=fff&size=200`,
       linkedin: speakerForm.linkedin || undefined,
       twitter: speakerForm.twitter || undefined,
+      instagram: speakerForm.instagram || undefined,
     };
     setSpeakers((prev) => [...prev, newSpeaker]);
     setSpeakerForm({
@@ -225,6 +228,7 @@ function EditEventPage() {
       photo: "",
       linkedin: "",
       twitter: "",
+      instagram: "",
     });
     toast.success("Speaker added!");
   };
@@ -236,6 +240,11 @@ function EditEventPage() {
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
     const status = statusOverride || form.status;
     const isDraft = status === "draft";
+
+    if (speakerForm.name.trim() || speakerForm.title.trim()) {
+      setTab("Speakers");
+      return toast.error("You have an unsaved speaker. Please click '+ Add Speaker to List' before saving.");
+    }
 
     // Drafts only require a title so you can save partial progress
     if (!form.title.trim()) return toast.error("Event title is required.");
@@ -656,7 +665,7 @@ function EditEventPage() {
               </FormField>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mt-3">
+            <div className="grid md:grid-cols-3 gap-4 mt-3">
               <FormField label="LinkedIn URL">
                 <input
                   value={speakerForm.linkedin}
@@ -670,6 +679,14 @@ function EditEventPage() {
                   value={speakerForm.twitter}
                   onChange={(e) => setSpeakerForm((prev) => ({ ...prev, twitter: e.target.value }))}
                   placeholder="https://twitter.com/username"
+                  className={inputCls}
+                />
+              </FormField>
+              <FormField label="Instagram URL">
+                <input
+                  value={speakerForm.instagram}
+                  onChange={(e) => setSpeakerForm((prev) => ({ ...prev, instagram: e.target.value }))}
+                  placeholder="https://instagram.com/username"
                   className={inputCls}
                 />
               </FormField>

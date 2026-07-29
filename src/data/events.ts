@@ -18,6 +18,7 @@ export interface Speaker {
   photo: string;
   linkedin?: string;
   twitter?: string;
+  instagram?: string;
 }
 
 export interface AgendaItem {
