@@ -952,20 +952,20 @@ function EventDetailPage() {
 
             <ScrollReveal direction="right" delay={150}>
               <div className="rounded-2xl overflow-hidden h-[500px] bg-dark border border-border-dark flex items-center justify-center">
-                {event.mapEmbedUrl ? (
+                {event.type === 'virtual' ? (
+                  <div className="text-center text-white/40">
+                    <Wifi size={40} className="mx-auto mb-3 text-primary/40" />
+                    <p className="text-sm">Virtual Event</p>
+                    <p className="text-xs mt-1">Join link will be provided upon registration</p>
+                  </div>
+                ) : (
                   <iframe
-                    src={event.mapEmbedUrl}
-                    className="w-full h-full"
+                    src={event.mapEmbedUrl?.includes("embed") ? event.mapEmbedUrl : `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue || ''} ${event.address || ''} ${event.city || ''}`)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    className="w-full h-full border-0"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     title={`Map for ${event.venue}`}
                   />
-                ) : (
-                  <div className="text-center text-white/40">
-                    <MapPin size={40} className="mx-auto mb-3 text-primary/40" />
-                    <p className="text-sm">{event.venue}</p>
-                    <p className="text-xs mt-1">{event.address}, {event.city}</p>
-                  </div>
                 )}
               </div>
             </ScrollReveal>
