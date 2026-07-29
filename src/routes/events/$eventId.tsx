@@ -68,7 +68,17 @@ export const Route = createFileRoute("/events/$eventId")({
 
 function useCountdown(targetDate: string) {
   const calc = () => {
-    const time = new Date(targetDate).getTime();
+    let time = new Date(targetDate).getTime();
+    if (isNaN(time)) {
+      const cleanDate = targetDate.replace(/T(undefined|null)?$/, "").replace(/T$/, "");
+      time = new Date(cleanDate).getTime();
+      if (isNaN(time)) {
+        const safeDate = cleanDate.replace(/-/g, "/").replace("T", " ");
+        time = new Date(`${safeDate}:00`).getTime();
+        if (isNaN(time)) time = new Date(safeDate).getTime();
+      }
+    }
+    
     const diff = time - Date.now();
     if (isNaN(diff) || diff <= 0) return { days: 0, hours: 0, mins: 0, secs: 0 };
     return {
