@@ -1,11 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ChevronLeft, Save, Plus, Trash2, GripVertical,
-  ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload
+  ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload, RotateCcw
 } from "lucide-react";
 import { createEvent, uploadEventImage } from "../../../lib/actions/events";
+import { arrayBufferToBase64 } from "../../../lib/base64";
 import { toast } from "sonner";
+
+const DRAFT_STORAGE_KEY = "gaspo_event_draft_new";
 
 export const Route = createFileRoute("/admin/events/new")({
   component: NewEventPage,
@@ -54,10 +57,11 @@ function NewEventPage() {
   const [tab, setTab] = useState<Tab>("Basic Info");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form State
-  const [form, setForm] = useState({
+  // Form State — default values
+  const defaultForm = {
     title: "",
     slug: "",
     summary: "",
@@ -80,7 +84,9 @@ function NewEventPage() {
     registrationDeadline: "",
     capacity: "",
     sponsorshipEnabled: true,
-  });
+  };
+
+  const [form, setForm] = useState(defaultForm);
 
   // Speakers State
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
@@ -96,6 +102,41 @@ function NewEventPage() {
   const [speakerUploading, setSpeakerUploading] = useState(false);
   const speakerFileRef = useRef<HTMLInputElement>(null);
 
+  // Sponsor Packages State (declared here so it's available in localStorage useEffect below)
+  interface SponsorPkg { id: string; name: string; price: number; benefits: string[]; highlighted: boolean; }
+  const [sponsorPackages, setSponsorPackages] = useState<SponsorPkg[]>([]);
+  const [sponsorForm, setSponsorForm] = useState({ name: "", price: "", benefit: "", benefits: [] as string[] });
+
+  // ── localStorage auto-save & rehydration ──
+  // Rehydrate on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const { form: savedForm, speakers: savedSpeakers, sponsorPackages: savedPkgs } = JSON.parse(saved);
+        if (savedForm) setForm((f) => ({ ...f, ...savedForm }));
+        if (savedSpeakers) setSpeakers(savedSpeakers);
+        if (savedPkgs) setSponsorPackages(savedPkgs);
+        setDraftRestored(true);
+      }
+    } catch {
+      // Corrupt storage — ignore silently
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist on every change
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({ form, speakers, sponsorPackages })
+      );
+    } catch {
+      // Storage full — ignore silently
+    }
+  }, [form, speakers, sponsorPackages]);
+
   const set = (field: string, value: unknown) =>
     setForm((f) => ({ ...f, [field]: value }));
 
@@ -108,10 +149,10 @@ function NewEventPage() {
   const removeItem = (field: "objectives" | "topics", i: number) =>
     setForm((f) => ({ ...f, [field]: f[field].filter((_, idx) => idx !== i) }));
 
-  // Image Upload helper
+  // Image Upload helper — uses chunk-based base64 to avoid stack overflow on large files
   const uploadFile = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const base64 = arrayBufferToBase64(arrayBuffer);
     const result = await uploadEventImage({
       data: {
         fileBase64: base64,
@@ -162,7 +203,7 @@ function NewEventPage() {
       title: speakerForm.title,
       company: speakerForm.company,
       bio: speakerForm.bio,
-      photo: speakerForm.photo || "https://images.unsplash.com/photo-1531123897727-8f129e1bf304?w=400",
+      photo: speakerForm.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(speakerForm.name)}&background=1a1a1a&color=fff&size=200`,
       linkedin: speakerForm.linkedin || undefined,
       twitter: speakerForm.twitter || undefined,
     };
@@ -184,10 +225,7 @@ function NewEventPage() {
   };
 
   // Sponsor Packages State
-  interface SponsorPkg { id: string; name: string; price: number; benefits: string[]; highlighted: boolean; }
-  const [sponsorPackages, setSponsorPackages] = useState<SponsorPkg[]>([]);
-  const [sponsorForm, setSponsorForm] = useState({ name: "", price: "", benefit: "", benefits: [] as string[] });
-
+  // (State is declared earlier, near the other state hooks; only helpers are defined here)
   const addSponsorBenefit = () => {
     if (!sponsorForm.benefit.trim()) return;
     setSponsorForm((p) => ({ ...p, benefits: [...p.benefits, p.benefit.trim()], benefit: "" }));
@@ -214,16 +252,22 @@ function NewEventPage() {
 
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
     const status = statusOverride || form.status;
+    const isDraft = status === "draft";
 
+    // Drafts only require a title so you can save partial progress
     if (!form.title.trim()) return toast.error("Event title is required.");
-    if (!form.slug.trim()) return toast.error("Event slug is required.");
-    if (!form.summary.trim()) return toast.error("Event summary is required.");
-    if (!form.category) return toast.error("Please select a category.");
-    if (!form.date) return toast.error("Please select a date.");
-    if (!form.time) return toast.error("Please enter a start time.");
-    if (!form.venue.trim()) return toast.error("Please specify a venue.");
-    if (!form.city.trim()) return toast.error("Please specify a city.");
-    if (!form.bannerImage) return toast.error("Please upload or specify a banner image.");
+
+    // Full validation only runs when publishing
+    if (!isDraft) {
+      if (!form.slug.trim()) return toast.error("Event slug is required.");
+      if (!form.summary.trim()) return toast.error("Event summary is required.");
+      if (!form.category) return toast.error("Please select a category.");
+      if (!form.date) return toast.error("Please select a date.");
+      if (!form.time) return toast.error("Please enter a start time.");
+      if (!form.venue.trim()) return toast.error("Please specify a venue.");
+      if (!form.city.trim()) return toast.error("Please specify a city.");
+      if (!form.bannerImage) return toast.error("Please upload or specify a banner image.");
+    }
 
     setSaving(true);
     try {
@@ -263,7 +307,9 @@ function NewEventPage() {
       };
 
       await createEvent({ data: payload });
-      toast.success("Event created successfully.");
+      // Clear saved draft on successful submit
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      toast.success(isDraft ? "Draft saved successfully." : "Event published successfully.");
       navigate({ to: "/admin/events" });
     } catch (err: any) {
       toast.error(`Failed to create event: ${err.message}`);
@@ -274,6 +320,25 @@ function NewEventPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      {/* Draft restored banner */}
+      {draftRestored && (
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm">
+          <span>📋 <strong>Draft restored</strong> — your previous progress has been recovered.</span>
+          <button
+            onClick={() => {
+              setForm(defaultForm);
+              setSpeakers([]);
+              setSponsorPackages([]);
+              localStorage.removeItem(DRAFT_STORAGE_KEY);
+              setDraftRestored(false);
+            }}
+            className="ml-4 flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-900 underline"
+          >
+            <RotateCcw size={12} /> Discard draft
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link

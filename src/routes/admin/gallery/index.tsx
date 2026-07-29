@@ -4,6 +4,7 @@ import {
   Upload, Search, Trash2, Eye, EyeOff, LayoutGrid, CheckCircle2,
   Loader2, RefreshCw, AlertCircle, X
 } from "lucide-react";
+import { arrayBufferToBase64 } from "../../../lib/base64";
 import {
   fetchGalleryImages,
   uploadGalleryImage,
@@ -72,7 +73,7 @@ function UploadModal({
     try {
       // Read file as base64 to send via createServerFn validator
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const base64 = arrayBufferToBase64(arrayBuffer);
       const result = await uploadGalleryImage({
         data: {
           fileBase64: base64,

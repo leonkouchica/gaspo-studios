@@ -89,8 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Gaspo Studios — Professional Photography" },
       { name: "twitter:description", content: "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0b924f4d-34da-4d56-9553-a45ba56027ce" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/0b924f4d-34da-4d56-9553-a45ba56027ce" },
+      { property: "og:image", content: "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png" },
+      { name: "twitter:image", content: "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -111,7 +111,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>

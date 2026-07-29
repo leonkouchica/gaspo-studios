@@ -5,6 +5,7 @@ import {
   ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload
 } from "lucide-react";
 import { fetchEvent, updateEvent, uploadEventImage } from "../../../../lib/actions/events";
+import { arrayBufferToBase64 } from "../../../../lib/base64";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/events/$eventId/edit")({
@@ -157,10 +158,10 @@ function EditEventPage() {
   const removeItem = (field: "objectives" | "topics", i: number) =>
     setForm((f) => ({ ...f, [field]: f[field].filter((_, idx) => idx !== i) }));
 
-  // Image Upload helper
+  // Image Upload helper — uses chunk-based base64 to avoid stack overflow on large files
   const uploadFile = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const base64 = arrayBufferToBase64(arrayBuffer);
     const result = await uploadEventImage({
       data: {
         fileBase64: base64,
@@ -211,7 +212,7 @@ function EditEventPage() {
       title: speakerForm.title,
       company: speakerForm.company,
       bio: speakerForm.bio,
-      photo: speakerForm.photo || "https://images.unsplash.com/photo-1531123897727-8f129e1bf304?w=400",
+      photo: speakerForm.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(speakerForm.name)}&background=1a1a1a&color=fff&size=200`,
       linkedin: speakerForm.linkedin || undefined,
       twitter: speakerForm.twitter || undefined,
     };
@@ -234,16 +235,22 @@ function EditEventPage() {
 
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
     const status = statusOverride || form.status;
+    const isDraft = status === "draft";
 
+    // Drafts only require a title so you can save partial progress
     if (!form.title.trim()) return toast.error("Event title is required.");
-    if (!form.slug.trim()) return toast.error("Event slug is required.");
-    if (!form.summary.trim()) return toast.error("Event summary is required.");
-    if (!form.category) return toast.error("Please select a category.");
-    if (!form.date) return toast.error("Please select a date.");
-    if (!form.time) return toast.error("Please enter a start time.");
-    if (!form.venue.trim()) return toast.error("Please specify a venue.");
-    if (!form.city.trim()) return toast.error("Please specify a city.");
-    if (!form.bannerImage) return toast.error("Please upload or specify a banner image.");
+
+    // Full validation only runs when publishing
+    if (!isDraft) {
+      if (!form.slug.trim()) return toast.error("Event slug is required.");
+      if (!form.summary.trim()) return toast.error("Event summary is required.");
+      if (!form.category) return toast.error("Please select a category.");
+      if (!form.date) return toast.error("Please select a date.");
+      if (!form.time) return toast.error("Please enter a start time.");
+      if (!form.venue.trim()) return toast.error("Please specify a venue.");
+      if (!form.city.trim()) return toast.error("Please specify a city.");
+      if (!form.bannerImage) return toast.error("Please upload or specify a banner image.");
+    }
 
     setSaving(true);
     try {
@@ -280,7 +287,7 @@ function EditEventPage() {
       };
 
       await updateEvent({ data: payload });
-      toast.success("Event updated successfully.");
+      toast.success(isDraft ? "Draft saved successfully." : "Event updated successfully.");
       navigate({ to: "/admin/events" });
     } catch (err: any) {
       toast.error(`Failed to update event: ${err.message}`);

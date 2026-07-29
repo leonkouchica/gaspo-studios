@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { ChevronLeft, Save, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { createBlogPost, uploadBlogImage } from "../../../lib/actions/blog";
+import { arrayBufferToBase64 } from "../../../lib/base64";
 import RichTextEditor from "../../../components/RichTextEditor";
 import { toast } from "sonner";
 
@@ -41,7 +42,7 @@ function NewBlogPostPage() {
     setUploading(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const base64 = arrayBufferToBase64(arrayBuffer);
       const result = await uploadBlogImage({
         data: { fileBase64: base64, fileName: file.name, mimeType: file.type },
       });
