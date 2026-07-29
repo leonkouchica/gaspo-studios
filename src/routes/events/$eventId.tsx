@@ -90,16 +90,14 @@ function useCountdown(targetDate: string) {
   };
 
   const [t, setT] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     setT(calc());
     const id = setInterval(() => setT(calc()), 1000);
     return () => clearInterval(id);
   }, [targetDate]);
 
-  return mounted ? t : { days: 0, hours: 0, mins: 0, secs: 0 };
+  return t;
 }
 
 // ─── SPEAKER MODAL ───────────────────────────────────────────────────────────
@@ -305,7 +303,7 @@ function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg:
 
 // ─── REGISTRATION FORM ───────────────────────────────────────────────────────
 function RegistrationForm({ event }: { event: Event }) {
-  const countdown = useCountdown(`${event.date}T${event.time}`);
+  const countdown = useCountdown(event.date);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
