@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
-  ChevronLeft, Save, Plus, Trash2, GripVertical,
+  ChevronLeft, Save, Plus, Trash2, GripVertical, Pencil,
   ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload
 } from "lucide-react";
 import { fetchEvent, updateEvent, uploadEventImage } from "../../../../lib/actions/events";
@@ -235,6 +235,24 @@ function EditEventPage() {
 
   const removeSpeaker = (id: string) => {
     setSpeakers((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const editSpeaker = (spk: Speaker) => {
+    if (speakerForm.name.trim() || speakerForm.title.trim()) {
+      return toast.error("Please add your current speaker to the list before editing another.");
+    }
+    setSpeakerForm({
+      name: spk.name,
+      title: spk.title,
+      company: spk.company,
+      bio: spk.bio,
+      photo: spk.photo,
+      linkedin: spk.linkedin || "",
+      twitter: spk.twitter || "",
+      instagram: spk.instagram || "",
+    });
+    removeSpeaker(spk.id);
+    document.getElementById("add-speaker-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
@@ -588,7 +606,7 @@ function EditEventPage() {
       {/* ── SPEAKERS ── */}
       {tab === "Speakers" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-border p-6">
+          <div className="bg-white rounded-2xl border border-border p-6" id="add-speaker-form">
             <h3 className="font-semibold text-dark mb-4">Add Event Speaker</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <FormField label="Speaker Name" required>
@@ -725,14 +743,24 @@ function EditEventPage() {
                       <p className="text-xs text-muted-foreground truncate">{spk.title}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{spk.company}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeSpeaker(spk.id)}
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-muted"
-                      title="Remove Speaker"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                    <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => editSpeaker(spk)}
+                        className="text-muted-foreground hover:text-primary p-1.5 rounded-lg hover:bg-muted bg-white border border-border shadow-sm"
+                        title="Edit Speaker"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeSpeaker(spk.id)}
+                        className="text-muted-foreground hover:text-red-500 p-1.5 rounded-lg hover:bg-muted bg-white border border-border shadow-sm"
+                        title="Remove Speaker"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
