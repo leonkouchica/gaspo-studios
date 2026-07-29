@@ -314,7 +314,13 @@ function EventsListPage() {
     loadEvents();
   }, [loadEvents]);
 
-  const featured = events.find((e) => e.featured && e.status !== "completed") || events[0];
+  const featured = (() => {
+    const upcoming = events.filter((e) => e.status !== "completed");
+    if (upcoming.length === 0) return events[0];
+    const sorted = [...upcoming].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const explicitFeatured = sorted.find((e) => e.featured);
+    return explicitFeatured || sorted[0];
+  })();
   const categories = Array.from(new Set(events.map((e) => e.category)));
 
   const filtered = events.filter((e) => {

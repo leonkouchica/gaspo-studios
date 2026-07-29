@@ -1097,6 +1097,20 @@ function NewEventPage() {
         <div className="bg-white rounded-2xl border border-border p-6 space-y-5">
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border">
             <div>
+              <p className="font-semibold text-dark text-sm">Featured Event</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Show as the main hero event on the upcoming events page</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set("featured", !form.featured)}
+              className={`w-12 h-6 rounded-full transition-all ${form.featured ? "bg-primary" : "bg-muted-foreground/30"}`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${form.featured ? "translate-x-6" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border">
+            <div>
               <p className="font-semibold text-dark text-sm">Registration Open</p>
               <p className="text-xs text-muted-foreground mt-0.5">Allow attendees to register for this event</p>
             </div>
