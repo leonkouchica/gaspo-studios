@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin/events/new")({
   component: NewEventPage,
 });
 
-const TABS = ["Basic Info", "Details", "Speakers", "Agenda", "Why Attend", "Settings"] as const;
+const TABS = ["Basic Info", "Details", "Speakers", "Media", "Agenda", "Why Attend", "Settings"] as const;
 type Tab = (typeof TABS)[number];
 
 interface Speaker {
