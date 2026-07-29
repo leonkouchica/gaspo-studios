@@ -36,6 +36,11 @@ const agendaItemSchema = z.object({
   description: z.string().optional(),
 });
 
+const whyAttendItemSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
+
 const sponsorPackageSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -104,6 +109,10 @@ export const fetchEvents = createServerFn({ method: "GET" })
       registrationCount: e.registration_count || 0,
       featured: e.featured,
       seo: e.seo || {},
+      speakerSubtitle: e.seo?.speakerSubtitle,
+      whyAttendEnabled: e.seo?.whyAttendEnabled ?? true,
+      whyAttendItems: e.seo?.whyAttendItems || [],
+      sponsorLogos: e.seo?.sponsorLogos || [],
       createdAt: e.created_at,
       updatedAt: e.updated_at,
     }));
@@ -167,6 +176,10 @@ export const fetchEvent = createServerFn({ method: "GET" })
       registrationCount: e.registration_count || 0,
       featured: e.featured,
       seo: e.seo || {},
+      speakerSubtitle: e.seo?.speakerSubtitle,
+      whyAttendEnabled: e.seo?.whyAttendEnabled ?? true,
+      whyAttendItems: e.seo?.whyAttendItems || [],
+      sponsorLogos: e.seo?.sponsorLogos || [],
       createdAt: e.created_at,
       updatedAt: e.updated_at,
     };
@@ -221,6 +234,10 @@ export const createEvent = createServerFn({ method: "POST" })
       capacity: z.number().optional(),
       featured: z.boolean().default(false),
       seo: z.any().optional(),
+      speakerSubtitle: z.string().optional(),
+      whyAttendEnabled: z.boolean().default(true),
+      whyAttendItems: z.array(whyAttendItemSchema).default([]),
+      sponsorLogos: z.array(z.string()).default([]),
     })
   )
   .handler(async ({ data }) => {
@@ -259,7 +276,13 @@ export const createEvent = createServerFn({ method: "POST" })
         capacity: data.capacity || null,
         registration_count: 0,
         featured: data.featured,
-        seo: data.seo || {},
+        seo: {
+          ...(data.seo || {}),
+          speakerSubtitle: data.speakerSubtitle,
+          whyAttendEnabled: data.whyAttendEnabled,
+          whyAttendItems: data.whyAttendItems,
+          sponsorLogos: data.sponsorLogos,
+        },
       })
       .select()
       .single();
@@ -316,6 +339,10 @@ export const updateEvent = createServerFn({ method: "POST" })
       capacity: z.number().optional(),
       featured: z.boolean().default(false),
       seo: z.any().optional(),
+      speakerSubtitle: z.string().optional(),
+      whyAttendEnabled: z.boolean().default(true),
+      whyAttendItems: z.array(whyAttendItemSchema).default([]),
+      sponsorLogos: z.array(z.string()).default([]),
     })
   )
   .handler(async ({ data }) => {
@@ -361,7 +388,13 @@ export const updateEvent = createServerFn({ method: "POST" })
         registration_deadline: data.registrationDeadline || null,
         capacity: data.capacity || null,
         featured: data.featured,
-        seo: data.seo || {},
+        seo: {
+          ...(data.seo || {}),
+          speakerSubtitle: data.speakerSubtitle,
+          whyAttendEnabled: data.whyAttendEnabled,
+          whyAttendItems: data.whyAttendItems,
+          sponsorLogos: data.sponsorLogos,
+        },
         updated_at: new Date().toISOString(),
       })
       .eq("id", data.id)

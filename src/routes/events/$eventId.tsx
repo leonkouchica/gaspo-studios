@@ -66,12 +66,7 @@ export const Route = createFileRoute("/events/$eventId")({
 
 function useCountdown(targetDate: string) {
   const calc = () => {
-    // Convert 'YYYY-MM-DDTHH:mm' to 'YYYY/MM/DD HH:mm:00' for cross-browser Safari/iOS support
-    const safeDate = targetDate.replace(/-/g, "/").replace("T", " ");
-    let time = new Date(`${safeDate}:00`).getTime();
-    if (isNaN(time)) time = new Date(safeDate).getTime();
-    if (isNaN(time)) time = new Date(targetDate).getTime();
-    
+    const time = new Date(targetDate).getTime();
     const diff = time - Date.now();
     if (isNaN(diff) || diff <= 0) return { days: 0, hours: 0, mins: 0, secs: 0 };
     return {
@@ -725,37 +720,42 @@ function EventDetailPage() {
       </section>
 
       {/* ── WHY ATTEND ── */}
-      <section className="py-16 md:py-20 bg-dark">
-        <div className="container-x">
-          <ScrollReveal>
-            <div className="text-center max-w-2xl mx-auto mb-10">
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Attend</p>
-              <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Why Attend?</h2>
-            </div>
-          </ScrollReveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              { icon: Lightbulb, num: "01", title: "Cutting-Edge Insights", desc: "Gain frontline knowledge from leading experts reshaping industries with AI and emerging technology." },
-              { icon: Zap, num: "02", title: "Hands-On Learning", desc: "Participate in interactive workshops and live demos — walk away with skills you can apply immediately." },
-              { icon: Network, num: "03", title: "Exclusive Networking", desc: "Connect with 500+ professionals, investors, and innovators. Build partnerships that last beyond the event." },
-              { icon: Award, num: "04", title: "Innovation Showcase", desc: "Discover pioneering startups and products that are defining the future of business and technology." },
-            ].map(({ icon: Icon, num, title, desc }, i) => (
-              <ScrollReveal key={title} delay={i * 100}>
-                <div className="bg-dark-secondary rounded-2xl border border-border-dark p-6 hover:-translate-y-1 transition-all duration-300 group">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                      <Icon size={22} />
+      {event.whyAttendEnabled !== false && (
+        <section className="py-16 md:py-20 bg-dark">
+          <div className="container-x">
+            <ScrollReveal>
+              <div className="text-center max-w-2xl mx-auto mb-10">
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Attend</p>
+                <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Why Attend?</h2>
+              </div>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {(event.whyAttendItems?.length ? event.whyAttendItems : [
+                { icon: Lightbulb, title: "Cutting-Edge Insights", description: "Gain frontline knowledge from leading experts reshaping industries with AI and emerging technology." },
+                { icon: Zap, title: "Hands-On Learning", description: "Participate in interactive workshops and live demos — walk away with skills you can apply immediately." },
+                { icon: Network, title: "Exclusive Networking", description: "Connect with 500+ professionals, investors, and innovators. Build partnerships that last beyond the event." },
+                { icon: Award, title: "Innovation Showcase", description: "Discover pioneering startups and products that are defining the future of business and technology." },
+              ]).map((item, i) => {
+                const Icon = (item as any).icon || Lightbulb; // default icon if none provided
+                const num = String(i + 1).padStart(2, "0");
+                return (
+                <ScrollReveal key={item.title} delay={i * 100}>
+                  <div className="bg-dark-secondary rounded-2xl border border-border-dark p-6 hover:-translate-y-1 transition-all duration-300 group h-full">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                        <Icon size={22} />
+                      </div>
+                      <span className="text-5xl font-bold text-white/5">{num}</span>
                     </div>
-                    <span className="text-5xl font-bold text-white/5">{num}</span>
+                    <h4 className="text-white font-bold text-lg">{item.title}</h4>
+                    <p className="text-white/60 text-sm mt-2 leading-relaxed">{item.description}</p>
                   </div>
-                  <h4 className="text-white font-bold text-lg">{title}</h4>
-                  <p className="text-white/60 text-sm mt-2 leading-relaxed">{desc}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              )})}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── KEYNOTE SPEAKERS ── */}
       {event.speakers.length > 0 && (
@@ -767,7 +767,9 @@ function EventDetailPage() {
                   <span className="inline-block w-6 h-px bg-primary" /> Speakers
                 </p>
                 <h2 className="text-4xl md:text-6xl font-bold text-dark mt-3">Keynote Speakers</h2>
-                <p className="text-muted-foreground mt-3">Meet the industry leaders shaping the Future of AI.</p>
+                <p className="text-muted-foreground mt-3">
+                  {event.speakerSubtitle || "Meet the industry leaders shaping the future."}
+                </p>
               </div>
             </ScrollReveal>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -797,6 +799,55 @@ function EventDetailPage() {
                 </ScrollReveal>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+      {/* ── EVENT SCHEDULE / AGENDA ── */}
+      {event.agenda && event.agenda.length > 0 && (
+        <section className="py-16 md:py-20 bg-dark text-white">
+          <div className="container-x">
+            <ScrollReveal>
+              <div className="text-center max-w-2xl mx-auto mb-10">
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Agenda</p>
+                <h2 className="text-4xl md:text-5xl font-bold mt-3">Event Schedule</h2>
+              </div>
+            </ScrollReveal>
+            <div className="max-w-4xl mx-auto space-y-6">
+              {event.agenda.map((item, i) => (
+                <ScrollReveal key={item.id} delay={i * 80}>
+                  <div className="flex flex-col md:flex-row gap-4 md:gap-8 bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-primary/50 transition-colors">
+                    <div className="shrink-0 md:w-32">
+                      <p className="text-primary font-bold text-xl">{item.time}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold">{item.title}</h4>
+                      {item.speaker && (
+                        <p className="text-sm font-semibold text-white/80 mt-1">Speaker: {item.speaker}</p>
+                      )}
+                      {item.description && (
+                        <p className="text-sm text-white/60 mt-2 leading-relaxed">{item.description}</p>
+                      )}
+                    </div>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── SPONSOR LOGOS ── */}
+      {event.sponsorLogos && event.sponsorLogos.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="container-x text-center">
+            <ScrollReveal>
+              <p className="uppercase text-xs tracking-[0.25em] text-muted-foreground font-semibold mb-8">Sponsors & Partners</p>
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                {event.sponsorLogos.map((logo, i) => (
+                  <img key={i} src={logo} alt="Sponsor Logo" className="h-16 md:h-20 object-contain grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100" />
+                ))}
+              </div>
+            </ScrollReveal>
           </div>
         </section>
       )}

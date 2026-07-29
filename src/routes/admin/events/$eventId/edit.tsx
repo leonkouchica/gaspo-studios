@@ -100,10 +100,15 @@ function EditEventPage() {
     registrationDeadline: "",
     capacity: "",
     sponsorshipEnabled: false,
+    mapEmbedUrl: "",
+    speakerSubtitle: "",
+    whyAttendEnabled: true,
   });
 
   // Speakers State
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [draggedSpeakerId, setDraggedSpeakerId] = useState<string | null>(null);
+  const [dragOverSpeakerId, setDragOverSpeakerId] = useState<string | null>(null);
   const [speakerForm, setSpeakerForm] = useState({
     name: "",
     title: "",
@@ -116,6 +121,24 @@ function EditEventPage() {
   });
   const [speakerUploading, setSpeakerUploading] = useState(false);
   const speakerFileRef = useRef<HTMLInputElement>(null);
+
+  // Sponsor Packages State
+  interface SponsorPkg { id: string; name: string; price: number; benefits: string[]; highlighted: boolean; }
+  const [sponsorPackages, setSponsorPackages] = useState<SponsorPkg[]>([]);
+  const [sponsorForm, setSponsorForm] = useState({ name: "", price: "", benefit: "", benefits: [] as string[] });
+
+  // Agenda State
+  const [agenda, setAgenda] = useState<{ id: string; time: string; title: string; speaker: string; description: string }[]>([]);
+  const [agendaForm, setAgendaForm] = useState({ time: "", title: "", speaker: "", description: "" });
+  
+  // Why Attend State
+  const [whyAttendItems, setWhyAttendItems] = useState<{ id: string; title: string; description: string }[]>([]);
+  const [whyAttendForm, setWhyAttendForm] = useState({ title: "", description: "" });
+
+  // Sponsor Logos State
+  const [sponsorLogos, setSponsorLogos] = useState<string[]>([]);
+  const sponsorLogoRef = useRef<HTMLInputElement>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   // Load event data into state
   useEffect(() => {
@@ -143,8 +166,15 @@ function EditEventPage() {
         registrationDeadline: event.registrationDeadline ? event.registrationDeadline.substring(0, 10) : "",
         capacity: event.capacity ? String(event.capacity) : "",
         sponsorshipEnabled: event.sponsorshipEnabled === true,
+        mapEmbedUrl: event.mapEmbedUrl || "",
+        speakerSubtitle: event.speakerSubtitle || "",
+        whyAttendEnabled: event.whyAttendEnabled !== false,
       });
       setSpeakers((event.speakers as any) || []);
+      setSponsorPackages((event.sponsorPackages as any) || []);
+      setAgenda((event.agenda as any) || []);
+      setWhyAttendItems((event.whyAttendItems as any) || []);
+      setSponsorLogos((event.sponsorLogos as any) || []);
     }
   }, [event]);
 
@@ -255,6 +285,91 @@ function EditEventPage() {
     document.getElementById("add-speaker-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Agenda Functions
+  const addAgendaItem = () => {
+    if (!agendaForm.time.trim() || !agendaForm.title.trim()) {
+      return toast.error("Agenda time and title are required.");
+    }
+    setAgenda((prev) => [
+      ...prev,
+      {
+        id: `agenda_${Math.random().toString(36).substring(2, 9)}`,
+        ...agendaForm,
+      },
+    ]);
+    setAgendaForm({ time: "", title: "", speaker: "", description: "" });
+    toast.success("Agenda item added!");
+  };
+
+  const removeAgendaItem = (id: string) => {
+    setAgenda((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  // Why Attend Functions
+  const addWhyAttendItem = () => {
+    if (!whyAttendForm.title.trim() || !whyAttendForm.description.trim()) {
+      return toast.error("Title and description are required.");
+    }
+    setWhyAttendItems((prev) => [
+      ...prev,
+      {
+        id: `wa_${Math.random().toString(36).substring(2, 9)}`,
+        ...whyAttendForm,
+      },
+    ]);
+    setWhyAttendForm({ title: "", description: "" });
+    toast.success("Reason added!");
+  };
+
+  const removeWhyAttendItem = (id: string) => {
+    setWhyAttendItems((prev) => prev.filter((w) => w.id !== id));
+  };
+
+  // Sponsor Logos Functions
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const url = await uploadFile(file);
+      setSponsorLogos((prev) => [...prev, url]);
+      toast.success("Sponsor logo uploaded!");
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const removeSponsorLogo = (index: number) => {
+    setSponsorLogos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Sponsor Packages Functions
+  const addSponsorBenefit = () => {
+    if (!sponsorForm.benefit.trim()) return;
+    setSponsorForm((p) => ({ ...p, benefits: [...p.benefits, p.benefit.trim()], benefit: "" }));
+  };
+  const removeSponsorBenefit = (i: number) => {
+    setSponsorForm((p) => ({ ...p, benefits: p.benefits.filter((_, idx) => idx !== i) }));
+  };
+  const addSponsorPackage = () => {
+    if (!sponsorForm.name.trim() || !sponsorForm.price) return toast.error("Package name and price are required.");
+    const pkg: SponsorPkg = {
+      id: `sp_${Math.random().toString(36).substring(2, 9)}`,
+      name: sponsorForm.name.trim(),
+      price: parseInt(sponsorForm.price, 10) || 0,
+      benefits: sponsorForm.benefits,
+      highlighted: sponsorPackages.length === 0,
+    };
+    setSponsorPackages((prev) => [...prev, pkg]);
+    setSponsorForm({ name: "", price: "", benefit: "", benefits: [] });
+    toast.success("Sponsor package added!");
+  };
+  const removeSponsorPackage = (id: string) => {
+    setSponsorPackages((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const handleSubmit = async (statusOverride?: "draft" | "published") => {
     const status = statusOverride || form.status;
     const isDraft = status === "draft";
@@ -305,7 +420,17 @@ function EditEventPage() {
         registrationDeadline: form.registrationDeadline || undefined,
         capacity: form.capacity ? parseInt(form.capacity, 10) : undefined,
         sponsorshipEnabled: form.sponsorshipEnabled,
+        mapEmbedUrl: form.mapEmbedUrl || undefined,
+        speakerSubtitle: form.speakerSubtitle || undefined,
+        whyAttendEnabled: form.whyAttendEnabled,
+        whyAttendItems: whyAttendItems,
+        sponsorLogos: sponsorLogos,
+        agenda: agenda,
         speakers: speakers,
+        sponsorPackages: sponsorPackages.map((p) => ({
+          id: p.id, name: p.name, price: p.price, currency: "NGN",
+          benefits: p.benefits, highlighted: p.highlighted,
+        })),
         featured: event.featured || false,
         seo: {
           title: form.title,
@@ -505,6 +630,15 @@ function EditEventPage() {
               />
             </FormField>
           </div>
+
+          <FormField label="Google Maps Embed URL (Optional)">
+            <input
+              value={form.mapEmbedUrl}
+              onChange={(e) => set("mapEmbedUrl", e.target.value)}
+              placeholder="e.g. https://www.google.com/maps/embed?pb=..."
+              className={inputCls}
+            />
+          </FormField>
         </div>
       )}
 
@@ -732,7 +866,42 @@ function EditEventPage() {
             ) : (
               <div className="grid sm:grid-cols-2 gap-4">
                 {speakers.map((spk) => (
-                  <div key={spk.id} className="flex gap-3 p-3.5 border border-border bg-muted/10 rounded-xl relative group">
+                  <div
+                    key={spk.id}
+                    draggable
+                    onDragStart={(e) => {
+                      setDraggedSpeakerId(spk.id);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOverSpeakerId(spk.id);
+                    }}
+                    onDragLeave={() => setDragOverSpeakerId(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedSpeakerId && draggedSpeakerId !== spk.id) {
+                        setSpeakers((prev) => {
+                          const oldIdx = prev.findIndex((s) => s.id === draggedSpeakerId);
+                          const newIdx = prev.findIndex((s) => s.id === spk.id);
+                          if (oldIdx < 0 || newIdx < 0) return prev;
+                          const newArr = [...prev];
+                          const [removed] = newArr.splice(oldIdx, 1);
+                          newArr.splice(newIdx, 0, removed);
+                          return newArr;
+                        });
+                      }
+                      setDraggedSpeakerId(null);
+                      setDragOverSpeakerId(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedSpeakerId(null);
+                      setDragOverSpeakerId(null);
+                    }}
+                    className={`flex gap-3 p-3.5 border border-border bg-muted/10 rounded-xl relative group cursor-move transition-all ${
+                      draggedSpeakerId === spk.id ? "opacity-50 border-dashed" : ""
+                    } ${dragOverSpeakerId === spk.id ? "border-primary bg-primary/5 scale-[1.02] shadow-sm" : ""}`}
+                  >
                     <img
                       src={spk.photo}
                       alt={spk.name}
@@ -822,6 +991,107 @@ function EditEventPage() {
         </div>
       )}
 
+      {/* ── AGENDA ── */}
+      {tab === "Agenda" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-border p-6" id="add-agenda-form">
+            <h3 className="font-semibold text-dark mb-4">Add Agenda Item</h3>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <FormField label="Time (e.g. 09:30 AM)">
+                <input value={agendaForm.time} onChange={(e) => setAgendaForm((p) => ({ ...p, time: e.target.value }))} className={inputCls} />
+              </FormField>
+              <FormField label="Title (e.g. Registration)">
+                <input value={agendaForm.title} onChange={(e) => setAgendaForm((p) => ({ ...p, title: e.target.value }))} className={inputCls} />
+              </FormField>
+              <FormField label="Speaker (Optional)">
+                <input value={agendaForm.speaker} onChange={(e) => setAgendaForm((p) => ({ ...p, speaker: e.target.value }))} className={inputCls} />
+              </FormField>
+              <FormField label="Description (Optional)">
+                <input value={agendaForm.description} onChange={(e) => setAgendaForm((p) => ({ ...p, description: e.target.value }))} className={inputCls} />
+              </FormField>
+            </div>
+            <div className="flex justify-end">
+              <button onClick={addAgendaItem} className="bg-primary hover:bg-primary-hover text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all">
+                + Add Item
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {agenda.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-2xl border border-border">
+                <p className="text-muted-foreground text-sm">No agenda items added yet.</p>
+              </div>
+            ) : (
+              agenda.map((item) => (
+                <div key={item.id} className="bg-white rounded-xl border border-border p-4 flex justify-between items-center group">
+                  <div>
+                    <h4 className="font-bold text-dark text-sm">{item.time} - {item.title}</h4>
+                    {item.speaker && <p className="text-xs text-primary mt-1">{item.speaker}</p>}
+                    {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  </div>
+                  <button onClick={() => removeAgendaItem(item.id)} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── WHY ATTEND ── */}
+      {tab === "Why Attend" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-border">
+            <div>
+              <p className="font-semibold text-dark text-sm">Enable "Why Attend" Section</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Show this section on the event page</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set("whyAttendEnabled", !form.whyAttendEnabled)}
+              className={`w-12 h-6 rounded-full transition-all ${form.whyAttendEnabled ? "bg-primary" : "bg-muted-foreground/30"}`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${form.whyAttendEnabled ? "translate-x-6" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+
+          {form.whyAttendEnabled && (
+            <>
+              <div className="bg-white rounded-2xl border border-border p-6">
+                <h3 className="font-semibold text-dark mb-4">Add Reason</h3>
+                <div className="grid gap-4 mb-4">
+                  <FormField label="Title (e.g. Network with Leaders)">
+                    <input value={whyAttendForm.title} onChange={(e) => setWhyAttendForm((p) => ({ ...p, title: e.target.value }))} className={inputCls} />
+                  </FormField>
+                  <FormField label="Description">
+                    <textarea rows={2} value={whyAttendForm.description} onChange={(e) => setWhyAttendForm((p) => ({ ...p, description: e.target.value }))} className={textareaCls} />
+                  </FormField>
+                </div>
+                <div className="flex justify-end">
+                  <button onClick={addWhyAttendItem} className="bg-primary hover:bg-primary-hover text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all">
+                    + Add Reason
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {whyAttendItems.map((item) => (
+                  <div key={item.id} className="bg-white rounded-xl border border-border p-5 relative group">
+                    <h4 className="font-bold text-dark mb-2">{item.title}</h4>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                    <button onClick={() => removeWhyAttendItem(item.id)} className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-red-50 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* ── SETTINGS ── */}
       {tab === "Settings" && (
         <div className="bg-white rounded-2xl border border-border p-6 space-y-5">
@@ -872,6 +1142,92 @@ function EditEventPage() {
               />
             </FormField>
           </div>
+
+          <FormField label="Speaker Subtitle (Optional text below 'Keynote Speakers')">
+            <input
+              value={form.speakerSubtitle}
+              onChange={(e) => set("speakerSubtitle", e.target.value)}
+              placeholder="e.g. Meet the industry leaders shaping the Future of AI."
+              className={inputCls}
+            />
+          </FormField>
+
+          {/* Sponsor Logos */}
+          <div className="border-t border-border pt-5 space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-dark text-sm">Sponsor & Partner Logos</h4>
+              <div>
+                <input type="file" accept="image/*" className="hidden" ref={sponsorLogoRef} onChange={handleLogoUpload} />
+                <button
+                  type="button"
+                  onClick={() => sponsorLogoRef.current?.click()}
+                  disabled={logoUploading}
+                  className="bg-muted hover:bg-muted/80 text-dark rounded-xl px-4 py-2 text-xs font-semibold transition-all"
+                >
+                  {logoUploading ? "Uploading..." : "Upload Logo"}
+                </button>
+              </div>
+            </div>
+            {sponsorLogos.length > 0 && (
+              <div className="flex flex-wrap gap-4 mt-3">
+                {sponsorLogos.map((url, i) => (
+                  <div key={i} className="relative w-24 h-24 rounded-lg bg-muted border border-border p-2 flex items-center justify-center group">
+                    <img src={url} alt="Sponsor" className="max-w-full max-h-full object-contain" />
+                    <button
+                      onClick={() => removeSponsorLogo(i)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sponsor Packages */}
+          {form.sponsorshipEnabled && (
+            <div className="border-t border-border pt-5 space-y-4">
+              <h4 className="font-semibold text-dark text-sm flex items-center gap-2">
+                💰 Sponsor Packages ({sponsorPackages.length})
+              </h4>
+              <div className="grid md:grid-cols-3 gap-3">
+                <input value={sponsorForm.name} onChange={(e) => setSponsorForm((p) => ({ ...p, name: e.target.value }))} placeholder="Package name (e.g. Gold)" className={inputCls} />
+                <input value={sponsorForm.price} onChange={(e) => setSponsorForm((p) => ({ ...p, price: e.target.value }))} type="number" placeholder="Price in NGN" className={inputCls} />
+                <button type="button" onClick={addSponsorPackage} className="bg-primary hover:bg-primary-hover text-white rounded-xl px-4 py-2.5 text-xs font-semibold transition-all flex items-center justify-center gap-1">
+                  <Plus size={14} /> Add Package
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <input value={sponsorForm.benefit} onChange={(e) => setSponsorForm((p) => ({ ...p, benefit: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSponsorBenefit())} placeholder="Add benefit (e.g. Logo on banner)" className={`${inputCls} flex-1`} />
+                <button type="button" onClick={addSponsorBenefit} className="bg-muted hover:bg-muted/80 text-dark rounded-xl px-3 py-2 text-xs font-semibold border border-border">+</button>
+              </div>
+              {sponsorForm.benefits.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {sponsorForm.benefits.map((b, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full">
+                      {b}
+                      <button type="button" onClick={() => removeSponsorBenefit(i)} className="hover:text-red-500 ml-0.5">&times;</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <div className="space-y-2 mt-4">
+                {sponsorPackages.map((pkg) => (
+                  <div key={pkg.id} className="p-3 border border-border rounded-xl flex items-center justify-between group">
+                    <div>
+                      <p className="font-bold text-sm text-dark">{pkg.name} — ₦{pkg.price.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground truncate">{pkg.benefits.join(", ")}</p>
+                    </div>
+                    <button onClick={() => removeSponsorPackage(pkg.id)} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
