@@ -1215,12 +1215,12 @@ function NewEventPage() {
               {sponsorPackages.length > 0 && (
                 <div className="space-y-2">
                   {sponsorPackages.map((pkg) => (
-                    <div key={pkg.id} className="flex items-center justify-between border border-border rounded-xl p-3 bg-muted/10">
-                      <div>
-                        <p className="font-semibold text-dark text-sm">{pkg.name} {pkg.highlighted && <span className="text-primary text-xs ml-1">⭐ Featured</span>}</p>
-                        <p className="text-xs text-muted-foreground">₦{pkg.price.toLocaleString()} · {pkg.benefits.length} benefits</p>
+                    <div key={pkg.id} className="flex items-center justify-between border border-border rounded-xl p-3 bg-muted/10 gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-dark text-sm truncate">{pkg.name} {pkg.highlighted && <span className="text-primary text-xs ml-1">⭐ Featured</span>}</p>
+                        <p className="text-xs text-muted-foreground truncate">₦{pkg.price.toLocaleString()} · {pkg.benefits.length} benefits</p>
                       </div>
-                      <button type="button" onClick={() => removeSponsorPackage(pkg.id)} className="text-muted-foreground hover:text-red-500 p-1"><Trash2 size={14} /></button>
+                      <button type="button" onClick={() => removeSponsorPackage(pkg.id)} className="text-muted-foreground hover:text-red-500 shrink-0 p-1"><Trash2 size={14} /></button>
                     </div>
                   ))}
                 </div>

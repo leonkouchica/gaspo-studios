@@ -1215,12 +1215,12 @@ function EditEventPage() {
               
               <div className="space-y-2 mt-4">
                 {sponsorPackages.map((pkg) => (
-                  <div key={pkg.id} className="p-3 border border-border rounded-xl flex items-center justify-between group">
-                    <div>
-                      <p className="font-bold text-sm text-dark">{pkg.name} — ₦{pkg.price.toLocaleString()}</p>
+                  <div key={pkg.id} className="p-3 border border-border rounded-xl flex items-center justify-between group gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-sm text-dark truncate">{pkg.name} — ₦{pkg.price.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground truncate">{pkg.benefits.join(", ")}</p>
                     </div>
-                    <button onClick={() => removeSponsorPackage(pkg.id)} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                    <button onClick={() => removeSponsorPackage(pkg.id)} className="w-8 h-8 shrink-0 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
