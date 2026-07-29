@@ -35,7 +35,7 @@ export const Route = createFileRoute("/events/$eventId")({
         
         /* OpenGraph / Facebook */
         { property: "og:type", content: "website" },
-        { property: "og:url", content: `https://gaspotechstudios.com${pathname}` },
+        { property: "og:url", content: `https://www.gaspostudios.com${pathname}` },
         { property: "og:title", content: event.seo?.title || event.title },
         { property: "og:description", content: event.seo?.description || event.summary },
         { property: "og:image", content: event.seo?.ogImage || event.bannerImage },
@@ -44,12 +44,12 @@ export const Route = createFileRoute("/events/$eventId")({
         
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:url", content: `https://gaspotechstudios.com${pathname}` },
+        { name: "twitter:url", content: `https://www.gaspostudios.com${pathname}` },
         { name: "twitter:title", content: event.seo?.title || event.title },
         { name: "twitter:description", content: event.seo?.description || event.summary },
         { name: "twitter:image", content: event.seo?.ogImage || event.bannerImage },
       ],
-      links: [{ rel: "canonical", href: `https://gaspotechstudios.com${pathname}` }],
+      links: [{ rel: "canonical", href: `https://www.gaspostudios.com${pathname}` }],
     };
   },
   component: EventDetailPage,
@@ -507,7 +507,7 @@ function RegistrationForm({ event }: { event: Event }) {
             <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
               <Mail size={14} />
             </div>
-            events@gaspotechstudios.com
+            events@gaspostudios.com
           </div>
           <div className="flex items-center gap-3 text-white/70">
             <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
@@ -931,7 +931,7 @@ function EventDetailPage() {
                     <span className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
                       <Mail size={15} />
                     </span>
-                    events@gaspotechstudios.com
+                    events@gaspostudios.com
                   </div>
                 </div>
                 <div className="flex gap-2 mt-6">

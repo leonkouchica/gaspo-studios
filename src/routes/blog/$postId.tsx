@@ -27,7 +27,7 @@ export const Route = createFileRoute("/blog/$postId")({
         
         /* OpenGraph / Facebook */
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `https://gaspotechstudios.com${pathname}` },
+        { property: "og:url", content: `https://www.gaspostudios.com${pathname}` },
         { property: "og:title", content: post.seo?.title || post.title },
         { property: "og:description", content: post.seo?.description || post.excerpt },
         { property: "og:image", content: post.seo?.ogImage || post.featuredImage },
@@ -37,12 +37,12 @@ export const Route = createFileRoute("/blog/$postId")({
         
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:url", content: `https://gaspotechstudios.com${pathname}` },
+        { name: "twitter:url", content: `https://www.gaspostudios.com${pathname}` },
         { name: "twitter:title", content: post.seo?.title || post.title },
         { name: "twitter:description", content: post.seo?.description || post.excerpt },
         { name: "twitter:image", content: post.seo?.ogImage || post.featuredImage },
       ],
-      links: [{ rel: "canonical", href: `https://gaspotechstudios.com${pathname}` }],
+      links: [{ rel: "canonical", href: `https://www.gaspostudios.com${pathname}` }],
     };
   },
   component: BlogPostDetail,
