@@ -547,7 +547,7 @@ function EventDetailPage() {
     <>
       {/* ── HERO ── */}
       <section className="relative min-h-[calc(65vh+80px)] flex items-end overflow-hidden bg-dark">
-        <img src={event.bannerImage} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+        <img src={event.bannerImage} alt={event.title} className="absolute inset-0 w-full h-full object-cover object-top" />
         <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/70 to-dark/20" />
         <div className="container-x relative z-10 pt-28 pb-14 md:pt-32 w-full">
           <div className="max-w-4xl">
