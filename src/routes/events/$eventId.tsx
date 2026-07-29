@@ -812,39 +812,6 @@ function EventDetailPage() {
           </div>
         </section>
       )}
-      {/* ── EVENT SCHEDULE / AGENDA ── */}
-      {event.agenda && event.agenda.length > 0 && (
-        <section className="py-16 md:py-20 bg-dark text-white">
-          <div className="container-x">
-            <ScrollReveal>
-              <div className="text-center max-w-2xl mx-auto mb-10">
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Agenda</p>
-                <h2 className="text-4xl md:text-5xl font-bold mt-3">Event Schedule</h2>
-              </div>
-            </ScrollReveal>
-            <div className="max-w-4xl mx-auto space-y-6">
-              {event.agenda.map((item, i) => (
-                <ScrollReveal key={item.id} delay={i * 80}>
-                  <div className="flex flex-col md:flex-row gap-4 md:gap-8 bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-primary/50 transition-colors">
-                    <div className="shrink-0 md:w-32">
-                      <p className="text-primary font-bold text-xl">{item.time}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold">{item.title}</h4>
-                      {item.speaker && (
-                        <p className="text-sm font-semibold text-white/80 mt-1">Speaker: {item.speaker}</p>
-                      )}
-                      {item.description && (
-                        <p className="text-sm text-white/60 mt-2 leading-relaxed">{item.description}</p>
-                      )}
-                    </div>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── SPONSOR LOGOS ── */}
       {event.sponsorLogos && event.sponsorLogos.length > 0 && (
