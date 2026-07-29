@@ -26,7 +26,7 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       });
       
     // Ignore error if table doesn't exist yet, we still want to test the email
-    if (error && !error.message.includes("relation \"newsletter_subscribers\" does not exist")) {
+    if (error && !error.message.includes("does not exist") && !error.message.includes("Could not find the table")) {
       throw new Error(`Failed to subscribe: ${error.message}`);
     }
 
