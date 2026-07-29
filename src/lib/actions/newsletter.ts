@@ -38,7 +38,8 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
     });
     
     if (!result.success) {
-      throw new Error("Failed to send welcome email.");
+      console.error("Resend Error:", result.error);
+      throw new Error(`Failed to send welcome email: ${result.error?.message || "Unknown Resend error"}`);
     }
 
     return { success: true };

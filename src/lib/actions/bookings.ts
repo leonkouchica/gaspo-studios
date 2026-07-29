@@ -130,8 +130,8 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     // Send internal notification email
-    await sendAppEmail({
-      to: "events@gaspostudios.com", // Or hello@gaspostudios.com
+    const emailResult = await sendAppEmail({
+      to: "leonkouchica@yahoo.ca", // Admin notification
       subject: `New Booking Request from ${data.name}`,
       react: React.createElement(BookingNotificationEmail, {
         fullName: data.name,
@@ -142,6 +142,11 @@ export const createBooking = createServerFn({ method: "POST" })
         notes: data.message,
       }),
     });
+
+    if (!emailResult.success) {
+      console.error("Failed to send booking notification email:", emailResult.error);
+      throw new Error(`Booking saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`);
+    }
 
     return {
       id: insertedData.id,

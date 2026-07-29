@@ -87,8 +87,8 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     }
 
     // Send internal notification email
-    await sendAppEmail({
-      to: "events@gaspostudios.com", // Or hello@gaspostudios.com
+    const emailResult = await sendAppEmail({
+      to: "leonkouchica@yahoo.ca", // Changed from events@gaspostudios.com since no MX records exist yet
       subject: `New Contact Message from ${data.name}`,
       react: React.createElement(ContactNotificationEmail, {
         name: data.name,
@@ -98,6 +98,11 @@ export const submitContactMessage = createServerFn({ method: "POST" })
         message: data.message,
       }),
     });
+
+    if (!emailResult.success) {
+      console.error("Failed to send contact notification email:", emailResult.error);
+      throw new Error(`Message saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`);
+    }
 
     return {
       id: inserted.id,
