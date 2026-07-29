@@ -603,6 +603,10 @@ function NewEventPage() {
                 className={inputCls}
               />
             </FormField>
+            <FormField label="Street Address">
+              <input
+                value={form.address}
+                onChange={(e) => set("address", e.target.value)}
                 placeholder="Plot 1415, Adetokunbo Ademola Street"
                 className={inputCls}
               />
@@ -626,6 +630,15 @@ function NewEventPage() {
               />
             </FormField>
           </div>
+
+          <FormField label="Google Maps Embed URL (Optional)">
+            <input
+              value={form.mapEmbedUrl}
+              onChange={(e) => set("mapEmbedUrl", e.target.value)}
+              placeholder="e.g. https://www.google.com/maps/embed?pb=..."
+              className={inputCls}
+            />
+          </FormField>
         </div>
       )}
 
