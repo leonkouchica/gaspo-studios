@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
-
+import { sendAppEmail } from "../resend.server.ts";
+import BookingNotificationEmail from "../../emails/BookingNotificationEmail.tsx";
+import * as React from "react";
 const bookingStatusSchema = z.enum(["new", "reviewed", "confirmed", "completed", "cancelled"]);
 
 export const fetchBookings = createServerFn({ method: "GET" })
@@ -126,6 +128,20 @@ export const createBooking = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(`Failed to create booking: ${error.message}`);
     }
+
+    // Send internal notification email
+    await sendAppEmail({
+      to: "events@gaspostudios.com", // Or hello@gaspostudios.com
+      subject: `New Booking Request from ${data.name}`,
+      react: React.createElement(BookingNotificationEmail, {
+        fullName: data.name,
+        email: data.email,
+        phone: data.phone || "N/A",
+        packageType: `${data.service} - ${data.package}`,
+        bookingDate: `${data.preferredDate} at ${data.preferredTime}`,
+        notes: data.message,
+      }),
+    });
 
     return {
       id: insertedData.id,

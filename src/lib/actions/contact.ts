@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
-
+import { sendAppEmail } from "../resend.server.ts";
+import ContactNotificationEmail from "../../emails/ContactNotificationEmail.tsx";
+import * as React from "react";
 export const fetchContactMessages = createServerFn({ method: "GET" })
   .inputValidator((input: { filter?: "all" | "unread" | "read"; search?: string } | undefined) => input)
   .handler(async ({ data }) => {
@@ -83,6 +85,19 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(`Failed to submit message: ${error.message}`);
     }
+
+    // Send internal notification email
+    await sendAppEmail({
+      to: "events@gaspostudios.com", // Or hello@gaspostudios.com
+      subject: `New Contact Message from ${data.name}`,
+      react: React.createElement(ContactNotificationEmail, {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        subject: data.subject,
+        message: data.message,
+      }),
+    });
 
     return {
       id: inserted.id,

@@ -1,8 +1,30 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, Loader2 } from "lucide-react";
 import { Logo } from "./Logo";
+import { useState } from "react";
+import { subscribeToNewsletter } from "../lib/actions/newsletter";
+import { toast } from "sonner";
 
 export function Footer() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      await subscribeToNewsletter({ data: { email } });
+      toast.success("Subscribed successfully!");
+      setEmail("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to subscribe");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-dark text-white">
       <div className="container-x py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
@@ -13,14 +35,21 @@ export function Footer() {
           <p className="text-white/60 text-sm mt-4 max-w-xs">
             Where art meets precision in photography. Capturing your most treasured moments since 2014.
           </p>
-          <form className="mt-6 flex flex-col sm:flex-row gap-2 max-w-md" onSubmit={(e) => e.preventDefault()}>
+          <form className="mt-6 flex flex-col sm:flex-row gap-2 max-w-md" onSubmit={handleSubscribe}>
             <input
               type="email"
               placeholder="Your email"
-              className="flex-1 rounded-full bg-white/10 border border-white/10 px-4 py-2.5 text-sm placeholder:text-white/40 focus:outline-none focus:border-primary"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              className="flex-1 rounded-full bg-white/10 border border-white/10 px-4 py-2.5 text-sm placeholder:text-white/40 focus:outline-none focus:border-primary disabled:opacity-50"
             />
-            <button className="bg-primary hover:bg-primary-hover transition-colors text-white rounded-full px-5 py-2.5 text-sm font-medium">
-              Subscribe
+            <button 
+              type="submit"
+              disabled={loading}
+              className="bg-primary hover:bg-primary-hover transition-colors text-white rounded-full px-5 py-2.5 text-sm font-medium flex items-center justify-center min-w-[100px] disabled:opacity-50"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin" /> : "Subscribe"}
             </button>
           </form>
         </div>

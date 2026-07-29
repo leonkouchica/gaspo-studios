@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
-
+import { sendAppEmail } from "../resend.server.ts";
+import SponsorshipConfirmationEmail from "../../emails/SponsorshipConfirmationEmail.tsx";
+import * as React from "react";
 // ── Sponsor Payment ──────────────────────────────────────────────────────────
 
 export const initSponsorPayment = createServerFn({ method: "POST" })
@@ -293,6 +295,7 @@ function getBaseUrl(): string {
   return "http://localhost:8081";
 }
 
+
 async function sendSponsorEmails(
   supabase: any,
   sponsor: any,
@@ -304,7 +307,7 @@ async function sendSponsorEmails(
   }) : "TBD";
   const eventVenue = event?.venue || "TBD";
 
-  // Sponsor confirmation email (log)
+  // Sponsor confirmation email
   const sponsorSubject = `Payment Confirmed — ${sponsor.package_name} Sponsorship for ${eventTitle}`;
   const sponsorBody = `
 Dear ${sponsor.contact_name},
@@ -331,6 +334,20 @@ Contact us at gaspotechgraphic@gmail.com for any questions.
     type: "sponsor_confirmation",
     reference_id: sponsor.id,
   });
+
+  // Send real email via Resend
+  await sendAppEmail({
+    to: sponsor.contact_email,
+    subject: sponsorSubject,
+    react: React.createElement(SponsorshipConfirmationEmail, {
+      sponsorName: sponsor.contact_name,
+      eventName: eventTitle,
+      packageName: sponsor.package_name,
+      amount: Number(sponsor.package_price),
+      currency: "NGN", // Assuming NGN based on the ₦ symbol in the code
+    }),
+  });
+
 
   // Admin alert email (log)
   const adminSubject = `New Sponsor Payment — ${sponsor.company_name} • ₦${Number(sponsor.package_price).toLocaleString()}`;

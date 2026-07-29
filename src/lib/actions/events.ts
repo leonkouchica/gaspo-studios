@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
+import { sendAppEmail } from "../resend.server.ts";
+import EventRegistrationEmail from "../../emails/EventRegistrationEmail.tsx";
+import * as React from "react";
 
 const eventStatusSchema = z.enum([
   "draft",
@@ -553,11 +556,33 @@ export const registerForEvent = createServerFn({ method: "POST" })
     // Increment registration count in events table
     await supabase.rpc("increment_registration_count", { event_id_param: data.eventId });
     // Fallback simple update if RPC isn't set up
-    const { data: currentEvent } = await supabase.from("events").select("registration_count").eq("id", data.eventId).single();
+    const { data: currentEvent } = await supabase.from("events").select("*").eq("id", data.eventId).single();
     if (currentEvent) {
       await supabase.from("events").update({
         registration_count: (currentEvent.registration_count || 0) + 1
       }).eq("id", data.eventId);
+
+      // Send registration email via Resend
+      const formattedDate = new Date(currentEvent.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const eventTime = new Date(currentEvent.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      
+      await sendAppEmail({
+        to: data.email,
+        subject: `Registration Confirmed: ${currentEvent.title}`,
+        react: React.createElement(EventRegistrationEmail, {
+          fullName: data.fullName,
+          eventName: currentEvent.title,
+          eventDate: formattedDate,
+          eventTime: eventTime,
+          eventType: currentEvent.type,
+          venue: currentEvent.venue,
+          mapEmbedUrl: currentEvent.map_embed_url,
+        }),
+      });
+      
+      // Update DB to mark confirmation sent
+      await supabase.from("event_registrations").update({ confirmation_sent: true }).eq("id", inserted.id);
+      inserted.confirmation_sent = true;
     }
 
     return {
