@@ -31,6 +31,8 @@ export const Route = createFileRoute("/blog/$postId")({
         { property: "og:title", content: post.seo?.title || post.title },
         { property: "og:description", content: post.seo?.description || post.excerpt },
         { property: "og:image", content: post.seo?.ogImage || post.featuredImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         { property: "article:published_time", content: post.publishedAt || "" },
         
         /* Twitter */

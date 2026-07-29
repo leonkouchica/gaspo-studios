@@ -39,6 +39,8 @@ export const Route = createFileRoute("/events/$eventId")({
         { property: "og:title", content: event.seo?.title || event.title },
         { property: "og:description", content: event.seo?.description || event.summary },
         { property: "og:image", content: event.seo?.ogImage || event.bannerImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
