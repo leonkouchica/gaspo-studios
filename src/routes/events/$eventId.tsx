@@ -872,71 +872,25 @@ function EventDetailPage() {
       {/* ── CONTACT + MAP ── */}
       <section id="contact" className="py-16 md:py-20 bg-dark-secondary border-t border-border-dark scroll-mt-20">
         <div className="container-x">
-          <div className="grid lg:grid-cols-2 gap-12">
-            <ScrollReveal direction="left">
-              <div>
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Venue</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-3">
-                  We're Here To<br />Connect And<br />Assist You
-                </h2>
-                <p className="text-white/60 mt-5 leading-relaxed">
-                  Have questions about the event? We'll help with registration, partnerships, or any other queries. Our team is standing by.
-                </p>
-                <div className="mt-8 space-y-3">
-                  <div className="flex items-center gap-3 text-white/70 text-sm">
-                    <span className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
-                      <MapPin size={15} />
-                    </span>
-                    <span>
-                      <strong className="text-white block">Event Location</strong>
-                      {event.venue}, {event.address}, {event.city}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/70 text-sm">
-                    <span className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
-                      <Mail size={15} />
-                    </span>
-                    events@gaspostudios.com
-                  </div>
+          <ScrollReveal delay={150}>
+            <div className="rounded-2xl overflow-hidden h-[500px] bg-dark border border-border-dark flex items-center justify-center">
+              {event.type === 'virtual' ? (
+                <div className="text-center text-white/40">
+                  <Wifi size={40} className="mx-auto mb-3 text-primary/40" />
+                  <p className="text-sm">Virtual Event</p>
+                  <p className="text-xs mt-1">Join link will be provided upon registration</p>
                 </div>
-                <div className="flex gap-2 mt-6">
-                  {[Linkedin, Twitter, Facebook].map((Icon, i) => (
-                    <a key={i} href="#" className="w-9 h-9 rounded-full border border-white/20 hover:border-primary hover:bg-primary text-white/60 hover:text-white flex items-center justify-center transition-all">
-                      <Icon size={14} />
-                    </a>
-                  ))}
-                </div>
-                <form className="mt-8 space-y-3" onSubmit={(e) => e.preventDefault()}>
-                  <input placeholder="Your Name" className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" />
-                  <input type="email" placeholder="Email" className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" />
-                  <textarea rows={3} placeholder="Message" className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" />
-                  <button type="submit" className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-3 font-semibold text-sm transition-all hover:scale-[1.02] flex items-center justify-center gap-2">
-                    Send Message <Send size={14} />
-                  </button>
-                </form>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal direction="right" delay={150}>
-              <div className="rounded-2xl overflow-hidden h-[500px] bg-dark border border-border-dark flex items-center justify-center">
-                {event.type === 'virtual' ? (
-                  <div className="text-center text-white/40">
-                    <Wifi size={40} className="mx-auto mb-3 text-primary/40" />
-                    <p className="text-sm">Virtual Event</p>
-                    <p className="text-xs mt-1">Join link will be provided upon registration</p>
-                  </div>
-                ) : (
-                  <iframe
-                    src={event.mapEmbedUrl?.includes("embed") ? event.mapEmbedUrl : `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue || ''} ${event.address || ''} ${event.city || ''}`)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                    className="w-full h-full border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Map for ${event.venue}`}
-                  />
-                )}
-              </div>
-            </ScrollReveal>
-          </div>
+              ) : (
+                <iframe
+                  src={event.mapEmbedUrl?.includes("embed") ? event.mapEmbedUrl : `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue || ''} ${event.address || ''} ${event.city || ''}`)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Map for ${event.venue}`}
+                />
+              )}
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
