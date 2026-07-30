@@ -7,6 +7,7 @@ import NewsletterBroadcastEmail from "../../emails/NewsletterBroadcastEmail.tsx"
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import * as React from "react";
 import { resend } from "../resend.server.ts";
+import { render } from "@react-email/components";
 
 export const subscribeToNewsletter = createServerFn({ method: "POST" })
   .inputValidator(
@@ -124,16 +125,18 @@ export const broadcastNewsletter = createServerFn({ method: "POST" })
     let successCount = 0;
     let failCount = 0;
 
+    const emailHtml = await render(React.createElement(NewsletterBroadcastEmail, {
+      subject: data.subject,
+      content: data.content,
+    }));
+
     // Process batches
     for (const batch of batches) {
       const payload = batch.map((email) => ({
         from: "Gaspo Studios <hello@gaspostudios.com>",
         to: email,
         subject: data.subject,
-        react: React.createElement(NewsletterBroadcastEmail, {
-          subject: data.subject,
-          content: data.content,
-        }),
+        html: emailHtml,
       }));
 
       try {

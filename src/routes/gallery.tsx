@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Loader2, Image as ImageIcon } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { fetchGalleryImages } from "../lib/actions/gallery";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
@@ -40,8 +41,9 @@ function GalleryPage() {
     try {
       const data = await fetchGalleryImages({ data: { visibleOnly: true } });
       setItems(data as GalleryItem[]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load gallery images:", err);
+      toast.error(err.message || "Failed to load gallery images. Please try again.");
     } finally {
       setLoading(false);
     }

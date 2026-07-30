@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ArrowRight, MessageCircle, Loader2, BookOpen } from "lucide-react";
 import { PageHeader } from "../../components/PageHeader";
 import { fetchBlogPosts } from "../../lib/actions/blog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -40,8 +41,9 @@ function BlogPage() {
     try {
       const data = await fetchBlogPosts({ data: { status: "published" } });
       setPosts(data.items as BlogPost[]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load blog posts:", err);
+      toast.error(err.message || "Failed to load blog posts. Please try again.");
     } finally {
       setLoading(false);
     }

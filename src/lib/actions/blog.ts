@@ -7,6 +7,7 @@ import { sendPushNotifications } from "../push-notification.server.ts";
 import NewsletterBroadcastEmail from "../../emails/NewsletterBroadcastEmail.tsx";
 import * as React from "react";
 import { resend } from "../resend.server.ts";
+import { render } from "@react-email/components";
 
 const postStatusSchema = z.enum(["draft", "published", "scheduled"]);
 
@@ -512,15 +513,17 @@ export const broadcastBlogNewsletter = createServerFn({ method: "POST" })
     let successCount = 0;
     let failCount = 0;
 
+    const emailHtml = await render(React.createElement(NewsletterBroadcastEmail, {
+      subject: post.title,
+      content: htmlContent,
+    }));
+
     for (const batch of batches) {
       const payload = batch.map((email) => ({
         from: "Gaspo Studios <hello@gaspostudios.com>",
         to: email,
         subject: `New Blog Post: ${post.title}`,
-        react: React.createElement(NewsletterBroadcastEmail, {
-          subject: post.title,
-          content: htmlContent,
-        }),
+        html: emailHtml,
       }));
 
       try {

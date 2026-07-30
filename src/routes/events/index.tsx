@@ -8,6 +8,7 @@ import {
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { type Event } from "../../data/events";
 import { fetchEvents } from "../../lib/actions/events";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/events/")({
   head: () => ({
@@ -303,8 +304,9 @@ function EventsListPage() {
     try {
       const data = await fetchEvents({ data: { visibleOnly: true } });
       setEvents(data as Event[]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load events:", err);
+      toast.error(err.message || "Failed to load events. Please try again.");
     } finally {
       setLoading(false);
     }
