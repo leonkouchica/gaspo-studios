@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
+import NewsletterBroadcastEmail from "../../emails/NewsletterBroadcastEmail.tsx";
+import * as React from "react";
+import { resend } from "../resend.server.ts";
 
 const postStatusSchema = z.enum(["draft", "published", "scheduled"]);
 
@@ -292,16 +295,6 @@ export const createBlogPost = createServerFn({ method: "POST" })
       throw new Error(`Failed to create blog post: ${error.message}`);
     }
 
-    // Fire-and-forget: send push notification for published posts (not scheduled)
-    if (inserted.status === "published") {
-      sendPushNotifications({
-        type: "blog",
-        title: inserted.title,
-        body: inserted.excerpt,
-        url: `/blog/${inserted.slug}`,
-      }).catch((err) => console.error("Push notification failed for blog create:", err));
-    }
-
     return inserted;
   });
 
@@ -375,16 +368,6 @@ export const updateBlogPost = createServerFn({ method: "POST" })
       throw new Error(`Failed to update blog post: ${error.message}`);
     }
 
-    // Fire-and-forget: send push if transitioning to published (not from already-published)
-    if (data.status === "published" && currentPost?.status !== "published") {
-      sendPushNotifications({
-        type: "blog",
-        title: updated.title,
-        body: updated.excerpt,
-        url: `/blog/${updated.slug}`,
-      }).catch((err) => console.error("Push notification failed for blog update:", err));
-    }
-
     return updated;
   });
 
@@ -452,4 +435,118 @@ export const publishScheduledPosts = createServerFn({ method: "POST" })
     if (updateErr) throw new Error(`Failed to publish posts: ${updateErr.message}`);
 
     return { published: ids.length, posts: scheduled.map((p) => p.title) };
+  });
+
+export const triggerBlogPushNotification = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
+    const supabase = getSupabaseAdmin();
+
+    const { data: post, error } = await supabase
+      .from("blog_posts")
+      .select("title, excerpt, slug")
+      .eq("id", data.id)
+      .single();
+
+    if (error || !post) {
+      throw new Error(`Failed to fetch post: ${error?.message}`);
+    }
+
+    const result = await sendPushNotifications({
+      type: "blog",
+      title: post.title,
+      body: post.excerpt,
+      url: `/blog/${post.slug}`,
+    }, { bypassRateLimit: true });
+
+    return result;
+  });
+
+export const broadcastBlogNewsletter = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
+    const supabase = getSupabaseAdmin();
+
+    const { data: post, error: postErr } = await supabase
+      .from("blog_posts")
+      .select("title, excerpt, featured_image, slug")
+      .eq("id", data.id)
+      .single();
+
+    if (postErr || !post) {
+      throw new Error(`Failed to fetch post: ${postErr?.message}`);
+    }
+
+    const { data: subscribers, error: subErr } = await supabase
+      .from("newsletter_subscribers")
+      .select("email")
+      .eq("status", "subscribed");
+
+    if (subErr) {
+      throw new Error(`Failed to fetch subscribers: ${subErr.message}`);
+    }
+
+    if (!subscribers || subscribers.length === 0) {
+      throw new Error("No active subscribers found.");
+    }
+
+    const htmlContent = `
+      <h2>${post.title}</h2>
+      ${post.featured_image ? `<img src="${post.featured_image.startsWith('/') ? 'https://gaspostudios.com' + post.featured_image : post.featured_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ''}
+      <p style="font-size: 16px; line-height: 1.5; color: #374151;">${post.excerpt}</p>
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="https://gaspostudios.com/blog/${post.slug}" style="display:inline-block;background-color:#10b981;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">Read the Full Post</a>
+      </div>
+    `;
+
+    const emails = subscribers.map((sub: any) => sub.email);
+    const BATCH_SIZE = 50;
+    const batches = [];
+
+    for (let i = 0; i < emails.length; i += BATCH_SIZE) {
+      batches.push(emails.slice(i, i + BATCH_SIZE));
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const batch of batches) {
+      const payload = batch.map((email) => ({
+        from: "Gaspo Studios <hello@gaspostudios.com>",
+        to: email,
+        subject: `New Blog Post: ${post.title}`,
+        react: React.createElement(NewsletterBroadcastEmail, {
+          subject: post.title,
+          content: htmlContent,
+        }),
+      }));
+
+      try {
+        const { error: batchError } = await resend.batch.send(payload);
+        if (batchError) {
+          console.error("Batch send error:", batchError);
+          failCount += batch.length;
+        } else {
+          successCount += batch.length;
+        }
+      } catch (err) {
+        console.error("Batch send exception:", err);
+        failCount += batch.length;
+      }
+    }
+
+    await supabase.from("email_log").insert({
+      recipient: `Broadcast to ${emails.length} subscribers`,
+      subject: `New Blog Post: ${post.title}`,
+      body: `Success: ${successCount}, Failed: ${failCount}`,
+      type: "newsletter_broadcast",
+    });
+
+    if (failCount > 0 && successCount === 0) {
+      throw new Error("Failed to send broadcast to all subscribers.");
+    }
+
+    return { success: true, successCount, failCount };
   });

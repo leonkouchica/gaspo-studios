@@ -4,10 +4,11 @@ import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
+import NewsletterBroadcastEmail from "../../emails/NewsletterBroadcastEmail.tsx";
+import * as React from "react";
+import { resend } from "../resend.server.ts";
 import { sendAppEmail } from "../resend.server.ts";
 import EventRegistrationEmail from "../../emails/EventRegistrationEmail.tsx";
-import * as React from "react";
-
 const eventStatusSchema = z.enum([
   "draft",
   "published",
@@ -294,17 +295,6 @@ export const createEvent = createServerFn({ method: "POST" })
       throw new Error(`Failed to create event: ${error.message}`);
     }
 
-    // Fire-and-forget: send push notification for published/upcoming events
-    if (inserted.status === "published" || inserted.status === "upcoming") {
-      sendPushNotifications({
-        type: "event",
-        title: inserted.title,
-        body: inserted.summary,
-        url: `/events/${inserted.slug}`,
-        dateString: inserted.date,
-      }).catch((err) => console.error("Push notification failed for event create:", err));
-    }
-
     return inserted;
   });
 
@@ -408,20 +398,6 @@ export const updateEvent = createServerFn({ method: "POST" })
       throw new Error(`Failed to update event: ${error.message}`);
     }
 
-    // Fire-and-forget: send push if transitioning to published/upcoming
-    const isNewlyPublic = (data.status === "published" || data.status === "upcoming") &&
-      currentEvent?.status !== "published" &&
-      currentEvent?.status !== "upcoming";
-    if (isNewlyPublic) {
-      sendPushNotifications({
-        type: "event",
-        title: updated.title,
-        body: updated.summary,
-        url: `/events/${updated.slug}`,
-        dateString: updated.date,
-      }).catch((err) => console.error("Push notification failed for event update:", err));
-    }
-
     return updated;
   });
 
@@ -458,6 +434,121 @@ export const deleteEvent = createServerFn({ method: "POST" })
     }
 
     return { success: true };
+  });
+
+export const triggerEventPushNotification = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: event, error } = await supabase
+      .from("events")
+      .select("title, summary, slug, date")
+      .eq("id", data.id)
+      .single();
+
+    if (error || !event) {
+      throw new Error(`Failed to fetch event: ${error?.message}`);
+    }
+
+    const result = await sendPushNotifications({
+      type: "event",
+      title: event.title,
+      body: event.summary,
+      url: `/events/${event.slug}`,
+      dateString: event.date,
+    }, { bypassRateLimit: true });
+
+    return result;
+  });
+
+export const broadcastEventNewsletter = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: event, error: eventErr } = await supabase
+      .from("events")
+      .select("title, summary, banner_image, slug")
+      .eq("id", data.id)
+      .single();
+
+    if (eventErr || !event) {
+      throw new Error(`Failed to fetch event: ${eventErr?.message}`);
+    }
+
+    const { data: subscribers, error: subErr } = await supabase
+      .from("newsletter_subscribers")
+      .select("email")
+      .eq("status", "subscribed");
+
+    if (subErr) {
+      throw new Error(`Failed to fetch subscribers: ${subErr.message}`);
+    }
+
+    if (!subscribers || subscribers.length === 0) {
+      throw new Error("No active subscribers found.");
+    }
+
+    const htmlContent = `
+      <h2>${event.title}</h2>
+      ${event.banner_image ? `<img src="${event.banner_image.startsWith('/') ? 'https://gaspostudios.com' + event.banner_image : event.banner_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ''}
+      <p style="font-size: 16px; line-height: 1.5; color: #374151;">${event.summary}</p>
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="https://gaspostudios.com/events/${event.slug}" style="display:inline-block;background-color:#10b981;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">View Event Details</a>
+      </div>
+    `;
+
+    const emails = subscribers.map((sub: any) => sub.email);
+    const BATCH_SIZE = 50;
+    const batches = [];
+
+    for (let i = 0; i < emails.length; i += BATCH_SIZE) {
+      batches.push(emails.slice(i, i + BATCH_SIZE));
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const batch of batches) {
+      const payload = batch.map((email) => ({
+        from: "Gaspo Studios <hello@gaspostudios.com>",
+        to: email,
+        subject: `Upcoming Event: ${event.title}`,
+        react: React.createElement(NewsletterBroadcastEmail, {
+          subject: event.title,
+          content: htmlContent,
+        }),
+      }));
+
+      try {
+        const { error: batchError } = await resend.batch.send(payload);
+        if (batchError) {
+          console.error("Batch send error:", batchError);
+          failCount += batch.length;
+        } else {
+          successCount += batch.length;
+        }
+      } catch (err) {
+        console.error("Batch send exception:", err);
+        failCount += batch.length;
+      }
+    }
+
+    await supabase.from("email_log").insert({
+      recipient: `Broadcast to ${emails.length} subscribers`,
+      subject: `Upcoming Event: ${event.title}`,
+      body: `Success: ${successCount}, Failed: ${failCount}`,
+      type: "newsletter_broadcast",
+    });
+
+    if (failCount > 0 && successCount === 0) {
+      throw new Error("Failed to send broadcast to all subscribers.");
+    }
+
+    return { success: true, successCount, failCount };
   });
 
 export const fetchEventRegistrations = createServerFn({ method: "GET" })

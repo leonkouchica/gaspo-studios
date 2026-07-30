@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, Save, Image as ImageIcon, Loader2, Upload } from "lucide-react";
-import { fetchBlogPostById, updateBlogPost, uploadBlogImage } from "../../../../lib/actions/blog";
+import { ChevronLeft, Save, Image as ImageIcon, Loader2, Upload, Bell, Mail } from "lucide-react";
+import { fetchBlogPostById, updateBlogPost, uploadBlogImage, triggerBlogPushNotification, broadcastBlogNewsletter } from "../../../../lib/actions/blog";
 import { arrayBufferToBase64 } from "../../../../lib/base64";
 import RichTextEditor from "../../../../components/RichTextEditor";
 import { toast } from "sonner";
@@ -57,6 +57,8 @@ function EditBlogPostPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [sendingPush, setSendingPush] = useState(false);
+  const [sendingNewsletter, setSendingNewsletter] = useState(false);
 
   // Populate form from loaded post
   useEffect(() => {
@@ -130,6 +132,32 @@ function EditBlogPostPage() {
       toast.error(`Failed to update: ${err.message}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSendPush = async () => {
+    if (!confirm("Send a push notification for this post right now?")) return;
+    setSendingPush(true);
+    try {
+      const res = await triggerBlogPushNotification({ data: { id: (post as any).id } });
+      toast.success(`Push sent! (${res.sent} delivered, ${res.failed} failed)`);
+    } catch (err: any) {
+      toast.error(`Push failed: ${err.message}`);
+    } finally {
+      setSendingPush(false);
+    }
+  };
+
+  const handleSendNewsletter = async () => {
+    if (!confirm("Broadcast this post to all newsletter subscribers right now?")) return;
+    setSendingNewsletter(true);
+    try {
+      const res = await broadcastBlogNewsletter({ data: { id: (post as any).id } });
+      toast.success(`Newsletter sent! (${res.successCount} delivered, ${res.failCount} failed)`);
+    } catch (err: any) {
+      toast.error(`Newsletter failed: ${err.message}`);
+    } finally {
+      setSendingNewsletter(false);
     }
   };
 
@@ -295,6 +323,44 @@ function EditBlogPostPage() {
                   className="w-full h-40 object-cover rounded-xl border border-border bg-muted"
                 />
               )}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-border p-5 space-y-6">
+            <h3 className="font-bold text-dark text-sm border-b border-border pb-3">Distribute</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <button
+                  type="button"
+                  onClick={handleSendPush}
+                  disabled={sendingPush || form.status !== "published"}
+                  className="w-full bg-[#3d5930] hover:bg-[#2d4323] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {sendingPush ? <Loader2 size={16} className="animate-spin" /> : <Bell size={16} />}
+                  Send Push Notification
+                </button>
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                  Sends a browser push notification to all Blog Posts subscribers.
+                  {form.status !== "published" && " (Post must be published first)"}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={handleSendNewsletter}
+                  disabled={sendingNewsletter || form.status !== "published"}
+                  className="w-full mt-4 bg-[#548043] hover:bg-[#436735] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {sendingNewsletter ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                  Send Email Newsletter
+                </button>
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                  Sends a branded email to all newsletter subscribers.
+                  {form.status !== "published" && " (Post must be published first)"}
+                </p>
+              </div>
             </div>
           </div>
         </div>

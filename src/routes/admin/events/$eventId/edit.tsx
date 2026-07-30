@@ -2,9 +2,9 @@ import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-ro
 import { useState, useRef, useEffect } from "react";
 import {
   ChevronLeft, Save, Plus, Trash2, GripVertical, Pencil,
-  ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload
+  ImageIcon, Users, Globe, Wifi, Landmark, Info, Loader2, Upload, Bell, Mail
 } from "lucide-react";
-import { fetchEvent, updateEvent, uploadEventImage } from "../../../../lib/actions/events";
+import { fetchEvent, updateEvent, uploadEventImage, triggerEventPushNotification, broadcastEventNewsletter } from "../../../../lib/actions/events";
 import { arrayBufferToBase64 } from "../../../../lib/base64";
 import { toast } from "sonner";
 
@@ -104,6 +104,8 @@ function EditEventPage() {
     speakerSubtitle: "",
     whyAttendEnabled: true,
   });
+  const [sendingPush, setSendingPush] = useState(false);
+  const [sendingNewsletter, setSendingNewsletter] = useState(false);
 
   // Speakers State
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
@@ -445,6 +447,32 @@ function EditEventPage() {
       toast.error(`Failed to update event: ${err.message}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSendPush = async () => {
+    if (!confirm("Send a push notification for this event right now?")) return;
+    setSendingPush(true);
+    try {
+      const res = await triggerEventPushNotification({ data: { id: (event as any).id } });
+      toast.success(`Push sent! (${res.sent} delivered, ${res.failed} failed)`);
+    } catch (err: any) {
+      toast.error(`Push failed: ${err.message}`);
+    } finally {
+      setSendingPush(false);
+    }
+  };
+
+  const handleSendNewsletter = async () => {
+    if (!confirm("Broadcast this event to all newsletter subscribers right now?")) return;
+    setSendingNewsletter(true);
+    try {
+      const res = await broadcastEventNewsletter({ data: { id: (event as any).id } });
+      toast.success(`Newsletter sent! (${res.successCount} delivered, ${res.failCount} failed)`);
+    } catch (err: any) {
+      toast.error(`Newsletter failed: ${err.message}`);
+    } finally {
+      setSendingNewsletter(false);
     }
   };
 
@@ -1244,6 +1272,53 @@ function EditEventPage() {
           )}
         </div>
       )}
+
+      {/* Distribute Actions */}
+      <div className="bg-white p-6 md:p-8 rounded-3xl border border-border mt-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+            <Mail size={20} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-dark">Distribute Event</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">Notify your audience about this event</p>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="border border-border rounded-2xl p-5">
+            <button
+              type="button"
+              onClick={handleSendPush}
+              disabled={sendingPush || (form.status !== "published" && form.status !== "upcoming")}
+              className="w-full bg-[#3d5930] hover:bg-[#2d4323] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingPush ? <Loader2 size={16} className="animate-spin" /> : <Bell size={16} />}
+              Send Push Notification
+            </button>
+            <p className="text-xs text-muted-foreground mt-3 leading-relaxed text-center">
+              Sends a browser push notification to all Event subscribers.
+              {(form.status !== "published" && form.status !== "upcoming") && " (Event must be published or upcoming first)"}
+            </p>
+          </div>
+
+          <div className="border border-border rounded-2xl p-5">
+            <button
+              type="button"
+              onClick={handleSendNewsletter}
+              disabled={sendingNewsletter || (form.status !== "published" && form.status !== "upcoming")}
+              className="w-full bg-[#548043] hover:bg-[#436735] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingNewsletter ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+              Send Email Newsletter
+            </button>
+            <p className="text-xs text-muted-foreground mt-3 leading-relaxed text-center">
+              Sends a branded email to all newsletter subscribers.
+              {(form.status !== "published" && form.status !== "upcoming") && " (Event must be published or upcoming first)"}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Bottom actions */}
       <div className="flex items-center justify-between pt-2 border-t border-border">
