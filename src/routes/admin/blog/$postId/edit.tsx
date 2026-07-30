@@ -325,43 +325,51 @@ function EditBlogPostPage() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+      {/* Distribute Actions */}
+      <div className="bg-white p-6 md:p-8 rounded-3xl border border-border mt-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+            <Mail size={20} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-dark">Distribute Post</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">Notify your audience about this post</p>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="border border-border rounded-2xl p-5">
+            <button
+              type="button"
+              onClick={handleSendPush}
+              disabled={sendingPush || form.status !== "published"}
+              className="w-full bg-[#3d5930] hover:bg-[#2d4323] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingPush ? <Loader2 size={16} className="animate-spin" /> : <Bell size={16} />}
+              Send Push Notification
+            </button>
+            <p className="text-xs text-muted-foreground mt-3 leading-relaxed text-center">
+              Sends a browser push notification to all Blog Posts subscribers.
+              {form.status !== "published" && " (Post must be published first)"}
+            </p>
+          </div>
 
-          <div className="bg-white rounded-2xl border border-border p-5 space-y-6">
-            <h3 className="font-bold text-dark text-sm border-b border-border pb-3">Distribute</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <button
-                  type="button"
-                  onClick={handleSendPush}
-                  disabled={sendingPush || form.status !== "published"}
-                  className="w-full bg-[#3d5930] hover:bg-[#2d4323] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sendingPush ? <Loader2 size={16} className="animate-spin" /> : <Bell size={16} />}
-                  Send Push Notification
-                </button>
-                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                  Sends a browser push notification to all Blog Posts subscribers.
-                  {form.status !== "published" && " (Post must be published first)"}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-border">
-                <button
-                  type="button"
-                  onClick={handleSendNewsletter}
-                  disabled={sendingNewsletter || form.status !== "published"}
-                  className="w-full mt-4 bg-[#548043] hover:bg-[#436735] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sendingNewsletter ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-                  Send Email Newsletter
-                </button>
-                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                  Sends a branded email to all newsletter subscribers.
-                  {form.status !== "published" && " (Post must be published first)"}
-                </p>
-              </div>
-            </div>
+          <div className="border border-border rounded-2xl p-5">
+            <button
+              type="button"
+              onClick={handleSendNewsletter}
+              disabled={sendingNewsletter || form.status !== "published"}
+              className="w-full bg-[#548043] hover:bg-[#436735] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingNewsletter ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+              Send Email Newsletter
+            </button>
+            <p className="text-xs text-muted-foreground mt-3 leading-relaxed text-center">
+              Sends a branded email to all newsletter subscribers.
+              {form.status !== "published" && " (Post must be published first)"}
+            </p>
           </div>
         </div>
       </div>
