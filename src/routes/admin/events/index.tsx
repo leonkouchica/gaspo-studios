@@ -1,11 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import {
-  Plus, Search, Eye, Pencil, Trash2, ChevronUp, ChevronDown,
-  CalendarDays, Users, ArrowRight, Globe, Wifi, Landmark, QrCode,
-  RefreshCw, AlertCircle, Loader2, UserCheck, UserMinus, ArrowLeft, CheckCircle2, Sparkles
+  Plus,
+  Search,
+  Eye,
+  Pencil,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  CalendarDays,
+  Users,
+  ArrowRight,
+  Globe,
+  Wifi,
+  Landmark,
+  QrCode,
+  RefreshCw,
+  AlertCircle,
+  Loader2,
+  UserCheck,
+  UserMinus,
+  ArrowLeft,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
-import { fetchEvents, deleteEvent, fetchEventRegistrations, checkInAttendee, enableSponsorshipForAllEvents } from "../../../lib/actions/events";
+import {
+  fetchEvents,
+  deleteEvent,
+  fetchEventRegistrations,
+  checkInAttendee,
+  enableSponsorshipForAllEvents,
+} from "../../../lib/actions/events";
 import { fetchEventSponsors, updateSponsorStatus } from "../../../lib/actions/sponsors";
 import { toast } from "sonner";
 
@@ -65,7 +90,9 @@ const TYPE_LABELS = { physical: "In-Person", virtual: "Virtual", hybrid: "Hybrid
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground border-border"}`}>
+    <span
+      className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground border-border"}`}
+    >
       {status}
     </span>
   );
@@ -146,13 +173,11 @@ function AdminEventsPage() {
   const handleToggleCheckIn = async (regId: string, currentStatus: boolean) => {
     try {
       const updated = await checkInAttendee({
-        data: { registrationId: regId, checkedIn: !currentStatus }
+        data: { registrationId: regId, checkedIn: !currentStatus },
       });
-      setRegistrations(prev =>
-        prev.map(r => (r.id === regId ? (updated as Registration) : r))
-      );
+      setRegistrations((prev) => prev.map((r) => (r.id === regId ? (updated as Registration) : r)));
       toast.success(
-        `Successfully ${!currentStatus ? "checked in" : "removed check-in for"} ${updated.fullName}`
+        `Successfully ${!currentStatus ? "checked in" : "removed check-in for"} ${updated.fullName}`,
       );
     } catch (err: any) {
       toast.error(`Failed to update check-in: ${err.message}`);
@@ -212,7 +237,11 @@ function AdminEventsPage() {
 
   const SortIcon = ({ field }: { field: typeof sortField }) =>
     sortField === field ? (
-      sortDir === "asc" ? <ChevronUp size={13} /> : <ChevronDown size={13} />
+      sortDir === "asc" ? (
+        <ChevronUp size={13} />
+      ) : (
+        <ChevronDown size={13} />
+      )
     ) : (
       <ChevronDown size={13} className="opacity-30" />
     );
@@ -223,9 +252,7 @@ function AdminEventsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-dark">Events</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {eventsList.length} total events
-          </p>
+          <p className="text-muted-foreground text-sm mt-1">{eventsList.length} total events</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -245,7 +272,12 @@ function AdminEventsPage() {
           <button
             type="button"
             onClick={async () => {
-              if (!confirm("Enable sponsorship for ALL existing events? This will make the Sponsor section visible on every event page.")) return;
+              if (
+                !confirm(
+                  "Enable sponsorship for ALL existing events? This will make the Sponsor section visible on every event page.",
+                )
+              )
+                return;
               try {
                 const result = await enableSponsorshipForAllEvents();
                 toast.success(`Sponsorship enabled for ${(result as any).updatedCount} events.`);
@@ -280,7 +312,10 @@ function AdminEventsPage() {
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search
+                size={15}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -295,7 +330,9 @@ function AdminEventsPage() {
             >
               <option value="all">All Statuses</option>
               {["draft", "published", "upcoming", "completed", "cancelled"].map((s) => (
-                <option key={s} value={s} className="capitalize">{s}</option>
+                <option key={s} value={s} className="capitalize">
+                  {s}
+                </option>
               ))}
             </select>
           </div>
@@ -324,22 +361,35 @@ function AdminEventsPage() {
                 <thead>
                   <tr className="border-b border-border bg-muted/40">
                     <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      <button onClick={() => toggleSort("title")} className="flex items-center gap-1 hover:text-dark transition-colors">
+                      <button
+                        onClick={() => toggleSort("title")}
+                        className="flex items-center gap-1 hover:text-dark transition-colors"
+                      >
                         Title <SortIcon field="title" />
                       </button>
                     </th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category / Type</th>
                     <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      <button onClick={() => toggleSort("date")} className="flex items-center gap-1 hover:text-dark transition-colors">
+                      Category / Type
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      <button
+                        onClick={() => toggleSort("date")}
+                        className="flex items-center gap-1 hover:text-dark transition-colors"
+                      >
                         Date <SortIcon field="date" />
                       </button>
                     </th>
                     <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      <button onClick={() => toggleSort("registrationCount")} className="flex items-center gap-1 hover:text-dark transition-colors">
+                      <button
+                        onClick={() => toggleSort("registrationCount")}
+                        className="flex items-center gap-1 hover:text-dark transition-colors"
+                      >
                         Registrations <SortIcon field="registrationCount" />
                       </button>
                     </th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
                     <th className="px-5 py-3.5" />
                   </tr>
                 </thead>
@@ -376,7 +426,9 @@ function AdminEventsPage() {
                                 </div>
                               )}
                               <div>
-                                <p className="font-semibold text-dark line-clamp-1">{event.title}</p>
+                                <p className="font-semibold text-dark line-clamp-1">
+                                  {event.title}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{event.city}</p>
                               </div>
                             </div>
@@ -388,14 +440,22 @@ function AdminEventsPage() {
                             </span>
                           </td>
                           <td className="px-5 py-4 text-muted-foreground">
-                            {new Date(event.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                            {new Date(event.date).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2">
                               <Users size={13} className="text-primary" />
-                              <span className="font-medium text-dark">{event.registrationCount}</span>
+                              <span className="font-medium text-dark">
+                                {event.registrationCount}
+                              </span>
                               {event.capacity && (
-                                <span className="text-xs text-muted-foreground">/ {event.capacity}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  / {event.capacity}
+                                </span>
                               )}
                             </div>
                           </td>
@@ -472,10 +532,17 @@ function AdminEventsPage() {
                     <div className="truncate pr-2">
                       <p className="text-xs font-semibold text-dark truncate">{e.title}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {e.registrationCount} registered • {new Date(e.date).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}
+                        {e.registrationCount} registered •{" "}
+                        {new Date(e.date).toLocaleDateString("en-GB", {
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </p>
                     </div>
-                    <ArrowRight size={12} className={`shrink-0 ${selectedEvent?.id === e.id ? "text-primary" : "text-muted-foreground"}`} />
+                    <ArrowRight
+                      size={12}
+                      className={`shrink-0 ${selectedEvent?.id === e.id ? "text-primary" : "text-muted-foreground"}`}
+                    />
                   </button>
                 ))}
               </div>
@@ -488,13 +555,18 @@ function AdminEventsPage() {
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-muted-foreground">
                 <Users size={36} className="mb-3 opacity-30 text-primary" />
                 <p className="font-semibold text-dark text-sm">No Event Selected</p>
-                <p className="text-xs mt-1 max-w-xs">Select an event from the left panel to manage registrations and handle guest check-ins.</p>
+                <p className="text-xs mt-1 max-w-xs">
+                  Select an event from the left panel to manage registrations and handle guest
+                  check-ins.
+                </p>
               </div>
             ) : (
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border">
                   <div>
-                    <h3 className="font-bold text-dark text-base line-clamp-1">{selectedEvent.title}</h3>
+                    <h3 className="font-bold text-dark text-base line-clamp-1">
+                      {selectedEvent.title}
+                    </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {filteredRegs.length} shown of {registrations.length} registrations
                     </p>
@@ -509,7 +581,10 @@ function AdminEventsPage() {
                 </div>
 
                 <div className="relative mb-4">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Search
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <input
                     value={regSearch}
                     onChange={(e) => setRegSearch(e.target.value)}
@@ -526,11 +601,16 @@ function AdminEventsPage() {
                     </div>
                   ) : filteredRegs.length === 0 ? (
                     <p className="text-xs text-muted-foreground text-center py-16">
-                      {regSearch ? "No attendees match your search." : "No attendees have registered for this event yet."}
+                      {regSearch
+                        ? "No attendees match your search."
+                        : "No attendees have registered for this event yet."}
                     </p>
                   ) : (
                     filteredRegs.map((reg) => (
-                      <div key={reg.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-border bg-muted/5 gap-3 hover:border-muted-foreground/30 transition-all">
+                      <div
+                        key={reg.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-border bg-muted/5 gap-3 hover:border-muted-foreground/30 transition-all"
+                      >
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold text-dark text-sm">{reg.fullName}</span>
@@ -543,20 +623,34 @@ function AdminEventsPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">{reg.email} • {reg.phone}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {reg.email} • {reg.phone}
+                          </p>
                           {reg.company && (
                             <p className="text-[11px] text-dark mt-1 font-medium">
-                              {reg.jobTitle ? `${reg.jobTitle} at ` : ""}{reg.company}
+                              {reg.jobTitle ? `${reg.jobTitle} at ` : ""}
+                              {reg.company}
                             </p>
                           )}
                           <p className="text-[10px] text-muted-foreground mt-0.5">
-                            Registered on {new Date(reg.registeredAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            Registered on{" "}
+                            {new Date(reg.registeredAt).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                           {/* Payment status */}
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize border ${reg.paymentStatus === "completed" || reg.paymentStatus === "paid" ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}>
-                            {reg.paymentStatus === "completed" || reg.paymentStatus === "paid" ? "Paid" : reg.paymentStatus}
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize border ${reg.paymentStatus === "completed" || reg.paymentStatus === "paid" ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}
+                          >
+                            {reg.paymentStatus === "completed" || reg.paymentStatus === "paid"
+                              ? "Paid"
+                              : reg.paymentStatus}
                           </span>
 
                           {/* Check-in status and trigger */}
@@ -601,7 +695,9 @@ function AdminEventsPage() {
               <option value="pending">Pending</option>
               <option value="failed">Failed</option>
             </select>
-            <button onClick={() => loadSponsors()} className="text-sm text-primary hover:underline">Refresh</button>
+            <button onClick={() => loadSponsors()} className="text-sm text-primary hover:underline">
+              Refresh
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl border border-border overflow-hidden">
@@ -609,12 +705,24 @@ function AdminEventsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40">
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Company</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Event</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Package</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Amount</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Payment</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">Status</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Company
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Event
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Package
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Amount
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Payment
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase">
+                      Status
+                    </th>
                     <th className="px-5 py-3.5" />
                   </tr>
                 </thead>
@@ -631,7 +739,9 @@ function AdminEventsPage() {
                       <td colSpan={7} className="px-5 py-16 text-center text-muted-foreground">
                         <CalendarDays size={32} className="mx-auto mb-3 text-muted-foreground/40" />
                         <p className="font-semibold text-dark">No sponsors yet</p>
-                        <p className="text-sm mt-1">Sponsor submissions will appear here when visitors sponsor an event.</p>
+                        <p className="text-sm mt-1">
+                          Sponsor submissions will appear here when visitors sponsor an event.
+                        </p>
                       </td>
                     </tr>
                   ) : (
@@ -639,28 +749,40 @@ function AdminEventsPage() {
                       <tr key={s.id} className="hover:bg-muted/20 transition-colors">
                         <td className="px-5 py-4">
                           <p className="font-semibold text-dark">{s.companyName}</p>
-                          <p className="text-xs text-muted-foreground">{s.contactName} • {s.contactEmail}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {s.contactName} • {s.contactEmail}
+                          </p>
                         </td>
                         <td className="px-5 py-4 text-muted-foreground text-xs">{s.eventTitle}</td>
                         <td className="px-5 py-4">
                           <span className="text-dark font-medium">{s.packageName}</span>
                         </td>
-                        <td className="px-5 py-4 font-semibold text-dark">₦{Number(s.packagePrice).toLocaleString()}</td>
+                        <td className="px-5 py-4 font-semibold text-dark">
+                          ₦{Number(s.packagePrice).toLocaleString()}
+                        </td>
                         <td className="px-5 py-4">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                            s.paymentStatus === "paid" ? "bg-green-500/10 text-green-600" :
-                            s.paymentStatus === "failed" ? "bg-red-500/10 text-red-600" :
-                            "bg-amber-500/10 text-amber-600"
-                          }`}>
+                          <span
+                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              s.paymentStatus === "paid"
+                                ? "bg-green-500/10 text-green-600"
+                                : s.paymentStatus === "failed"
+                                  ? "bg-red-500/10 text-red-600"
+                                  : "bg-amber-500/10 text-amber-600"
+                            }`}
+                          >
                             {s.paymentStatus}
                           </span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                            s.status === "active" ? "bg-blue-500/10 text-blue-600" :
-                            s.status === "completed" ? "bg-green-500/10 text-green-600" :
-                            "bg-muted text-muted-foreground"
-                          }`}>
+                          <span
+                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              s.status === "active"
+                                ? "bg-blue-500/10 text-blue-600"
+                                : s.status === "completed"
+                                  ? "bg-green-500/10 text-green-600"
+                                  : "bg-muted text-muted-foreground"
+                            }`}
+                          >
                             {s.status}
                           </span>
                         </td>
@@ -670,26 +792,38 @@ function AdminEventsPage() {
                               <button
                                 onClick={async () => {
                                   try {
-                                    await updateSponsorStatus({ data: { sponsorId: s.id, status: "completed" } });
+                                    await updateSponsorStatus({
+                                      data: { sponsorId: s.id, status: "completed" },
+                                    });
                                     toast.success("Sponsor marked as completed.");
                                     loadSponsors();
-                                  } catch (err: any) { toast.error(err.message); }
+                                  } catch (err: any) {
+                                    toast.error(err.message);
+                                  }
                                 }}
                                 className="text-xs text-green-600 hover:underline px-2"
-                              >Complete</button>
+                              >
+                                Complete
+                              </button>
                             )}
                             {s.status !== "cancelled" && (
                               <button
                                 onClick={async () => {
                                   if (!confirm(`Cancel sponsorship from ${s.companyName}?`)) return;
                                   try {
-                                    await updateSponsorStatus({ data: { sponsorId: s.id, status: "cancelled" } });
+                                    await updateSponsorStatus({
+                                      data: { sponsorId: s.id, status: "cancelled" },
+                                    });
                                     toast.success("Sponsor cancelled.");
                                     loadSponsors();
-                                  } catch (err: any) { toast.error(err.message); }
+                                  } catch (err: any) {
+                                    toast.error(err.message);
+                                  }
                                 }}
                                 className="text-xs text-red-500 hover:underline px-2"
-                              >Cancel</button>
+                              >
+                                Cancel
+                              </button>
                             )}
                           </div>
                         </td>

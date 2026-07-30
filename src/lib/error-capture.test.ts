@@ -18,7 +18,7 @@ describe("error-capture helper", () => {
   it("should capture and consume an error event when triggered on globalThis", () => {
     if (typeof globalThis.addEventListener === "function") {
       const mockError = new Error("Test captured error");
-      
+
       // Dispatch an error event if possible
       if (typeof globalThis.dispatchEvent === "function") {
         const errorEvent = new MessageEvent("error", {
@@ -26,7 +26,7 @@ describe("error-capture helper", () => {
         });
         Object.defineProperty(errorEvent, "error", { value: mockError });
         globalThis.dispatchEvent(errorEvent);
-        
+
         const captured = consumeLastCapturedError();
         expect(captured).toBeDefined();
         // Since event dispatching details can vary between environments,
@@ -36,7 +36,10 @@ describe("error-capture helper", () => {
   });
 
   it("should return undefined after TTL expires", () => {
-    if (typeof globalThis.addEventListener === "function" && typeof globalThis.dispatchEvent === "function") {
+    if (
+      typeof globalThis.addEventListener === "function" &&
+      typeof globalThis.dispatchEvent === "function"
+    ) {
       const mockError = new Error("Temporary error");
       const errorEvent = new MessageEvent("error", {});
       Object.defineProperty(errorEvent, "error", { value: mockError });

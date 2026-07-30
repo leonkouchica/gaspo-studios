@@ -11,9 +11,10 @@ self.addEventListener("push", (event) => {
     const data = event.data.json();
     const isEvent = data.contentType === "event";
 
-    const bodyText = isEvent && data.eventDate
-      ? "\uD83D\uDCC5 Date: " + data.eventDate + "\n" + data.body
-      : data.body;
+    const bodyText =
+      isEvent && data.eventDate
+        ? "\uD83D\uDCC5 Date: " + data.eventDate + "\n" + data.body
+        : data.body;
 
     const options = {
       body: bodyText,
@@ -24,9 +25,7 @@ self.addEventListener("push", (event) => {
       data: { url: data.url },
     };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+    event.waitUntil(self.registration.showNotification(data.title, options));
   } catch (err) {
     console.error("Error handling background push execution:", err);
   }
@@ -46,7 +45,7 @@ self.addEventListener("notificationclick", (event) => {
           }
         }
         return self.clients.openWindow(url);
-      })
+      }),
     );
   }
 });

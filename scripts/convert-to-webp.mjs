@@ -4,10 +4,7 @@ import sharp from "sharp";
 import { readdir, unlink } from "node:fs/promises";
 import { join, extname, basename } from "node:path";
 
-const DIRS = [
-  "public/images",
-  "public",
-];
+const DIRS = ["public/images", "public"];
 
 const EXTS = new Set([".png", ".jpg", ".jpeg"]);
 
@@ -27,9 +24,7 @@ for (const dir of DIRS) {
     const outputPath = join(dir, basename(file, ext) + ".webp");
 
     try {
-      await sharp(inputPath)
-        .webp({ quality: 90 })
-        .toFile(outputPath);
+      await sharp(inputPath).webp({ quality: 90 }).toFile(outputPath);
       console.log(`✓ Converted: ${inputPath} → ${outputPath}`);
       // Remove original after successful conversion
       await unlink(inputPath);

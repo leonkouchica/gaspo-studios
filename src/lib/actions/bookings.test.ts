@@ -64,9 +64,9 @@ describe("Bookings Server Actions", () => {
       expect(mockSupabase.from).toHaveBeenCalledWith("bookings");
       expect(mockQuery.eq).toHaveBeenCalledWith("status", "new");
       expect(mockQuery.or).toHaveBeenCalledWith(
-        "name.ilike.%Russell%,email.ilike.%Russell%,service.ilike.%Russell%"
+        "name.ilike.%Russell%,email.ilike.%Russell%,service.ilike.%Russell%",
       );
-      
+
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         id: "bk-123",

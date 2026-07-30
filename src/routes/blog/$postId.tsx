@@ -17,14 +17,14 @@ export const Route = createFileRoute("/blog/$postId")({
   },
   head: ({ loaderData: post }) => {
     if (!post) return { meta: [{ title: "Post Not Found" }] };
-    
+
     const pathname = `/blog/${post.slug}`;
-    
+
     return {
       meta: [
         { title: `${post.seo?.title || post.title} — Gaspo Studios` },
         { name: "description", content: post.seo?.description || post.excerpt },
-        
+
         /* OpenGraph / Facebook */
         { property: "og:type", content: "article" },
         { property: "og:url", content: `https://www.gaspostudios.com${pathname}` },
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/blog/$postId")({
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
         { property: "article:published_time", content: post.publishedAt || "" },
-        
+
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:url", content: `https://www.gaspostudios.com${pathname}` },
@@ -51,7 +51,10 @@ export const Route = createFileRoute("/blog/$postId")({
       <div>
         <h1 className="text-5xl font-bold">Post Not Found</h1>
         <p className="text-white/60 mt-4">This post doesn't exist or has been removed.</p>
-        <Link to="/blog" className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium">
+        <Link
+          to="/blog"
+          className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium"
+        >
           <ArrowLeft size={16} /> Back to Blog
         </Link>
       </div>
@@ -77,9 +80,13 @@ function BlogPostDetail() {
       <article className="bg-background min-h-screen pb-20">
         {/* Header / Hero */}
         <header className="relative min-h-[60vh] flex items-end justify-center overflow-hidden bg-dark">
-          <img src={post.featuredImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          <img
+            src={post.featuredImage}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent" />
-          
+
           <div className="container-x relative z-10 pt-32 pb-16 w-full max-w-4xl text-center">
             <ScrollReveal>
               <span className="bg-primary/20 text-primary border border-primary/30 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider mb-6 inline-block">
@@ -88,21 +95,28 @@ function BlogPostDetail() {
               <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
                 {post.title}
               </h1>
-              
+
               <div className="flex flex-wrap items-center justify-center gap-6 text-white/70 text-sm">
                 <div className="flex items-center gap-2">
-                  <img src={post.author.avatar} alt={post.author.name} className="w-8 h-8 rounded-full border border-white/20" />
+                  <img
+                    src={post.author.avatar}
+                    alt={post.author.name}
+                    className="w-8 h-8 rounded-full border border-white/20"
+                  />
                   <span>{post.author.name}</span>
                 </div>
                 {post.publishedAt && (
                   <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-primary" />
-                    {new Date(post.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <Clock size={14} className="text-primary" />
-                  5 min read
+                  <Clock size={14} className="text-primary" />5 min read
                 </div>
               </div>
             </ScrollReveal>
@@ -115,29 +129,36 @@ function BlogPostDetail() {
             <p className="text-xl md:text-2xl font-light text-dark/80 leading-relaxed mb-12 italic border-l-4 border-primary pl-6 py-2">
               {post.excerpt}
             </p>
-            
-            <div 
+
+            <div
               className="[&>p]:mb-6 [&>p]:text-lg [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-12 [&>h2]:mb-4 text-dark"
               dangerouslySetInnerHTML={{ __html: post.body }}
             />
-            
+
             <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag: string) => (
-                  <span key={tag} className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-medium">
+                  <span
+                    key={tag}
+                    className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-medium"
+                  >
                     #{tag}
                   </span>
                 ))}
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-dark">Share:</span>
                 <ShareButton title={post.title} summary={post.excerpt} />
               </div>
             </div>
-            
+
             <div className="mt-12 bg-white border border-border p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
-              <img src={post.author.avatar} alt={post.author.name} className="w-24 h-24 rounded-full object-cover" />
+              <img
+                src={post.author.avatar}
+                alt={post.author.name}
+                className="w-24 h-24 rounded-full object-cover"
+              />
               <div>
                 <h3 className="text-lg font-bold text-dark">{post.author.name}</h3>
                 <p className="text-primary text-sm font-medium mb-3">{post.author.role}</p>

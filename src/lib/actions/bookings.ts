@@ -11,17 +11,16 @@ export const fetchBookings = createServerFn({ method: "GET" })
   .inputValidator((input: { status?: string; search?: string } | undefined) => input)
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
-    let query = supabase
-      .from("bookings")
-      .select("*")
-      .order("submitted_at", { ascending: false });
+    let query = supabase.from("bookings").select("*").order("submitted_at", { ascending: false });
 
     if (data?.status && data.status !== "all") {
       query = query.eq("status", data.status);
     }
 
     if (data?.search) {
-      query = query.or(`name.ilike.%${data.search}%,email.ilike.%${data.search}%,service.ilike.%${data.search}%`);
+      query = query.or(
+        `name.ilike.%${data.search}%,email.ilike.%${data.search}%,service.ilike.%${data.search}%`,
+      );
     }
 
     const { data: bookingsData, error } = await query;
@@ -54,7 +53,7 @@ export const updateBookingStatus = createServerFn({ method: "POST" })
       id: z.string(),
       status: bookingStatusSchema,
       adminNotes: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -104,7 +103,7 @@ export const createBooking = createServerFn({ method: "POST" })
       preferredTime: z.string(),
       message: z.string().optional(),
       totalValue: z.number().default(0),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -145,7 +144,9 @@ export const createBooking = createServerFn({ method: "POST" })
 
     if (!emailResult.success) {
       console.error("Failed to send booking notification email:", emailResult.error);
-      throw new Error(`Booking saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`);
+      throw new Error(
+        `Booking saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`,
+      );
     }
 
     return {

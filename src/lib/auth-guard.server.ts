@@ -38,7 +38,7 @@ export function requireRole(allowedRoles: string[]): AuthenticatedUser {
   const user = requireAuth();
   if (!allowedRoles.includes(user.role)) {
     throw new Error(
-      `Forbidden: you need one of [${allowedRoles.join(", ")}] roles to perform this action.`
+      `Forbidden: you need one of [${allowedRoles.join(", ")}] roles to perform this action.`,
     );
   }
   return user;

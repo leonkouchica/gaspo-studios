@@ -30,7 +30,7 @@ describe("Analytics Server Actions", () => {
   describe("fetchAnalyticsSummary", () => {
     it("should compile statistics overview, trends, breakdowns, and recent bookings", async () => {
       // Set up consecutive mock responses for all 8 database queries in fetchAnalyticsSummary:
-      
+
       // 1. bookings count
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(onfulfilled({ count: 12, error: null }));
@@ -49,44 +49,52 @@ describe("Analytics Server Actions", () => {
       });
       // 5. completed bookings revenue
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [{ total_value: "1500000" }, { total_value: "2000000" }],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [{ total_value: "1500000" }, { total_value: "2000000" }],
+            error: null,
+          }),
+        );
       });
       // 6. service categories breakdown
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [{ service: "Portrait" }, { service: "Portrait" }, { service: "Wedding" }],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [{ service: "Portrait" }, { service: "Portrait" }, { service: "Wedding" }],
+            error: null,
+          }),
+        );
       });
       // 7. monthly trends preferred_date / status breakdown
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [
-            { preferred_date: "2026-05-10", total_value: "1500000", status: "completed" },
-            { preferred_date: "2026-05-20", total_value: "2000000", status: "completed" },
-            { preferred_date: "2026-06-01", total_value: "500000", status: "new" },
-          ],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [
+              { preferred_date: "2026-05-10", total_value: "1500000", status: "completed" },
+              { preferred_date: "2026-05-20", total_value: "2000000", status: "completed" },
+              { preferred_date: "2026-06-01", total_value: "500000", status: "new" },
+            ],
+            error: null,
+          }),
+        );
       });
       // 8. recent bookings
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [
-            {
-              id: "bk-1",
-              name: "Russell Kouchica",
-              service: "Wedding",
-              status: "completed",
-              total_value: "2000000",
-              submitted_at: "2026-05-31T10:00:00Z",
-            },
-          ],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [
+              {
+                id: "bk-1",
+                name: "Russell Kouchica",
+                service: "Wedding",
+                status: "completed",
+                total_value: "2000000",
+                submitted_at: "2026-05-31T10:00:00Z",
+              },
+            ],
+            error: null,
+          }),
+        );
       });
 
       const result = await fetchAnalyticsSummary();

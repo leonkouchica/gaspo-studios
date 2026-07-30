@@ -3,26 +3,25 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
 
-export const fetchPaymentSettings = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-      .from("payment_settings")
-      .select("id, gateway, public_key, active, test_mode, updated_at");
+export const fetchPaymentSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("payment_settings")
+    .select("id, gateway, public_key, active, test_mode, updated_at");
 
-    if (error) {
-      throw new Error(`Failed to fetch payment settings: ${error.message}`);
-    }
+  if (error) {
+    throw new Error(`Failed to fetch payment settings: ${error.message}`);
+  }
 
-    return (data || []).map((setting) => ({
-      id: setting.id,
-      gateway: setting.gateway,
-      publicKey: setting.public_key || "",
-      active: setting.active,
-      testMode: setting.test_mode,
-      updatedAt: setting.updated_at,
-    }));
-  });
+  return (data || []).map((setting) => ({
+    id: setting.id,
+    gateway: setting.gateway,
+    publicKey: setting.public_key || "",
+    active: setting.active,
+    testMode: setting.test_mode,
+    updatedAt: setting.updated_at,
+  }));
+});
 
 export const upsertPaymentSettings = createServerFn({ method: "POST" })
   .inputValidator(
@@ -32,12 +31,12 @@ export const upsertPaymentSettings = createServerFn({ method: "POST" })
       secretKey: z.string().optional(),
       active: z.boolean(),
       testMode: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
     const supabase = getSupabaseAdmin();
-    
+
     // Check if secretKey is provided, if not, do not overwrite existing secret key
     const updatePayload: Record<string, any> = {
       gateway: data.gateway,
@@ -77,7 +76,7 @@ export const initPaystackTransaction = createServerFn({ method: "POST" })
       amount: z.number().positive(),
       email: z.string().email(),
       metadata: z.record(z.any()).optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -138,7 +137,7 @@ export const initFlutterwaveTransaction = createServerFn({ method: "POST" })
       fullName: z.string(),
       phone: z.string().optional(),
       metadata: z.record(z.any()).optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -268,12 +267,15 @@ export const verifyFlutterwavePayment = createServerFn({ method: "POST" })
     }
 
     try {
-      const response = await fetch(`https://api.flutterwave.com/v3/transactions/${data.transactionId}/verify`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${setting.secret_key}`,
+      const response = await fetch(
+        `https://api.flutterwave.com/v3/transactions/${data.transactionId}/verify`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${setting.secret_key}`,
+          },
         },
-      });
+      );
 
       const resJson = await response.json();
       if (resJson.status !== "success" || resJson.data.status !== "successful") {

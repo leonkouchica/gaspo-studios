@@ -138,10 +138,12 @@ describe("Blog Server Actions", () => {
     it("should update blog post in DB", async () => {
       // 1. SELECT query to get current post status
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { status: "draft", published_at: null },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { status: "draft", published_at: null },
+            error: null,
+          }),
+        );
       });
 
       // 2. UPDATE query
@@ -162,9 +164,11 @@ describe("Blog Server Actions", () => {
       });
 
       expect(mockSupabase.from).toHaveBeenCalledWith("blog_posts");
-      expect(mockQuery.update).toHaveBeenCalledWith(expect.objectContaining({
-        title: "Updated Title",
-      }));
+      expect(mockQuery.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Updated Title",
+        }),
+      );
       expect(result.id).toBe("post-123");
     });
   });
@@ -173,10 +177,15 @@ describe("Blog Server Actions", () => {
     it("should delete from DB and storage", async () => {
       // 1. SELECT featured_image
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { featured_image: "https://example.com/storage/v1/object/public/gaspo-media/blog/123.webp" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: {
+              featured_image:
+                "https://example.com/storage/v1/object/public/gaspo-media/blog/123.webp",
+            },
+            error: null,
+          }),
+        );
       });
 
       // 2. DELETE row

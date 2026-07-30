@@ -10,49 +10,45 @@ const passwordSchema = z
   .refine((pw) => /[A-Z]/.test(pw), "Password must contain at least one uppercase letter")
   .refine((pw) => /[a-z]/.test(pw), "Password must contain at least one lowercase letter")
   .refine((pw) => /[0-9]/.test(pw), "Password must contain at least one number")
-  .refine(
-    (pw) => /[^A-Za-z0-9]/.test(pw),
-    "Password must contain at least one special character",
-  );
+  .refine((pw) => /[^A-Za-z0-9]/.test(pw), "Password must contain at least one special character");
 
-export const listStaffUsers = createServerFn({ method: "GET" })
-  .handler(async () => {
-    requireAuth();
-    const supabase = getSupabaseAdmin();
-    
-    const { data: dbRoles, error: rolesError } = await supabase
-      .from("user_roles")
-      .select("*")
-      .order("created_at", { ascending: false });
+export const listStaffUsers = createServerFn({ method: "GET" }).handler(async () => {
+  requireAuth();
+  const supabase = getSupabaseAdmin();
 
-    if (rolesError) {
-      throw new Error(`Failed to list staff roles: ${rolesError.message}`);
-    }
+  const { data: dbRoles, error: rolesError } = await supabase
+    .from("user_roles")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const { data: authResult, error: authError } = await supabase.auth.admin.listUsers();
-    
-    if (authError) {
-      console.warn("Could not list auth users from admin API. Matching using DB fallback.");
-      return (dbRoles || []).map((r) => ({
-        id: r.id,
-        userId: r.user_id,
-        role: r.role,
-        email: "staff@gaspostudios.com",
-        createdAt: r.created_at,
-      }));
-    }
+  if (rolesError) {
+    throw new Error(`Failed to list staff roles: ${rolesError.message}`);
+  }
 
-    const authUsers = authResult.users || [];
-    const userMap = new Map(authUsers.map((u) => [u.id, u.email]));
+  const { data: authResult, error: authError } = await supabase.auth.admin.listUsers();
 
+  if (authError) {
+    console.warn("Could not list auth users from admin API. Matching using DB fallback.");
     return (dbRoles || []).map((r) => ({
       id: r.id,
       userId: r.user_id,
       role: r.role,
-      email: userMap.get(r.user_id) || "unknown@gaspostudios.com",
+      email: "staff@gaspostudios.com",
       createdAt: r.created_at,
     }));
-  });
+  }
+
+  const authUsers = authResult.users || [];
+  const userMap = new Map(authUsers.map((u) => [u.id, u.email]));
+
+  return (dbRoles || []).map((r) => ({
+    id: r.id,
+    userId: r.user_id,
+    role: r.role,
+    email: userMap.get(r.user_id) || "unknown@gaspostudios.com",
+    createdAt: r.created_at,
+  }));
+});
 
 export const createStaffUser = createServerFn({ method: "POST" })
   .inputValidator(

@@ -1,9 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import {
-  MapPin, CalendarDays, Users, ArrowRight, Search,
-  Grid3X3, List, ChevronRight, Clock, Globe, Wifi, Landmark,
-  Star, TrendingUp, Zap, Loader2,
+  MapPin,
+  CalendarDays,
+  Users,
+  ArrowRight,
+  Search,
+  Grid3X3,
+  List,
+  ChevronRight,
+  Clock,
+  Globe,
+  Wifi,
+  Landmark,
+  Star,
+  TrendingUp,
+  Zap,
+  Loader2,
 } from "lucide-react";
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { type Event } from "../../data/events";
@@ -14,7 +27,11 @@ export const Route = createFileRoute("/events/")({
   head: () => ({
     meta: [
       { title: "Upcoming Events — Gaspo Studios" },
-      { name: "description", content: "Discover upcoming workshops, conferences, and exhibitions at Gaspo Studios. Register now and be part of something extraordinary." },
+      {
+        name: "description",
+        content:
+          "Discover upcoming workshops, conferences, and exhibitions at Gaspo Studios. Register now and be part of something extraordinary.",
+      },
       { property: "og:title", content: "Upcoming Events — Gaspo Studios" },
       { property: "og:url", content: "/events" },
     ],
@@ -102,7 +119,9 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
         <div className="flex flex-col justify-between p-6 flex-1">
           <div>
             <div className="flex flex-wrap gap-2 mb-3">
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${categoryColor}`}>
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${categoryColor}`}
+              >
                 {event.category}
               </span>
               <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted rounded-full px-2.5 py-1">
@@ -115,7 +134,11 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
             <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CalendarDays size={14} className="text-primary" />
-                {new Date(event.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                {new Date(event.date).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin size={14} className="text-primary" />
@@ -137,7 +160,10 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
               className="group/btn inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all hover:scale-105"
             >
               View Event
-              <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+              <ArrowRight
+                size={14}
+                className="group-hover/btn:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
         </div>
@@ -159,11 +185,11 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
           <p className="text-xs uppercase tracking-widest text-primary font-semibold">
             {new Date(event.date).toLocaleString("default", { month: "short" })}
           </p>
-          <p className="text-2xl font-bold leading-none mt-0.5">
-            {new Date(event.date).getDate()}
-          </p>
+          <p className="text-2xl font-bold leading-none mt-0.5">{new Date(event.date).getDate()}</p>
         </div>
-        <div className={`absolute top-4 right-4 text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm ${categoryColor}`}>
+        <div
+          className={`absolute top-4 right-4 text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm ${categoryColor}`}
+        >
           {event.category}
         </div>
       </div>
@@ -181,7 +207,12 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
         <div className="mt-3 space-y-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <CalendarDays size={12} className="text-primary shrink-0" />
-            {new Date(event.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })} · {event.time}
+            {new Date(event.date).toLocaleDateString("en-GB", {
+              weekday: "short",
+              day: "numeric",
+              month: "long",
+            })}{" "}
+            · {event.time}
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin size={12} className="text-primary shrink-0" />
@@ -233,16 +264,16 @@ function FeaturedHero({ event }: { event: Event }) {
           <span className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 text-primary text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm mb-4">
             <Star size={11} fill="currentColor" /> Featured Event
           </span>
-          <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-            {event.title}
-          </h1>
-          <p className="text-white/75 text-lg mt-4 leading-relaxed max-w-2xl">
-            {event.summary}
-          </p>
+          <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">{event.title}</h1>
+          <p className="text-white/75 text-lg mt-4 leading-relaxed max-w-2xl">{event.summary}</p>
           <div className="flex flex-wrap gap-4 mt-5 text-sm text-white/70">
             <span className="flex items-center gap-1.5">
               <CalendarDays size={15} className="text-primary" />
-              {new Date(event.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+              {new Date(event.date).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin size={15} className="text-primary" />
@@ -262,8 +293,13 @@ function FeaturedHero({ event }: { event: Event }) {
               { v: mins, l: "Min" },
               { v: secs, l: "Sec" },
             ].map(({ v, l }) => (
-              <div key={l} className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-4 py-3 text-center min-w-[60px]">
-                <p className="text-2xl font-bold text-white tabular-nums">{String(v).padStart(2, "0")}</p>
+              <div
+                key={l}
+                className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-4 py-3 text-center min-w-[60px]"
+              >
+                <p className="text-2xl font-bold text-white tabular-nums">
+                  {String(v).padStart(2, "0")}
+                </p>
                 <p className="text-xs text-white/50 mt-0.5">{l}</p>
               </div>
             ))}
@@ -275,7 +311,8 @@ function FeaturedHero({ event }: { event: Event }) {
               params={{ eventId: event.slug }}
               className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
             >
-              Register Now <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              Register Now{" "}
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/events/$eventId"
@@ -319,7 +356,9 @@ function EventsListPage() {
   const featured = (() => {
     const upcoming = events.filter((e) => e.status !== "completed");
     if (upcoming.length === 0) return events[0];
-    const sorted = [...upcoming].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = [...upcoming].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
     const explicitFeatured = sorted.find((e) => e.featured);
     return explicitFeatured || sorted[0];
   })();
@@ -354,7 +393,11 @@ function EventsListPage() {
               <div className="grid grid-cols-3 divide-x divide-border-dark">
                 {[
                   { icon: TrendingUp, label: "Upcoming Events", value: events.length },
-                  { icon: Users, label: "Total Registered", value: events.reduce((s, e) => s + e.registrationCount, 0) },
+                  {
+                    icon: Users,
+                    label: "Total Registered",
+                    value: events.reduce((s, e) => s + e.registrationCount, 0),
+                  },
                   { icon: Zap, label: "Cities", value: new Set(events.map((e) => e.city)).size },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-3 px-6 py-5">
@@ -386,7 +429,10 @@ function EventsListPage() {
               <ScrollReveal delay={100}>
                 <div className="flex flex-col sm:flex-row gap-3 mb-8">
                   <div className="relative flex-1">
-                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Search
+                      size={16}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
                     <input
                       type="text"
                       placeholder="Search events…"
@@ -412,7 +458,9 @@ function EventsListPage() {
                   >
                     <option value="all">All Categories</option>
                     {categories.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
                     ))}
                   </select>
                   <div className="flex gap-1 bg-muted rounded-full p-1">
@@ -437,7 +485,19 @@ function EventsListPage() {
               {/* Results */}
               {filtered.length === 0 ? (
                 <div className="text-center py-20">
-                  <p className="text-muted-foreground">No events match your filters. <button className="text-primary underline" onClick={() => { setSearch(""); setTypeFilter("all"); setCategoryFilter("all"); }}>Clear filters</button></p>
+                  <p className="text-muted-foreground">
+                    No events match your filters.{" "}
+                    <button
+                      className="text-primary underline"
+                      onClick={() => {
+                        setSearch("");
+                        setTypeFilter("all");
+                        setCategoryFilter("all");
+                      }}
+                    >
+                      Clear filters
+                    </button>
+                  </p>
                 </div>
               ) : view === "grid" ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -472,24 +532,26 @@ function EventsListPage() {
                 </div>
               </ScrollReveal>
               <div className="grid md:grid-cols-3 gap-6">
-                {events.filter(e => ["completed", "archived"].includes(e.status)).map((p, i) => (
-                  <ScrollReveal key={p.id} delay={i * 100}>
-                    <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
-                      <img
-                        src={p.img}
-                        alt={p.title}
-                        className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-                        <p className="text-xs uppercase tracking-widest text-primary">{p.date}</p>
-                        <p className="font-bold text-lg mt-1">{p.title}</p>
-                        <p className="text-white/60 text-sm mt-1">{p.attendees} attendees</p>
+                {events
+                  .filter((e) => ["completed", "archived"].includes(e.status))
+                  .map((p, i) => (
+                    <ScrollReveal key={p.id} delay={i * 100}>
+                      <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
+                        <img
+                          src={p.img}
+                          alt={p.title}
+                          className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                          <p className="text-xs uppercase tracking-widest text-primary">{p.date}</p>
+                          <p className="font-bold text-lg mt-1">{p.title}</p>
+                          <p className="text-white/60 text-sm mt-1">{p.attendees} attendees</p>
+                        </div>
                       </div>
-                    </div>
-                  </ScrollReveal>
-                ))}
+                    </ScrollReveal>
+                  ))}
               </div>
             </div>
           </section>
@@ -498,10 +560,15 @@ function EventsListPage() {
           <section className="py-16 bg-dark">
             <div className="container-x text-center max-w-2xl">
               <ScrollReveal>
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Stay Updated</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-3">Never Miss an Event</h2>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                  Stay Updated
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mt-3">
+                  Never Miss an Event
+                </h2>
                 <p className="text-white/60 mt-4 leading-relaxed">
-                  Subscribe for early access to new events, registration reminders, and sponsorship opportunities.
+                  Subscribe for early access to new events, registration reminders, and sponsorship
+                  opportunities.
                 </p>
                 <form
                   onSubmit={(e) => e.preventDefault()}

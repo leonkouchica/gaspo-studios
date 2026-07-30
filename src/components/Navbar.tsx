@@ -16,7 +16,12 @@ const linksEnd = [
 ] as const;
 
 const eventDropdown = [
-  { to: "/events#upcoming", label: "Upcoming Events", icon: CalendarDays, desc: "Workshops, exhibitions & meetups" },
+  {
+    to: "/events#upcoming",
+    label: "Upcoming Events",
+    icon: CalendarDays,
+    desc: "Workshops, exhibitions & meetups",
+  },
   { to: "/events#past", label: "Past Events", icon: Clock, desc: "Browse our previous sessions" },
 ];
 
@@ -48,11 +53,19 @@ export function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-dark-secondary/90 backdrop-blur-md border-b border-white/5" : "bg-transparent"
+        scrolled
+          ? "bg-dark-secondary/90 backdrop-blur-md border-b border-white/5"
+          : "bg-transparent"
       }`}
     >
       <div className="container-x flex items-center justify-between h-16 md:h-20">
-        <div className={scrolled ? "[&_*]:text-white [&_span.text-primary]:text-primary" : "[&_*]:text-white [&_span.text-primary]:text-primary"}>
+        <div
+          className={
+            scrolled
+              ? "[&_*]:text-white [&_span.text-primary]:text-primary"
+              : "[&_*]:text-white [&_span.text-primary]:text-primary"
+          }
+        >
           <Logo light />
         </div>
 
@@ -182,7 +195,10 @@ export function Navbar() {
                     <Link
                       key={to}
                       to={to}
-                      onClick={() => { setOpen(false); setMobileEventsOpen(false); }}
+                      onClick={() => {
+                        setOpen(false);
+                        setMobileEventsOpen(false);
+                      }}
                       className="text-lg text-white/70 hover:text-primary transition-colors"
                     >
                       {label}
@@ -215,4 +231,4 @@ export function Navbar() {
       )}
     </header>
   );
-}
+}

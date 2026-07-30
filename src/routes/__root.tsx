@@ -81,24 +81,47 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Gaspo Studios — Professional Photography" },
-      { name: "description", content: "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots." },
+      {
+        name: "description",
+        content:
+          "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots.",
+      },
       { name: "author", content: "Gaspo Studios" },
       { property: "og:title", content: "Gaspo Studios — Professional Photography" },
-      { property: "og:description", content: "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots." },
+      {
+        property: "og:description",
+        content:
+          "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Gaspo Studios — Professional Photography" },
-      { name: "twitter:description", content: "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots." },
-      { property: "og:image", content: "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png",
+      },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png" },
+      {
+        name: "twitter:image",
+        content:
+          "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,

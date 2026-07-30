@@ -6,7 +6,9 @@ import { sendAppEmail } from "../resend.server.ts";
 import ContactNotificationEmail from "../../emails/ContactNotificationEmail.tsx";
 import * as React from "react";
 export const fetchContactMessages = createServerFn({ method: "GET" })
-  .inputValidator((input: { filter?: "all" | "unread" | "read"; search?: string } | undefined) => input)
+  .inputValidator(
+    (input: { filter?: "all" | "unread" | "read"; search?: string } | undefined) => input,
+  )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
     let query = supabase
@@ -21,7 +23,9 @@ export const fetchContactMessages = createServerFn({ method: "GET" })
     }
 
     if (data?.search) {
-      query = query.or(`name.ilike.%${data.search}%,email.ilike.%${data.search}%,subject.ilike.%${data.search}%`);
+      query = query.or(
+        `name.ilike.%${data.search}%,email.ilike.%${data.search}%,subject.ilike.%${data.search}%`,
+      );
     }
 
     const { data: messages, error } = await query;
@@ -42,20 +46,19 @@ export const fetchContactMessages = createServerFn({ method: "GET" })
   });
 
 /** Lightweight count-only fetch for the admin sidebar badge — runs via service role, no RLS issues. */
-export const fetchUnreadMessageCount = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const supabase = getSupabaseAdmin();
-    const { count, error } = await supabase
-      .from("contact_messages")
-      .select("*", { count: "exact", head: true })
-      .eq("read", false);
+export const fetchUnreadMessageCount = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = getSupabaseAdmin();
+  const { count, error } = await supabase
+    .from("contact_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("read", false);
 
-    if (error) {
-      throw new Error(`Failed to count unread messages: ${error.message}`);
-    }
+  if (error) {
+    throw new Error(`Failed to count unread messages: ${error.message}`);
+  }
 
-    return { count: count || 0 };
-  });
+  return { count: count || 0 };
+});
 
 export const submitContactMessage = createServerFn({ method: "POST" })
   .inputValidator(
@@ -65,7 +68,7 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       phone: z.string().optional(),
       subject: z.string().optional(),
       message: z.string().min(5),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -101,7 +104,9 @@ export const submitContactMessage = createServerFn({ method: "POST" })
 
     if (!emailResult.success) {
       console.error("Failed to send contact notification email:", emailResult.error);
-      throw new Error(`Message saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`);
+      throw new Error(
+        `Message saved, but failed to send email notification: ${emailResult.error?.message || "Unknown error"}`,
+      );
     }
 
     return {
@@ -121,7 +126,7 @@ export const markMessageRead = createServerFn({ method: "POST" })
     z.object({
       id: z.string(),
       read: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin"]);
@@ -154,10 +159,7 @@ export const deleteContactMessage = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     requireRole(["admin"]);
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase
-      .from("contact_messages")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabase.from("contact_messages").delete().eq("id", data.id);
 
     if (error) {
       throw new Error(`Failed to delete message: ${error.message}`);

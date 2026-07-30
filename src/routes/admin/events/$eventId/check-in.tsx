@@ -1,7 +1,19 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { QrCode, Search, CheckCircle2, XCircle, ChevronLeft, UserCheck, RefreshCw } from "lucide-react";
-import { fetchEvent, fetchEventRegistrations, checkInAttendee } from "../../../../lib/actions/events";
+import {
+  QrCode,
+  Search,
+  CheckCircle2,
+  XCircle,
+  ChevronLeft,
+  UserCheck,
+  RefreshCw,
+} from "lucide-react";
+import {
+  fetchEvent,
+  fetchEventRegistrations,
+  checkInAttendee,
+} from "../../../../lib/actions/events";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/events/$eventId/check-in")({
@@ -19,8 +31,13 @@ export const Route = createFileRoute("/admin/events/$eventId/check-in")({
   component: CheckInPage,
   notFoundComponent: () => (
     <div className="text-center py-20 bg-muted/20 min-h-screen flex flex-col items-center justify-center">
-      <p className="text-muted-foreground font-semibold text-lg">Event or registrations not found.</p>
-      <Link to="/admin/events" className="text-primary mt-4 inline-block hover:underline font-medium">
+      <p className="text-muted-foreground font-semibold text-lg">
+        Event or registrations not found.
+      </p>
+      <Link
+        to="/admin/events"
+        className="text-primary mt-4 inline-block hover:underline font-medium"
+      >
         ← Back to Events
       </Link>
     </div>
@@ -72,11 +89,9 @@ function CheckInPage() {
   const handleCheckIn = async (regId: string) => {
     try {
       const updated = await checkInAttendee({
-        data: { registrationId: regId, checkedIn: true }
+        data: { registrationId: regId, checkedIn: true },
       });
-      setAttendees(prev =>
-        prev.map(a => (a.id === regId ? (updated as Registration) : a))
-      );
+      setAttendees((prev) => prev.map((a) => (a.id === regId ? (updated as Registration) : a)));
       setScanResult({ success: true, message: `Successfully checked in ${updated.fullName}!` });
       toast.success(`Checked in ${updated.fullName}`);
     } catch (err: any) {
@@ -90,9 +105,9 @@ function CheckInPage() {
     if (!search.trim()) return toast.error("Please enter a ticket ID.");
     // Look up attendee by ID or QR code
     const found = attendees.find(
-      a =>
+      (a) =>
         a.id.toLowerCase() === search.toLowerCase() ||
-        (a.qrCode && a.qrCode.toLowerCase() === search.toLowerCase())
+        (a.qrCode && a.qrCode.toLowerCase() === search.toLowerCase()),
     );
 
     if (found) {
@@ -110,7 +125,7 @@ function CheckInPage() {
 
   // Simulate scanning a random unchecked-in attendee for demonstration
   const handleSimulateScan = () => {
-    const unchecked = attendees.filter(a => !a.checkedIn);
+    const unchecked = attendees.filter((a) => !a.checkedIn);
     if (unchecked.length === 0) {
       setScanResult({ success: false, message: "No unchecked attendees left to scan!" });
       setTimeout(() => setScanResult(null), 3000);
@@ -122,11 +137,11 @@ function CheckInPage() {
     toast.info(`Simulated scanning ticket ${randomAttendee.id}`);
   };
 
-  const checkedInCount = attendees.filter(a => a.checkedIn).length;
+  const checkedInCount = attendees.filter((a) => a.checkedIn).length;
   const totalCount = attendees.length;
   const progress = totalCount > 0 ? (checkedInCount / totalCount) * 100 : 0;
 
-  const filteredAttendees = attendees.filter(a => {
+  const filteredAttendees = attendees.filter((a) => {
     if (!filterText) return true;
     const lower = filterText.toLowerCase();
     return (
@@ -170,7 +185,9 @@ function CheckInPage() {
               <QrCode size={32} />
             </div>
             <h3 className="font-bold text-lg mb-1">Scan Ticket QR</h3>
-            <p className="text-xs text-white/60 mb-6">Use your device camera or simulate a ticket scan.</p>
+            <p className="text-xs text-white/60 mb-6">
+              Use your device camera or simulate a ticket scan.
+            </p>
 
             {scanMode ? (
               <div className="aspect-square bg-black rounded-xl overflow-hidden relative flex flex-col items-center justify-center p-4 border border-white/10">
@@ -222,8 +239,14 @@ function CheckInPage() {
             </div>
 
             {scanResult && (
-              <div className={`mt-4 p-3 rounded-xl flex items-start gap-2 text-xs ${scanResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-                {scanResult.success ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <XCircle size={16} className="mt-0.5 shrink-0" />}
+              <div
+                className={`mt-4 p-3 rounded-xl flex items-start gap-2 text-xs ${scanResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}
+              >
+                {scanResult.success ? (
+                  <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+                ) : (
+                  <XCircle size={16} className="mt-0.5 shrink-0" />
+                )}
                 <p className="leading-relaxed">{scanResult.message}</p>
               </div>
             )}
@@ -235,20 +258,32 @@ function CheckInPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold text-dark">Attendee List</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Manage attendee check-in and search registries.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Manage attendee check-in and search registries.
+              </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm font-bold text-dark">{checkedInCount} / {totalCount}</p>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Checked In</p>
+              <p className="text-sm font-bold text-dark">
+                {checkedInCount} / {totalCount}
+              </p>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                Checked In
+              </p>
             </div>
           </div>
 
           <div className="w-full bg-muted rounded-full h-2 mb-5 overflow-hidden">
-            <div className="bg-primary h-full transition-all duration-500" style={{ width: `${progress}%` }} />
+            <div
+              className="bg-primary h-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
           </div>
 
           <div className="relative mb-4">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
             <input
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
@@ -263,8 +298,11 @@ function CheckInPage() {
                 <p className="text-xs">No matching attendees found.</p>
               </div>
             ) : (
-              filteredAttendees.map(a => (
-                <div key={a.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border hover:border-muted-foreground/30 transition-all bg-muted/5">
+              filteredAttendees.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-border hover:border-muted-foreground/30 transition-all bg-muted/5"
+                >
                   <div className="truncate pr-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-semibold text-dark text-xs truncate">{a.fullName}</span>
@@ -275,7 +313,8 @@ function CheckInPage() {
                     <p className="text-[10px] text-muted-foreground truncate mt-0.5">{a.email}</p>
                     {a.company && (
                       <p className="text-[10px] text-dark truncate mt-0.5 font-medium">
-                        {a.jobTitle ? `${a.jobTitle} @ ` : ""}{a.company}
+                        {a.jobTitle ? `${a.jobTitle} @ ` : ""}
+                        {a.company}
                       </p>
                     )}
                   </div>

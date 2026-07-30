@@ -1,9 +1,33 @@
-import { createFileRoute, Outlet, Link, useNavigate, useLocation, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  useNavigate,
+  useLocation,
+  redirect,
+} from "@tanstack/react-router";
 import { useState, useEffect, useRef, createContext, useContext } from "react";
 import {
-  LayoutDashboard, CalendarDays, BookOpen, Image, Home,
-  Camera, ChevronLeft, ChevronRight, Menu, X, Bell, Search,
-  LogOut, Settings, User, ExternalLink, BarChart2, Building2, Mail, Mailbox
+  LayoutDashboard,
+  CalendarDays,
+  BookOpen,
+  Image,
+  Home,
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  X,
+  Bell,
+  Search,
+  LogOut,
+  Settings,
+  User,
+  ExternalLink,
+  BarChart2,
+  Building2,
+  Mail,
+  Mailbox,
 } from "lucide-react";
 import { Logo } from "../components/Logo";
 import { supabase } from "../lib/supabase";
@@ -21,7 +45,9 @@ export const Route = createFileRoute("/admin")({
     if (typeof document === "undefined") {
       return;
     }
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
       throw redirect({
         to: "/admin/login",
@@ -72,9 +98,7 @@ const nav = [
   },
   {
     group: "Bookings",
-    items: [
-      { to: "/admin/bookings" as const, icon: Camera, label: "Book a Shoot" },
-    ],
+    items: [{ to: "/admin/bookings" as const, icon: Camera, label: "Book a Shoot" }],
   },
 ];
 
@@ -94,9 +118,7 @@ function NavLink({
   badgeCount?: number;
 }) {
   const location = useLocation();
-  const active = exact
-    ? location.pathname === to
-    : location.pathname.startsWith(to);
+  const active = exact ? location.pathname === to : location.pathname.startsWith(to);
 
   return (
     <Link
@@ -145,11 +167,13 @@ function AdminLayout() {
       if (session) {
         // Sync session to a cookie so server functions can verify auth
         const projectRef = "fhhxbjwcgfslvbznrvab";
-        const cookieValue = btoa(JSON.stringify({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          expires_at: session.expires_at,
-        }));
+        const cookieValue = btoa(
+          JSON.stringify({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            expires_at: session.expires_at,
+          }),
+        );
         const maxAge = session.expires_at
           ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
           : 3600;
@@ -163,16 +187,20 @@ function AdminLayout() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
         // Sync session to a cookie so server functions can verify auth
         const projectRef = "fhhxbjwcgfslvbznrvab";
-        const cookieValue = btoa(JSON.stringify({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          expires_at: session.expires_at,
-        }));
+        const cookieValue = btoa(
+          JSON.stringify({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            expires_at: session.expires_at,
+          }),
+        );
         const maxAge = session.expires_at
           ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
           : 3600;
@@ -256,7 +284,9 @@ function AdminLayout() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-slate-400 text-sm font-medium tracking-wide animate-pulse">Loading Admin Workspace...</p>
+        <p className="text-slate-400 text-sm font-medium tracking-wide animate-pulse">
+          Loading Admin Workspace...
+        </p>
       </div>
     );
   }
@@ -265,21 +295,38 @@ function AdminLayout() {
     return <Outlet />;
   }
 
-  const filteredNav = nav.map(group => {
-    const items = group.items.filter(item => {
-      if (role === "photographer") {
-        return item.label === "Gallery";
-      }
-      if (role === "editor") {
-        return ["Dashboard", "Analytics", "Homepage", "Blog Posts", "Gallery", "Events", "Newsletters"].includes(item.label);
-      }
-      if (role === "viewer") {
-        return ["Dashboard", "Analytics", "Events", "Sponsor Portal", "Book a Shoot", "Messages"].includes(item.label);
-      }
-      return true;
-    });
-    return { ...group, items };
-  }).filter(group => group.items.length > 0);
+  const filteredNav = nav
+    .map((group) => {
+      const items = group.items.filter((item) => {
+        if (role === "photographer") {
+          return item.label === "Gallery";
+        }
+        if (role === "editor") {
+          return [
+            "Dashboard",
+            "Analytics",
+            "Homepage",
+            "Blog Posts",
+            "Gallery",
+            "Events",
+            "Newsletters",
+          ].includes(item.label);
+        }
+        if (role === "viewer") {
+          return [
+            "Dashboard",
+            "Analytics",
+            "Events",
+            "Sponsor Portal",
+            "Book a Shoot",
+            "Messages",
+          ].includes(item.label);
+        }
+        return true;
+      });
+      return { ...group, items };
+    })
+    .filter((group) => group.items.length > 0);
 
   const userDisplayName = session?.user?.email?.split("@")[0] || "Staff";
   const userRoleDisplay = role ? role.toUpperCase() : "STAFF";
@@ -292,7 +339,9 @@ function AdminLayout() {
             collapsed ? "w-[72px]" : "w-64"
           } hidden lg:flex`}
         >
-          <div className={`flex items-center h-16 border-b border-border-dark px-4 ${collapsed ? "justify-center" : "justify-between"}`}>
+          <div
+            className={`flex items-center h-16 border-b border-border-dark px-4 ${collapsed ? "justify-center" : "justify-between"}`}
+          >
             {!collapsed && (
               <div className="[&_*]:text-white [&_span.text-primary]:text-primary">
                 <Logo light />
@@ -334,7 +383,12 @@ function AdminLayout() {
 
           <div className="border-t border-border-dark px-3 py-4 space-y-1">
             {role === "admin" && (
-              <NavLink to="/admin/settings" icon={Settings} label="Settings" collapsed={collapsed} />
+              <NavLink
+                to="/admin/settings"
+                icon={Settings}
+                label="Settings"
+                collapsed={collapsed}
+              />
             )}
             <Link
               to="/"
@@ -367,20 +421,28 @@ function AdminLayout() {
 
         {mobileOpen && (
           <div className="fixed inset-0 z-50 flex lg:hidden">
-            <div className="absolute inset-0 bg-dark/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+            <div
+              className="absolute inset-0 bg-dark/60 backdrop-blur-sm"
+              onClick={() => setMobileOpen(false)}
+            />
             <aside className="relative z-10 w-64 bg-dark flex flex-col h-full border-r border-border-dark">
               <div className="flex items-center justify-between h-16 border-b border-border-dark px-4">
                 <div className="[&_*]:text-white [&_span.text-primary]:text-primary">
                   <Logo light />
                 </div>
-                <button onClick={() => setMobileOpen(false)} className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center">
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center"
+                >
                   <X size={16} />
                 </button>
               </div>
               <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
                 {filteredNav.map(({ group, items }) => (
                   <div key={group}>
-                    <p className="text-xs font-semibold text-white/30 uppercase tracking-widest px-3 mb-2">{group}</p>
+                    <p className="text-xs font-semibold text-white/30 uppercase tracking-widest px-3 mb-2">
+                      {group}
+                    </p>
                     <div className="space-y-1">
                       {items.map((item) => (
                         <NavLink
@@ -401,7 +463,9 @@ function AdminLayout() {
           </div>
         )}
 
-        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "lg:ml-[72px]" : "lg:ml-64"}`}>
+        <div
+          className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "lg:ml-[72px]" : "lg:ml-64"}`}
+        >
           <header className="sticky top-0 z-30 h-16 bg-white border-b border-border flex items-center px-4 md:px-6 gap-4 shadow-sm">
             <button
               onClick={() => setMobileOpen(true)}
@@ -428,7 +492,9 @@ function AdminLayout() {
                   <User size={14} />
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-xs font-semibold text-dark leading-tight capitalize">{userDisplayName}</p>
+                  <p className="text-xs font-semibold text-dark leading-tight capitalize">
+                    {userDisplayName}
+                  </p>
                   <p className="text-xs text-muted-foreground leading-tight">{userRoleDisplay}</p>
                 </div>
               </div>

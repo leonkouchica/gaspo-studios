@@ -29,8 +29,10 @@ function loadDotEnv(): Record<string, string> {
         const key = trimmed.slice(0, eqIdx).trim();
         let value = trimmed.slice(eqIdx + 1).trim();
         // Strip surrounding quotes
-        if ((value.startsWith('"') && value.endsWith('"')) ||
-            (value.startsWith("'") && value.endsWith("'"))) {
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
           value = value.slice(1, -1);
         }
         vars[key] = value;
@@ -62,9 +64,7 @@ function readEnv(): ServerEnv {
   const raw = {
     NODE_ENV: process.env.NODE_ENV,
     SUPABASE_SERVICE_ROLE_KEY:
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      dotEnvVars.SUPABASE_SERVICE_ROLE_KEY ||
-      "",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || dotEnvVars.SUPABASE_SERVICE_ROLE_KEY || "",
     VITE_SUPABASE_URL:
       (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SUPABASE_URL) ||
       process.env.VITE_SUPABASE_URL ||
@@ -75,14 +75,9 @@ function readEnv(): ServerEnv {
       process.env.VITE_SUPABASE_ANON_KEY ||
       dotEnvVars.VITE_SUPABASE_ANON_KEY ||
       "",
-    VAPID_PRIVATE_KEY:
-      process.env.VAPID_PRIVATE_KEY ||
-      dotEnvVars.VAPID_PRIVATE_KEY ||
-      "",
+    VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || dotEnvVars.VAPID_PRIVATE_KEY || "",
     VAPID_SUBJECT:
-      process.env.VAPID_SUBJECT ||
-      dotEnvVars.VAPID_SUBJECT ||
-      "mailto:admin@gaspostudios.com",
+      process.env.VAPID_SUBJECT || dotEnvVars.VAPID_SUBJECT || "mailto:admin@gaspostudios.com",
     VITE_VAPID_PUBLIC_KEY:
       (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_VAPID_PUBLIC_KEY) ||
       process.env.VITE_VAPID_PUBLIC_KEY ||
@@ -106,7 +101,9 @@ function readEnv(): ServerEnv {
     console.warn("⚠️  SUPABASE_SERVICE_ROLE_KEY is not set. Admin write operations will fail.");
   }
   if (!result.data.VITE_SUPABASE_URL || !result.data.VITE_SUPABASE_ANON_KEY) {
-    console.warn("⚠️  VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are not set. Database access will fail.");
+    console.warn(
+      "⚠️  VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are not set. Database access will fail.",
+    );
   }
 
   return result.data;

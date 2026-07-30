@@ -1,8 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import {
-  Search, Plus, Eye, Pencil, Trash2, RefreshCw, AlertCircle, Loader2
-} from "lucide-react";
+import { Search, Plus, Eye, Pencil, Trash2, RefreshCw, AlertCircle, Loader2 } from "lucide-react";
 import { fetchBlogPosts, deleteBlogPost, publishScheduledPosts } from "../../../lib/actions/blog";
 import { toast } from "sonner";
 
@@ -57,7 +55,9 @@ function AdminBlogPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchBlogPosts({ data: { status: statusFilter, search, page, limit: 10 } });
+      const result = await fetchBlogPosts({
+        data: { status: statusFilter, search, page, limit: 10 },
+      });
       // Handle new paginated response format
       if (result && typeof result === "object" && "items" in result) {
         const r = result as any;
@@ -129,12 +129,16 @@ function AdminBlogPage() {
                 const result = await publishScheduledPosts();
                 const r = result as any;
                 if (r.published > 0) {
-                  toast.success(`Published ${r.published} scheduled post(s): ${r.posts.join(", ")}`);
+                  toast.success(
+                    `Published ${r.published} scheduled post(s): ${r.posts.join(", ")}`,
+                  );
                   loadPosts();
                 } else {
                   toast.info(r.message || "No scheduled posts ready.");
                 }
-              } catch (err: any) { toast.error(err.message); }
+              } catch (err: any) {
+                toast.error(err.message);
+              }
             }}
             className="inline-flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 text-violet-700 hover:bg-violet-500/20 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
             title="Publish all scheduled posts whose time has arrived"
@@ -146,7 +150,10 @@ function AdminBlogPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={15}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

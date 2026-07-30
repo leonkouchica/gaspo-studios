@@ -50,7 +50,8 @@ export function NotificationManager() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-dark">Notifications Blocked</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Enable notifications in your browser settings to stay updated on new blog posts and events.
+                Enable notifications in your browser settings to stay updated on new blog posts and
+                events.
               </p>
             </div>
             <button
@@ -87,7 +88,10 @@ export function NotificationManager() {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label htmlFor="notif-blogs" className="text-sm text-dark/80 cursor-pointer select-none">
+              <label
+                htmlFor="notif-blogs"
+                className="text-sm text-dark/80 cursor-pointer select-none"
+              >
                 📝 New Blog Posts
               </label>
               <Switch
@@ -97,7 +101,10 @@ export function NotificationManager() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <label htmlFor="notif-events" className="text-sm text-dark/80 cursor-pointer select-none">
+              <label
+                htmlFor="notif-events"
+                className="text-sm text-dark/80 cursor-pointer select-none"
+              >
                 📅 Upcoming Events
               </label>
               <Switch
@@ -141,9 +148,7 @@ export function NotificationManager() {
           Get notified when we publish new blog posts or announce upcoming events.
         </p>
 
-        {error && (
-          <p className="text-xs text-red-500 mb-3 bg-red-50 rounded-lg p-2">{error}</p>
-        )}
+        {error && <p className="text-xs text-red-500 mb-3 bg-red-50 rounded-lg p-2">{error}</p>}
 
         <Button
           onClick={async () => {

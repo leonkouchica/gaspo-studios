@@ -61,8 +61,7 @@ export const blogPosts: BlogPostFull[] = [
     category: "Wedding",
     tags: ["wedding", "tips", "behind-the-scenes"],
     author: marcoAuthor,
-    featuredImage:
-      "/images/wedding_couple.webp",
+    featuredImage: "/images/wedding_couple.webp",
     status: "published",
     publishedAt: "2026-05-28T08:00:00Z",
     views: 1842,
@@ -87,8 +86,7 @@ export const blogPosts: BlogPostFull[] = [
     category: "Tips",
     tags: ["headshots", "posing", "portrait"],
     author: marcoAuthor,
-    featuredImage:
-      "/images/photographer_hero.webp",
+    featuredImage: "/images/photographer_hero.webp",
     status: "published",
     publishedAt: "2026-05-12T09:00:00Z",
     views: 962,
@@ -105,14 +103,12 @@ export const blogPosts: BlogPostFull[] = [
     id: "post-003",
     slug: "behind-scenes-brand-shoot",
     title: "Behind the Scenes of Our Latest Brand Shoot",
-    excerpt:
-      "A look inside our two-day campaign for an emerging skincare label.",
+    excerpt: "A look inside our two-day campaign for an emerging skincare label.",
     body: `<p>Earlier this month we wrapped a two-day product campaign for Lagos-based skincare brand Lumière. Here's how we approached it from pre-production to final delivery.</p>`,
     category: "Studio",
     tags: ["commercial", "behind-the-scenes", "brand"],
     author: aishaAuthor,
-    featuredImage:
-      "/images/corporate_team.webp",
+    featuredImage: "/images/corporate_team.webp",
     status: "published",
     publishedAt: "2026-04-30T10:00:00Z",
     views: 541,
@@ -134,8 +130,7 @@ export const blogPosts: BlogPostFull[] = [
     category: "Editorial",
     tags: ["editing", "color-grading", "workflow"],
     author: aishaAuthor,
-    featuredImage:
-      "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&q=80",
     status: "published",
     publishedAt: "2026-03-14T10:00:00Z",
     views: 2103,
@@ -152,14 +147,12 @@ export const blogPosts: BlogPostFull[] = [
     id: "post-005",
     slug: "top-lenses-every-shoot",
     title: "Lenses We Reach For Every Single Shoot",
-    excerpt:
-      "From the workhorse 35mm to the dreamy 85, our editors share their favorite glass.",
+    excerpt: "From the workhorse 35mm to the dreamy 85, our editors share their favorite glass.",
     body: `<p>We get asked about our gear constantly — so here's a straight answer: these are the lenses that live on our cameras.</p>`,
     category: "Gear",
     tags: ["gear", "lenses", "equipment"],
     author: marcoAuthor,
-    featuredImage:
-      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
     status: "draft",
     publishedAt: null,
     views: 0,
@@ -181,8 +174,7 @@ export const blogPosts: BlogPostFull[] = [
     category: "Industry",
     tags: ["printing", "philosophy", "archiving"],
     author: marcoAuthor,
-    featuredImage:
-      "/images/photographer_hero.webp",
+    featuredImage: "/images/photographer_hero.webp",
     status: "scheduled",
     publishedAt: null,
     scheduledFor: "2026-06-15T09:00:00Z",

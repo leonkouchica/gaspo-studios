@@ -5,10 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
-import {
-  sendManualPushNotification,
-  getSubscriberCounts,
-} from "../push-notification.server.ts";
+import { sendManualPushNotification, getSubscriberCounts } from "../push-notification.server.ts";
 import { requireRole } from "../auth-guard.server.ts";
 
 // ── Subscribe ────────────────────────────────────────────────────────────────
@@ -25,7 +22,7 @@ export const subscribeToPush = createServerFn({ method: "POST" })
       }),
       userAgent: z.string().optional(),
       deviceType: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -87,7 +84,7 @@ export const unsubscribeFromPush = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       endpoint: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -110,7 +107,7 @@ export const updatePushPreferences = createServerFn({ method: "POST" })
         blogs: z.boolean(),
         events: z.boolean(),
       }),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -137,7 +134,7 @@ export const adminSendNotification = createServerFn({ method: "POST" })
       url: z.string().min(1),
       dateString: z.string().optional(),
       bypassRateLimit: z.boolean().default(false),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin"]);
@@ -156,18 +153,15 @@ export const adminSendNotification = createServerFn({ method: "POST" })
 
 // ── Admin: Subscriber Stats ──────────────────────────────────────────────────
 
-export const fetchSubscriberStats = createServerFn({ method: "GET" })
-  .handler(async () => {
-    requireRole(["admin"]);
-    return getSubscriberCounts();
-  });
+export const fetchSubscriberStats = createServerFn({ method: "GET" }).handler(async () => {
+  requireRole(["admin"]);
+  return getSubscriberCounts();
+});
 
 // ── Admin: Recent Dispatch Log ───────────────────────────────────────────────
 
 export const fetchDispatchLog = createServerFn({ method: "GET" })
-  .inputValidator(
-    (input: { limit?: number } | undefined) => input
-  )
+  .inputValidator((input: { limit?: number } | undefined) => input)
   .handler(async ({ data }) => {
     requireRole(["admin"]);
     const supabase = getSupabaseAdmin();

@@ -47,13 +47,13 @@ describe("upload.server convertAndUploadImage", () => {
 
   it("should throw an error if no file is provided", async () => {
     await expect(convertAndUploadImage(null, "gallery")).rejects.toThrow(
-      "No file was provided for upload"
+      "No file was provided for upload",
     );
   });
 
   it("should throw an error for unsupported file types", async () => {
     await expect(convertAndUploadImage({} as any, "gallery")).rejects.toThrow(
-      "Unsupported file type: must be File, Blob or Buffer"
+      "Unsupported file type: must be File, Blob or Buffer",
     );
   });
 
@@ -83,14 +83,14 @@ describe("upload.server convertAndUploadImage", () => {
         contentType: "image/webp",
         cacheControl: "31536000",
         upsert: true,
-      })
+      }),
     );
     expect(result).toBe("https://supabase/gaspo-media/gallery/test.webp");
   });
 
   it("should handle raw Buffers", async () => {
     const rawBuffer = Buffer.from("raw-bytes");
-    
+
     mockToBuffer.mockResolvedValue(Buffer.from("webp-data"));
     mockUpload.mockResolvedValue({ data: {}, error: null });
     mockGetPublicUrl.mockReturnValue({
@@ -109,7 +109,7 @@ describe("upload.server convertAndUploadImage", () => {
     };
 
     await expect(convertAndUploadImage(mockFile, "events")).rejects.toThrow(
-      "Failed to read upload buffer: Read failure"
+      "Failed to read upload buffer: Read failure",
     );
   });
 
@@ -118,7 +118,7 @@ describe("upload.server convertAndUploadImage", () => {
     mockToBuffer.mockRejectedValue(new Error("Invalid image format"));
 
     await expect(convertAndUploadImage(rawBuffer, "team")).rejects.toThrow(
-      "Sharp WebP processing failed: Invalid image format. Ensure the file is a valid image."
+      "Sharp WebP processing failed: Invalid image format. Ensure the file is a valid image.",
     );
   });
 
@@ -131,23 +131,23 @@ describe("upload.server convertAndUploadImage", () => {
     });
 
     await expect(convertAndUploadImage(rawBuffer, "gallery")).rejects.toThrow(
-      "Supabase Storage upload failed: Permission denied"
+      "Supabase Storage upload failed: Permission denied",
     );
   });
 
   it("should handle 'Bucket not found' error by creating bucket and retrying", async () => {
     const rawBuffer = Buffer.from("bytes");
     mockToBuffer.mockResolvedValue(Buffer.from("webp-data"));
-    
+
     // First upload fails with Bucket not found
     mockUpload.mockResolvedValueOnce({
       data: null,
       error: { message: "Bucket not found: gaspo-media" },
     });
-    
+
     // Create bucket succeeds
     mockCreateBucket.mockResolvedValue({ data: {}, error: null });
-    
+
     // Retry upload succeeds
     mockUpload.mockResolvedValueOnce({
       data: {},
@@ -171,40 +171,40 @@ describe("upload.server convertAndUploadImage", () => {
   it("should throw error if bucket creation fails during auto-create flow", async () => {
     const rawBuffer = Buffer.from("bytes");
     mockToBuffer.mockResolvedValue(Buffer.from("webp-data"));
-    
+
     mockUpload.mockResolvedValueOnce({
       data: null,
       error: { message: "Bucket not found" },
     });
-    
+
     mockCreateBucket.mockResolvedValue({
       data: null,
       error: { message: "Database error during bucket creation" },
     });
 
     await expect(convertAndUploadImage(rawBuffer, "gallery")).rejects.toThrow(
-      "Failed to create bucket 'gaspo-media': Database error during bucket creation"
+      "Failed to create bucket 'gaspo-media': Database error during bucket creation",
     );
   });
 
   it("should throw error if retry upload fails after bucket creation", async () => {
     const rawBuffer = Buffer.from("bytes");
     mockToBuffer.mockResolvedValue(Buffer.from("webp-data"));
-    
+
     mockUpload.mockResolvedValueOnce({
       data: null,
       error: { message: "Bucket not found" },
     });
-    
+
     mockCreateBucket.mockResolvedValue({ data: {}, error: null });
-    
+
     mockUpload.mockResolvedValueOnce({
       data: null,
       error: { message: "Connection timeout" },
     });
 
     await expect(convertAndUploadImage(rawBuffer, "gallery")).rejects.toThrow(
-      "Failed to upload image after bucket creation: Connection timeout"
+      "Failed to upload image after bucket creation: Connection timeout",
     );
   });
 
@@ -215,7 +215,7 @@ describe("upload.server convertAndUploadImage", () => {
     mockGetPublicUrl.mockReturnValue({ data: null });
 
     await expect(convertAndUploadImage(rawBuffer, "gallery")).rejects.toThrow(
-      "Failed to retrieve public URL for uploaded asset"
+      "Failed to retrieve public URL for uploaded asset",
     );
   });
 });

@@ -58,7 +58,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
       alt: z.string().optional(),
       category: z.string().default("Weddings"),
       order: z.number().default(0),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -105,7 +105,7 @@ export const toggleImageVisibility = createServerFn({ method: "POST" })
     z.object({
       id: z.string(),
       visible: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -141,7 +141,7 @@ export const updateImageMeta = createServerFn({ method: "POST" })
       alt: z.string().min(1),
       category: z.string().min(1),
       order: z.number().default(0),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);

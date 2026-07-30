@@ -57,14 +57,11 @@ const sponsorPackageSchema = z.object({
 
 export const fetchEvents = createServerFn({ method: "GET" })
   .inputValidator(
-    (input: { category?: string; status?: string; visibleOnly?: boolean } | undefined) => input
+    (input: { category?: string; status?: string; visibleOnly?: boolean } | undefined) => input,
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
-    let query = supabase
-      .from("events")
-      .select("*")
-      .order("date", { ascending: false });
+    let query = supabase.from("events").select("*").order("date", { ascending: false });
 
     if (data?.category && data.category !== "all" && data.category !== "All") {
       query = query.eq("category", data.category);
@@ -128,7 +125,7 @@ export const fetchEvent = createServerFn({ method: "GET" })
     z.object({
       slug: z.string().optional(),
       id: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -196,7 +193,7 @@ export const uploadEventImage = createServerFn({ method: "POST" })
       fileBase64: z.string(),
       fileName: z.string(),
       mimeType: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -243,7 +240,7 @@ export const createEvent = createServerFn({ method: "POST" })
       whyAttendEnabled: z.boolean().default(true),
       whyAttendItems: z.array(whyAttendItemSchema).default([]),
       sponsorLogos: z.array(z.string()).default([]),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -337,7 +334,7 @@ export const updateEvent = createServerFn({ method: "POST" })
       whyAttendEnabled: z.boolean().default(true),
       whyAttendItems: z.array(whyAttendItemSchema).default([]),
       sponsorLogos: z.array(z.string()).default([]),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -414,10 +411,7 @@ export const deleteEvent = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .single();
 
-    const { error } = await supabase
-      .from("events")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabase.from("events").delete().eq("id", data.id);
 
     if (error) {
       throw new Error(`Failed to delete event: ${error.message}`);
@@ -453,13 +447,16 @@ export const triggerEventPushNotification = createServerFn({ method: "POST" })
       throw new Error(`Failed to fetch event: ${error?.message}`);
     }
 
-    const result = await sendPushNotifications({
-      type: "event",
-      title: event.title,
-      body: event.summary,
-      url: `/events/${event.slug}`,
-      dateString: event.date,
-    }, { bypassRateLimit: true });
+    const result = await sendPushNotifications(
+      {
+        type: "event",
+        title: event.title,
+        body: event.summary,
+        url: `/events/${event.slug}`,
+        dateString: event.date,
+      },
+      { bypassRateLimit: true },
+    );
 
     return result;
   });
@@ -495,7 +492,7 @@ export const broadcastEventNewsletter = createServerFn({ method: "POST" })
 
     const htmlContent = `
       <h2>${event.title}</h2>
-      ${event.banner_image ? `<img src="${event.banner_image.startsWith('/') ? 'https://gaspostudios.com' + event.banner_image : event.banner_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ''}
+      ${event.banner_image ? `<img src="${event.banner_image.startsWith("/") ? "https://gaspostudios.com" + event.banner_image : event.banner_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ""}
       <p style="font-size: 16px; line-height: 1.5; color: #374151;">${event.summary}</p>
       <div style="margin-top: 24px; text-align: center;">
         <a href="https://gaspostudios.com/events/${event.slug}" style="display:inline-block;background-color:#10b981;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">View Event Details</a>
@@ -513,10 +510,12 @@ export const broadcastEventNewsletter = createServerFn({ method: "POST" })
     let successCount = 0;
     let failCount = 0;
 
-    const emailHtml = await render(React.createElement(NewsletterBroadcastEmail, {
-      subject: event.title,
-      content: htmlContent,
-    }));
+    const emailHtml = await render(
+      React.createElement(NewsletterBroadcastEmail, {
+        subject: event.title,
+        content: htmlContent,
+      }),
+    );
 
     for (const batch of batches) {
       const payload = batch.map((email) => ({
@@ -608,10 +607,12 @@ export const registerForEvent = createServerFn({ method: "POST" })
       howHeard: z.string(),
       ticketType: z.string().optional(),
       paymentStatus: z.string().default("pending"),
-      registrationType: z.enum(["participant","sponsor_guest","speaker","staff","vip"]).default("participant"),
+      registrationType: z
+        .enum(["participant", "sponsor_guest", "speaker", "staff", "vip"])
+        .default("participant"),
       linkedSponsorId: z.string().optional(),
       eventInterest: z.array(z.string()).default([]),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -650,16 +651,31 @@ export const registerForEvent = createServerFn({ method: "POST" })
     // Increment registration count in events table
     await supabase.rpc("increment_registration_count", { event_id_param: data.eventId });
     // Fallback simple update if RPC isn't set up
-    const { data: currentEvent } = await supabase.from("events").select("*").eq("id", data.eventId).single();
+    const { data: currentEvent } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", data.eventId)
+      .single();
     if (currentEvent) {
-      await supabase.from("events").update({
-        registration_count: (currentEvent.registration_count || 0) + 1
-      }).eq("id", data.eventId);
+      await supabase
+        .from("events")
+        .update({
+          registration_count: (currentEvent.registration_count || 0) + 1,
+        })
+        .eq("id", data.eventId);
 
       // Send registration email via Resend
-      const formattedDate = new Date(currentEvent.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const eventTime = new Date(currentEvent.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      
+      const formattedDate = new Date(currentEvent.date).toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const eventTime = new Date(currentEvent.date).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
       await sendAppEmail({
         to: data.email,
         subject: `Registration Confirmed: ${currentEvent.title}`,
@@ -673,9 +689,12 @@ export const registerForEvent = createServerFn({ method: "POST" })
           mapEmbedUrl: currentEvent.map_embed_url,
         }),
       });
-      
+
       // Update DB to mark confirmation sent
-      await supabase.from("event_registrations").update({ confirmation_sent: true }).eq("id", inserted.id);
+      await supabase
+        .from("event_registrations")
+        .update({ confirmation_sent: true })
+        .eq("id", inserted.id);
       inserted.confirmation_sent = true;
     }
 
@@ -709,7 +728,7 @@ export const checkInAttendee = createServerFn({ method: "POST" })
     z.object({
       registrationId: z.string(),
       checkedIn: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireAuth();
@@ -749,8 +768,8 @@ export const checkInAttendee = createServerFn({ method: "POST" })
     };
   });
 
-export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" })
-  .handler(async () => {
+export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" }).handler(
+  async () => {
     requireAuth();
     const supabase = getSupabaseAdmin();
 
@@ -773,7 +792,7 @@ export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" })
       .update({ sponsorship_enabled: true })
       .in(
         "id",
-        toUpdate.map((e) => e.id)
+        toUpdate.map((e) => e.id),
       );
 
     if (updateError) {
@@ -781,4 +800,5 @@ export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" })
     }
 
     return { updatedCount: toUpdate.length };
-  });
+  },
+);

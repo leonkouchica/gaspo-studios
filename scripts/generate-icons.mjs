@@ -21,7 +21,12 @@ async function generate() {
   const configs = [
     { name: "blog-icon.png", size: 192, bg: { r: 225, g: 45, b: 45, alpha: 1 }, label: "B" },
     { name: "event-icon.png", size: 192, bg: { r: 26, g: 26, b: 26, alpha: 1 }, label: "E" },
-    { name: "android-status-badge.png", size: 72, bg: { r: 225, g: 45, b: 45, alpha: 1 }, label: "" },
+    {
+      name: "android-status-badge.png",
+      size: 72,
+      bg: { r: 225, g: 45, b: 45, alpha: 1 },
+      label: "",
+    },
     { name: "icon-192.png", size: 192, bg: { r: 26, g: 26, b: 26, alpha: 1 }, label: "G" },
     { name: "icon-512.png", size: 512, bg: { r: 26, g: 26, b: 26, alpha: 1 }, label: "G" },
   ];
@@ -43,14 +48,14 @@ async function generate() {
         ${label ? `<text x="50%" y="55%" text-anchor="middle" fill="white" font-size="${size * 0.5}" font-family="Arial,sans-serif" font-weight="bold">${label}</text>` : ""}
       </svg>`;
 
-      await sharp(Buffer.from(svg))
-        .png()
-        .toFile(outputPath);
+      await sharp(Buffer.from(svg)).png().toFile(outputPath);
       console.log(`  Created ${name} (${size}×${size}) as placeholder`);
     }
   }
 
-  console.log("\nIcon generation complete! Replace placeholders with designed assets before production.");
+  console.log(
+    "\nIcon generation complete! Replace placeholders with designed assets before production.",
+  );
 }
 
 generate().catch((err) => {

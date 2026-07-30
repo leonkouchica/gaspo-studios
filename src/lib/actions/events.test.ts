@@ -188,10 +188,12 @@ describe("Events Server Actions", () => {
       });
 
       expect(mockSupabase.from).toHaveBeenCalledWith("events");
-      expect(mockQuery.update).toHaveBeenCalledWith(expect.objectContaining({
-        title: "AI Meetup Updated",
-        capacity: 120,
-      }));
+      expect(mockQuery.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "AI Meetup Updated",
+          capacity: 120,
+        }),
+      );
       expect(mockQuery.eq).toHaveBeenCalledWith("id", "evt-001");
       expect(result.id).toBe("evt-001");
     });
@@ -200,10 +202,15 @@ describe("Events Server Actions", () => {
   describe("deleteEvent", () => {
     it("should remove event row and banner image from storage", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { banner_image: "https://example.com/storage/v1/object/public/gaspo-media/events/banner.webp" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: {
+              banner_image:
+                "https://example.com/storage/v1/object/public/gaspo-media/events/banner.webp",
+            },
+            error: null,
+          }),
+        );
       });
 
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
@@ -238,18 +245,22 @@ describe("Events Server Actions", () => {
   describe("checkInAttendee", () => {
     it("should update checked_in status and log times", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { ...mockRegistration, checked_in: true, checked_in_at: "2026-05-31T15:00:00Z" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { ...mockRegistration, checked_in: true, checked_in_at: "2026-05-31T15:00:00Z" },
+            error: null,
+          }),
+        );
       });
 
       const result = await checkInAttendee({ registrationId: "reg-001", checkedIn: true });
 
       expect(mockSupabase.from).toHaveBeenCalledWith("event_registrations");
-      expect(mockQuery.update).toHaveBeenCalledWith(expect.objectContaining({
-        checked_in: true,
-      }));
+      expect(mockQuery.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          checked_in: true,
+        }),
+      );
       expect(mockQuery.eq).toHaveBeenCalledWith("id", "reg-001");
       expect(result.checkedIn).toBe(true);
     });

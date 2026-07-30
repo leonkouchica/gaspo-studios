@@ -43,12 +43,18 @@ function getVapidKeys() {
 
 export async function sendPushNotifications(
   target: NotificationTarget,
-  options?: { bypassRateLimit?: boolean }
+  options?: { bypassRateLimit?: boolean },
 ): Promise<DispatchResult> {
   const vapid = getVapidKeys();
   if (!vapid) {
     console.warn("Push notifications skipped: VAPID keys not configured.");
-    return { sent: 0, failed: 0, skippedRateLimited: 0, cleaned: 0, errors: ["VAPID keys not configured"] };
+    return {
+      sent: 0,
+      failed: 0,
+      skippedRateLimited: 0,
+      cleaned: 0,
+      errors: ["VAPID keys not configured"],
+    };
   }
 
   const supabase = getSupabaseAdmin();
@@ -66,9 +72,7 @@ export async function sendPushNotifications(
 
   if (!bypass) {
     // Exclude subscribers who hit global daily cap (3)
-    query = query.or(
-      `daily_push_date.neq.${today},daily_push_count.lt.3`
-    );
+    query = query.or(`daily_push_date.neq.${today},daily_push_count.lt.3`);
   }
 
   const { data: subscribers, error: queryErr } = await query;
@@ -132,10 +136,7 @@ export async function sendPushNotifications(
     } catch (err: any) {
       if (err.statusCode === 410 || err.statusCode === 404) {
         // Clean up expired/uninstalled subscriptions
-        await supabase
-          .from("push_subscriptions")
-          .delete()
-          .eq("id", sub.id);
+        await supabase.from("push_subscriptions").delete().eq("id", sub.id);
         cleaned++;
       } else {
         failed++;
@@ -162,7 +163,7 @@ export async function sendPushNotifications(
   });
 
   console.log(
-    `[Push] Dispatched "${target.type}" notification: ${sent} sent, ${failed} failed, ${skippedRateLimited} rate-limited, ${cleaned} cleaned`
+    `[Push] Dispatched "${target.type}" notification: ${sent} sent, ${failed} failed, ${skippedRateLimited} rate-limited, ${cleaned} cleaned`,
   );
 
   return { sent, failed, skippedRateLimited, cleaned, errors };
@@ -171,7 +172,7 @@ export async function sendPushNotifications(
 // ── Manual Admin Dispatch ────────────────────────────────────────────────────
 
 export async function sendManualPushNotification(
-  target: NotificationTarget & { triggeredBy?: string; bypassRateLimit?: boolean }
+  target: NotificationTarget & { triggeredBy?: string; bypassRateLimit?: boolean },
 ): Promise<DispatchResult> {
   const result = await sendPushNotifications(target, {
     bypassRateLimit: target.bypassRateLimit ?? false,
@@ -205,9 +206,7 @@ export async function getSubscriberCounts(): Promise<{
   events: number;
 }> {
   const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("push_subscriptions")
-    .select("channels");
+  const { data, error } = await supabase.from("push_subscriptions").select("channels");
 
   if (error || !data) {
     return { total: 0, blogs: 0, events: 0 };

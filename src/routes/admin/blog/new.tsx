@@ -134,7 +134,7 @@ function NewBlogPostPage() {
                       e.target.value
                         .toLowerCase()
                         .replace(/\s+/g, "-")
-                        .replace(/[^a-z0-9-]/g, "")
+                        .replace(/[^a-z0-9-]/g, ""),
                     );
                   }
                 }}
@@ -178,7 +178,9 @@ function NewBlogPostPage() {
           <div className="bg-white rounded-2xl border border-border p-6 space-y-5">
             <h3 className="font-semibold text-dark">Settings</h3>
             <div>
-              <label className="text-xs text-muted-foreground uppercase tracking-wider block mb-1.5">Status</label>
+              <label className="text-xs text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Status
+              </label>
               <select
                 value={form.status}
                 onChange={(e) => set("status", e.target.value)}
@@ -207,7 +209,9 @@ function NewBlogPostPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground uppercase tracking-wider block mb-1.5">URL Slug</label>
+              <label className="text-xs text-muted-foreground uppercase tracking-wider block mb-1.5">
+                URL Slug
+              </label>
               <input
                 value={form.slug}
                 onChange={(e) => set("slug", e.target.value)}
@@ -221,7 +225,11 @@ function NewBlogPostPage() {
             <h3 className="font-semibold text-dark">Featured Image</h3>
             {form.featuredImage ? (
               <div className="relative">
-                <img src={form.featuredImage} alt="Featured" className="w-full h-40 object-cover rounded-xl" />
+                <img
+                  src={form.featuredImage}
+                  alt="Featured"
+                  className="w-full h-40 object-cover rounded-xl"
+                />
                 <button
                   onClick={() => set("featuredImage", "")}
                   className="absolute top-2 right-2 w-7 h-7 bg-dark/70 text-white rounded-full text-xs flex items-center justify-center hover:bg-dark transition-colors"

@@ -21,9 +21,8 @@ self.addEventListener("push", (event: PushEvent) => {
     const data: PushPayload = event.data.json();
 
     const isEvent = data.contentType === "event";
-    const bodyText = isEvent && data.eventDate
-      ? `📅 Date: ${data.eventDate}\n${data.body}`
-      : data.body;
+    const bodyText =
+      isEvent && data.eventDate ? `📅 Date: ${data.eventDate}\n${data.body}` : data.body;
 
     const options: NotificationOptions = {
       body: bodyText,
@@ -34,9 +33,7 @@ self.addEventListener("push", (event: PushEvent) => {
       data: { url: data.url },
     };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+    event.waitUntil(self.registration.showNotification(data.title, options));
   } catch (err) {
     console.error("Error handling background push execution:", err);
   }
@@ -57,7 +54,7 @@ self.addEventListener("notificationclick", (event: NotificationEvent) => {
         }
         // Otherwise open new window
         return self.clients.openWindow(url);
-      })
+      }),
     );
   }
 });

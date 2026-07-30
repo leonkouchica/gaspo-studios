@@ -171,11 +171,7 @@ const defaultSponsorPackages: SponsorPackage[] = [
     name: "Official Partner",
     price: 2_500_000,
     currency: "NGN",
-    benefits: [
-      "Partner recognition across channels",
-      "Certificate award",
-      "Media mentions",
-    ],
+    benefits: ["Partner recognition across channels", "Certificate award", "Media mentions"],
   },
   {
     id: "general-partner",
@@ -229,8 +225,7 @@ export const events: Event[] = [
     country: "Nigeria",
     mapEmbedUrl:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7!2d3.4282!3d6.4281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMjUnNDEuMiJOIDPCsDI1JzQxLjUiRQ!5e0!3m2!1sen!2sng!4v1234567890",
-    bannerImage:
-      "/images/events_crowd.webp",
+    bannerImage: "/images/events_crowd.webp",
     galleryImages: [
       "/images/events_crowd.webp",
       "/images/corporate_team.webp",
@@ -243,8 +238,7 @@ export const events: Event[] = [
         title: "Chief AI Scientist",
         company: "TechNova Africa",
         bio: "Dr. Emily Carter is a pioneering AI researcher with over 15 years of experience building machine learning systems for emerging markets. She leads TechNova Africa's research division and has published 40+ peer-reviewed papers on ethical AI development.",
-        photo:
-          "/images/portrait_woman.webp",
+        photo: "/images/portrait_woman.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -254,8 +248,7 @@ export const events: Event[] = [
         title: "CEO & Co-Founder",
         company: "FutureStack",
         bio: "Elon Park is the co-founder of FutureStack, a Silicon Valley-backed startup redefining enterprise automation. A serial entrepreneur and angel investor, Elon has built and sold three companies across fintech and AI verticals.",
-        photo:
-          "/images/team_founder.webp",
+        photo: "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
       },
       {
@@ -264,8 +257,7 @@ export const events: Event[] = [
         title: "VP of Engineering",
         company: "DeepMind Lagos",
         bio: "Laura Kim leads engineering at DeepMind Lagos, overseeing a team of 120 engineers building next-generation AI infrastructure. Prior to DeepMind, she held senior roles at Google Brain and OpenAI.",
-        photo:
-          "/images/portrait_woman.webp",
+        photo: "/images/portrait_woman.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -275,8 +267,7 @@ export const events: Event[] = [
         title: "Professor of AI Ethics",
         company: "University of Lagos",
         bio: "Dr. Alan Foster is Nigeria's foremost authority on AI governance and ethics. His research on bias in algorithmic decision-making has influenced policy across 12 African nations. He advises the African Union on digital transformation.",
-        photo:
-          "/images/team_founder.webp",
+        photo: "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
       },
     ],
@@ -337,8 +328,7 @@ export const events: Event[] = [
       title: "Future of AI & Networking 2026 — Gaspo Studios",
       description:
         "Join 500+ tech leaders at the Future of AI & Networking conference in Lagos. Expert keynotes, workshops, and unmatched networking. Register now.",
-      ogImage:
-        "/images/events_crowd.webp",
+      ogImage: "/images/events_crowd.webp",
     },
     createdAt: "2026-04-01T10:00:00Z",
     updatedAt: "2026-05-20T14:30:00Z",
@@ -382,8 +372,7 @@ export const events: Event[] = [
     address: "14 Bayo Kuku Road, Ikoyi",
     city: "Lagos",
     country: "Nigeria",
-    bannerImage:
-      "/images/photographer_hero.webp",
+    bannerImage: "/images/photographer_hero.webp",
     speakers: [
       {
         id: "spk-005",
@@ -391,8 +380,7 @@ export const events: Event[] = [
         title: "Founder & Senior Photographer",
         company: "Gaspo Studios",
         bio: "Marco Gaspo is the founder of Gaspo Studios and a photographer with over 12 years of experience spanning weddings, editorial, and commercial work. His images have appeared in Vogue, Forbes Africa, and TED stages globally.",
-        photo:
-          "/images/team_founder.webp",
+        photo: "/images/team_founder.webp",
         linkedin: "https://linkedin.com",
         twitter: "https://twitter.com",
       },
@@ -469,8 +457,7 @@ export const events: Event[] = [
     address: "27 Adeola Odeku Street",
     city: "Victoria Island, Lagos",
     country: "Nigeria",
-    bannerImage:
-      "/images/wedding_couple.webp",
+    bannerImage: "/images/wedding_couple.webp",
     speakers: [],
     agenda: [
       { time: "18:30", title: "Arrivals & Drinks" },
@@ -511,7 +498,8 @@ export const pastEvents = [
     date: "February 2026",
     img: "/images/corporate_team.webp",
     attendees: 28,
-    recap: "Full-day commercial photography workshop covering product, lifestyle, and editorial techniques.",
+    recap:
+      "Full-day commercial photography workshop covering product, lifestyle, and editorial techniques.",
   },
   {
     id: "past-003",
@@ -519,7 +507,8 @@ export const pastEvents = [
     date: "January 2026",
     img: "/images/events_crowd.webp",
     attendees: 120,
-    recap: "Our biggest open house yet — tours, live shoots, and a panel on the year ahead in photography.",
+    recap:
+      "Our biggest open house yet — tours, live shoots, and a panel on the year ahead in photography.",
   },
 ];
 
@@ -533,7 +522,5 @@ export function getFeaturedEvent(): Event | undefined {
 }
 
 export function getUpcomingEvents(): Event[] {
-  return events.filter((e) =>
-    ["upcoming", "published"].includes(e.status)
-  );
+  return events.filter((e) => ["upcoming", "published"].includes(e.status));
 }

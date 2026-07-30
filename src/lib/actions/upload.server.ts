@@ -20,12 +20,15 @@ function base64ToBytes(base64: string): Uint8Array {
 /**
  * Converts any image upload to WebP with high quality (90)
  * and uploads it to the 'gaspo-media' Supabase Storage bucket.
- * 
+ *
  * @param file The file uploaded from the client (Blob/File)
  * @param folder The folder inside the bucket (e.g. 'gallery', 'blog', 'events')
  * @returns The public URL of the uploaded WebP image
  */
-export async function convertAndUploadImage(file: any, folder: "gallery" | "blog" | "events" | "team"): Promise<string> {
+export async function convertAndUploadImage(
+  file: any,
+  folder: "gallery" | "blog" | "events" | "team",
+): Promise<string> {
   if (!file) {
     throw new Error("No file was provided for upload");
   }
@@ -35,7 +38,9 @@ export async function convertAndUploadImage(file: any, folder: "gallery" | "blog
   if (typeof file.size === "number") fileSize = file.size;
   else if (file instanceof Uint8Array) fileSize = file.byteLength;
   if (fileSize > 5 * 1024 * 1024) {
-    throw new Error(`Image too large (${(fileSize / 1024 / 1024).toFixed(1)}MB). Please resize to under 5MB before uploading.`);
+    throw new Error(
+      `Image too large (${(fileSize / 1024 / 1024).toFixed(1)}MB). Please resize to under 5MB before uploading.`,
+    );
   }
 
   // 1. Convert File/Blob to Uint8Array (web-standard, cross-runtime)
@@ -61,26 +66,25 @@ export async function convertAndUploadImage(file: any, folder: "gallery" | "blog
   // use a WASM-based alternative or a serverless image processing service.
   let webpBuffer: Uint8Array;
   try {
-    const result = await sharp(buffer)
-      .webp({ quality: 90 })
-      .toBuffer();
+    const result = await sharp(buffer).webp({ quality: 90 }).toBuffer();
     webpBuffer = new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
   } catch (err: any) {
-    throw new Error(`Sharp WebP processing failed: ${err.message}. Ensure the file is a valid image.`);
+    throw new Error(
+      `Sharp WebP processing failed: ${err.message}. Ensure the file is a valid image.`,
+    );
   }
 
   // 3. Upload WebP to Supabase Storage (bypassing RLS with admin client)
   const supabase = getSupabaseAdmin();
-  const uuid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  const uuid =
+    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   const filePath = `${folder}/${uuid}.webp`;
 
-  const { data, error } = await supabase.storage
-    .from("gaspo-media")
-    .upload(filePath, webpBuffer, {
-      contentType: "image/webp",
-      cacheControl: "31536000", // 1 year cache
-      upsert: true,
-    });
+  const { data, error } = await supabase.storage.from("gaspo-media").upload(filePath, webpBuffer, {
+    contentType: "image/webp",
+    cacheControl: "31536000", // 1 year cache
+    upsert: true,
+  });
 
   if (error) {
     // If the bucket doesn't exist, we can try to create it or throw a descriptive error
@@ -93,7 +97,7 @@ export async function convertAndUploadImage(file: any, folder: "gallery" | "blog
       if (createError) {
         throw new Error(`Failed to create bucket 'gaspo-media': ${createError.message}`);
       }
-      
+
       // Retry upload
       const { data: retryData, error: retryError } = await supabase.storage
         .from("gaspo-media")
@@ -112,9 +116,7 @@ export async function convertAndUploadImage(file: any, folder: "gallery" | "blog
   }
 
   // 4. Retrieve public URL
-  const { data: urlData } = supabase.storage
-    .from("gaspo-media")
-    .getPublicUrl(filePath);
+  const { data: urlData } = supabase.storage.from("gaspo-media").getPublicUrl(filePath);
 
   if (!urlData || !urlData.publicUrl) {
     throw new Error("Failed to retrieve public URL for uploaded asset");

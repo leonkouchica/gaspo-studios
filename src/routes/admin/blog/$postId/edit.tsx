@@ -1,7 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, Save, Image as ImageIcon, Loader2, Upload, Bell, Mail } from "lucide-react";
-import { fetchBlogPostById, updateBlogPost, uploadBlogImage, triggerBlogPushNotification, broadcastBlogNewsletter } from "../../../../lib/actions/blog";
+import {
+  fetchBlogPostById,
+  updateBlogPost,
+  uploadBlogImage,
+  triggerBlogPushNotification,
+  broadcastBlogNewsletter,
+} from "../../../../lib/actions/blog";
 import { arrayBufferToBase64 } from "../../../../lib/base64";
 import RichTextEditor from "../../../../components/RichTextEditor";
 import { toast } from "sonner";
@@ -32,7 +38,10 @@ export const Route = createFileRoute("/admin/blog/$postId/edit")({
       <div>
         <h1 className="text-4xl font-bold text-dark">Post Not Found</h1>
         <p className="text-muted-foreground mt-2">This post doesn't exist or has been removed.</p>
-        <Link to="/admin/blog" className="mt-4 inline-flex items-center gap-2 text-primary hover:underline font-medium">
+        <Link
+          to="/admin/blog"
+          className="mt-4 inline-flex items-center gap-2 text-primary hover:underline font-medium"
+        >
           <ChevronLeft size={16} /> Back to Blog Posts
         </Link>
       </div>
@@ -120,7 +129,10 @@ function EditBlogPostPage() {
           body: form.body.trim(),
           category: form.category,
           tags: form.tags
-            ? form.tags.split(",").map((t) => t.trim()).filter(Boolean)
+            ? form.tags
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean)
             : [],
           featuredImage: form.featuredImage || "/images/blog_placeholder.webp",
           status: form.status,
@@ -206,7 +218,13 @@ function EditBlogPostPage() {
               value={form.title}
               onChange={(e) => {
                 set("title", e.target.value);
-                set("slug", e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+                set(
+                  "slug",
+                  e.target.value
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9-]/g, ""),
+                );
               }}
               placeholder="Post title"
               className={inputCls}
@@ -267,13 +285,17 @@ function EditBlogPostPage() {
               >
                 <option value="">Select category</option>
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-dark block mb-1">Tags (comma-separated)</label>
+              <label className="text-xs font-semibold text-dark block mb-1">
+                Tags (comma-separated)
+              </label>
               <input
                 value={form.tags}
                 onChange={(e) => set("tags", e.target.value)}
@@ -302,7 +324,11 @@ function EditBlogPostPage() {
                 disabled={uploading}
                 className="w-full bg-muted hover:bg-muted/80 text-dark rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border border-border transition-colors disabled:opacity-50"
               >
-                {uploading ? <Loader2 size={14} className="animate-spin text-primary" /> : <Upload size={14} />}
+                {uploading ? (
+                  <Loader2 size={14} className="animate-spin text-primary" />
+                ) : (
+                  <Upload size={14} />
+                )}
                 Upload Image
               </button>
 
@@ -335,10 +361,12 @@ function EditBlogPostPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark">Distribute Post</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">Notify your audience about this post</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Notify your audience about this post
+            </p>
           </div>
         </div>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="border border-border rounded-2xl p-5">
             <button
@@ -363,7 +391,11 @@ function EditBlogPostPage() {
               disabled={sendingNewsletter || form.status !== "published"}
               className="w-full bg-[#548043] hover:bg-[#436735] text-white rounded-xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {sendingNewsletter ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+              {sendingNewsletter ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Mail size={16} />
+              )}
               Send Email Newsletter
             </button>
             <p className="text-xs text-muted-foreground mt-3 leading-relaxed text-center">

@@ -20,13 +20,21 @@ if (!accessToken) {
   console.error("║  1. Go to: https://supabase.com/dashboard/account/tokens     ║");
   console.error("║  2. Click 'Generate new token'                               ║");
   console.error("║  3. Copy the token and run:                                  ║");
-  console.error("║     $env:SUPABASE_ACCESS_TOKEN='your-token' ; node --env-file=.env scripts/apply-migration-api.mjs  ║");
+  console.error(
+    "║     $env:SUPABASE_ACCESS_TOKEN='your-token' ; node --env-file=.env scripts/apply-migration-api.mjs  ║",
+  );
   console.error("╚══════════════════════════════════════════════════════════════╝");
   process.exit(1);
 }
 
 async function applyMigration() {
-  const migrationPath = join(__dirname, "..", "supabase", "migrations", "006_push_subscriptions.sql");
+  const migrationPath = join(
+    __dirname,
+    "..",
+    "supabase",
+    "migrations",
+    "006_push_subscriptions.sql",
+  );
 
   if (!existsSync(migrationPath)) {
     console.error(`Migration file not found: ${migrationPath}`);
@@ -36,17 +44,14 @@ async function applyMigration() {
   const sql = readFileSync(migrationPath, "utf-8");
   console.log(`Read migration: 006_push_subscriptions.sql (${sql.length} chars)`);
 
-  const response = await fetch(
-    `https://api.supabase.com/v1/projects/${projectRef}/query`,
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: sql }),
-    }
-  );
+  const response = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/query`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query: sql }),
+  });
 
   const result = await response.json();
 

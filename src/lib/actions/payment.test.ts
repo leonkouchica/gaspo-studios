@@ -94,7 +94,7 @@ describe("Payment Server Actions", () => {
           active: true,
           test_mode: true,
         }),
-        { onConflict: "gateway" }
+        { onConflict: "gateway" },
       );
       expect(result.gateway).toBe("paystack");
     });
@@ -103,10 +103,12 @@ describe("Payment Server Actions", () => {
   describe("initPaystackTransaction", () => {
     it("should trigger simulated mock fallback if gateway is inactive", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { secret_key: "sk_test_456", active: false },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { secret_key: "sk_test_456", active: false },
+            error: null,
+          }),
+        );
       });
 
       const result = await initPaystackTransaction({
@@ -121,10 +123,12 @@ describe("Payment Server Actions", () => {
 
     it("should execute fetch call to Paystack API if gateway is active", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { secret_key: "sk_test_456", active: true },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { secret_key: "sk_test_456", active: true },
+            error: null,
+          }),
+        );
       });
 
       mockFetch.mockResolvedValueOnce({
@@ -149,7 +153,7 @@ describe("Payment Server Actions", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer sk_test_456",
           }),
-        })
+        }),
       );
       expect(result.isMock).toBe(false);
       expect(result.reference).toBe("ref-456");
@@ -159,10 +163,12 @@ describe("Payment Server Actions", () => {
   describe("initFlutterwaveTransaction", () => {
     it("should trigger simulated mock fallback if gateway is inactive", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { secret_key: "sk_flw_456", active: false },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { secret_key: "sk_flw_456", active: false },
+            error: null,
+          }),
+        );
       });
 
       const result = await initFlutterwaveTransaction({
@@ -185,10 +191,12 @@ describe("Payment Server Actions", () => {
 
     it("should execute fetch verify call to Paystack if real reference provided", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { secret_key: "sk_test_456" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { secret_key: "sk_test_456" },
+            error: null,
+          }),
+        );
       });
 
       mockFetch.mockResolvedValueOnce({
@@ -208,7 +216,7 @@ describe("Payment Server Actions", () => {
         "https://api.paystack.co/transaction/verify/pstk_real_123",
         expect.objectContaining({
           headers: { Authorization: "Bearer sk_test_456" },
-        })
+        }),
       );
       expect(result.status).toBe("success");
       expect(result.amount).toBe(5000);

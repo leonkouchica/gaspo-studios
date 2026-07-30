@@ -63,7 +63,9 @@ describe("Contact Server Actions", () => {
 
       expect(mockSupabase.from).toHaveBeenCalledWith("contact_messages");
       expect(mockQuery.eq).toHaveBeenCalledWith("read", false);
-      expect(mockQuery.or).toHaveBeenCalledWith("name.ilike.%John%,email.ilike.%John%,subject.ilike.%John%");
+      expect(mockQuery.or).toHaveBeenCalledWith(
+        "name.ilike.%John%,email.ilike.%John%,subject.ilike.%John%",
+      );
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         id: "msg-001",
@@ -108,7 +110,9 @@ describe("Contact Server Actions", () => {
   describe("markMessageRead", () => {
     it("should toggle message read status", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({ data: { ...mockMessages[0], read: true }, error: null }));
+        return Promise.resolve(
+          onfulfilled({ data: { ...mockMessages[0], read: true }, error: null }),
+        );
       });
 
       const result = await markMessageRead({ id: "msg-001", read: true });

@@ -11,7 +11,7 @@ function replaceInFile(filePath) {
 }
 
 const dir = path.join(process.cwd(), "src/lib/actions");
-const files = fs.readdirSync(dir).filter(f => f.endsWith(".ts"));
+const files = fs.readdirSync(dir).filter((f) => f.endsWith(".ts"));
 
 for (const file of files) {
   replaceInFile(path.join(dir, file));

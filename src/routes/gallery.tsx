@@ -9,7 +9,10 @@ export const Route = createFileRoute("/gallery")({
   head: () => ({
     meta: [
       { title: "Portfolio — Gaspo Studios" },
-      { name: "description", content: "Explore our portfolio of weddings, portraits, commercial and event photography." },
+      {
+        name: "description",
+        content: "Explore our portfolio of weddings, portraits, commercial and event photography.",
+      },
       { property: "og:title", content: "Portfolio — Gaspo Studios" },
       { property: "og:url", content: "/gallery" },
     ],
@@ -53,20 +56,30 @@ function GalleryPage() {
     loadGallery();
   }, [loadGallery]);
 
-  const visible = filter === "All" ? items : items.filter((i) => i.category.toLowerCase() === filter.toLowerCase());
+  const visible =
+    filter === "All"
+      ? items
+      : items.filter((i) => i.category.toLowerCase() === filter.toLowerCase());
 
   // Distribute aspects nicely based on index to create a masonry look
   const getAspectClass = (index: number) => {
-    const aspects = ["aspect-[4/5]", "aspect-square", "aspect-[3/2]", "aspect-[4/3]", "aspect-[16/9]", "aspect-[9/16]"];
+    const aspects = [
+      "aspect-[4/5]",
+      "aspect-square",
+      "aspect-[3/2]",
+      "aspect-[4/3]",
+      "aspect-[16/9]",
+      "aspect-[9/16]",
+    ];
     return aspects[index % aspects.length];
   };
 
   return (
     <>
-      <PageHeader 
-        title="Our Portfolio" 
-        crumb="Gallery" 
-        subtitle="Explore our collection of weddings, portraits, and commercial work." 
+      <PageHeader
+        title="Our Portfolio"
+        crumb="Gallery"
+        subtitle="Explore our collection of weddings, portraits, and commercial work."
         image="/images/photographer_hero.webp"
       />
 
@@ -111,13 +124,15 @@ function GalleryPage() {
                   onClick={() => setLightbox(it.src)}
                   className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in ${getAspectClass(i)}`}
                 >
-                  <img 
-                    src={it.src} 
-                    alt={it.alt || it.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" 
+                  <img
+                    src={it.src}
+                    alt={it.alt || it.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
                   />
                   <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4">
-                    <p className="uppercase text-xs tracking-[0.25em] text-primary">{it.category}</p>
+                    <p className="uppercase text-xs tracking-[0.25em] text-primary">
+                      {it.category}
+                    </p>
                     <p className="font-bold text-base mt-2 text-center line-clamp-2">{it.title}</p>
                   </div>
                 </button>
@@ -128,8 +143,13 @@ function GalleryPage() {
       </section>
 
       {lightbox && (
-        <div className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6" onClick={() => setLightbox(null)}>
-          <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary"><X size={20} /></button>
+        <div
+          className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6"
+          onClick={() => setLightbox(null)}
+        >
+          <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary">
+            <X size={20} />
+          </button>
           <img src={lightbox} alt="" className="max-h-[90vh] max-w-full rounded-2xl" />
         </div>
       )}

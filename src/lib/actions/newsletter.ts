@@ -13,24 +13,26 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       email: z.string().email(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
 
     // 1. Save to Database
-    // Note: Assuming a 'newsletter_subscribers' table exists. 
+    // Note: Assuming a 'newsletter_subscribers' table exists.
     // If it doesn't, we still send the email for the prototype.
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({
-        email: data.email,
-        subscribed_at: new Date().toISOString(),
-        status: "subscribed"
-      });
-      
+    const { error } = await supabase.from("newsletter_subscribers").insert({
+      email: data.email,
+      subscribed_at: new Date().toISOString(),
+      status: "subscribed",
+    });
+
     // Ignore error if table doesn't exist yet, we still want to test the email
-    if (error && !error.message.includes("does not exist") && !error.message.includes("Could not find the table")) {
+    if (
+      error &&
+      !error.message.includes("does not exist") &&
+      !error.message.includes("Could not find the table")
+    ) {
       throw new Error(`Failed to subscribe: ${error.message}`);
     }
 
@@ -40,36 +42,41 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       subject: "Welcome to Gaspo Studios!",
       react: React.createElement(NewsletterWelcomeEmail),
     });
-    
+
     if (!result.success) {
       console.error("Resend Error:", result.error);
-      throw new Error(`Failed to send welcome email: ${result.error?.message || "Unknown Resend error"}`);
+      throw new Error(
+        `Failed to send welcome email: ${result.error?.message || "Unknown Resend error"}`,
+      );
     }
 
     return { success: true };
   });
 
-export const fetchSubscribers = createServerFn({ method: "GET" })
-  .handler(async () => {
-    requireAuth();
-    const supabase = getSupabaseAdmin();
+export const fetchSubscribers = createServerFn({ method: "GET" }).handler(async () => {
+  requireAuth();
+  const supabase = getSupabaseAdmin();
 
-    const { data: subscribers, error } = await supabase
-      .from("newsletter_subscribers")
-      .select("*")
-      .order("subscribed_at", { ascending: false });
+  const { data: subscribers, error } = await supabase
+    .from("newsletter_subscribers")
+    .select("*")
+    .order("subscribed_at", { ascending: false });
 
-    if (error && !error.message.includes("does not exist") && !error.message.includes("Could not find the table")) {
-      throw new Error(`Failed to fetch subscribers: ${error.message}`);
-    }
+  if (
+    error &&
+    !error.message.includes("does not exist") &&
+    !error.message.includes("Could not find the table")
+  ) {
+    throw new Error(`Failed to fetch subscribers: ${error.message}`);
+  }
 
-    return (subscribers || []).map((sub: any) => ({
-      id: sub.id,
-      email: sub.email,
-      status: sub.status,
-      subscribedAt: sub.subscribed_at,
-    }));
-  });
+  return (subscribers || []).map((sub: any) => ({
+    id: sub.id,
+    email: sub.email,
+    status: sub.status,
+    subscribedAt: sub.subscribed_at,
+  }));
+});
 
 export const deleteSubscriber = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
@@ -77,10 +84,7 @@ export const deleteSubscriber = createServerFn({ method: "POST" })
     requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
 
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabase.from("newsletter_subscribers").delete().eq("id", data.id);
 
     if (error) {
       throw new Error(`Failed to delete subscriber: ${error.message}`);
@@ -93,7 +97,7 @@ export const broadcastNewsletter = createServerFn({ method: "POST" })
     z.object({
       subject: z.string().min(1),
       content: z.string().min(1),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -125,10 +129,12 @@ export const broadcastNewsletter = createServerFn({ method: "POST" })
     let successCount = 0;
     let failCount = 0;
 
-    const emailHtml = await render(React.createElement(NewsletterBroadcastEmail, {
-      subject: data.subject,
-      content: data.content,
-    }));
+    const emailHtml = await render(
+      React.createElement(NewsletterBroadcastEmail, {
+        subject: data.subject,
+        content: data.content,
+      }),
+    );
 
     // Process batches
     for (const batch of batches) {
@@ -166,4 +172,33 @@ export const broadcastNewsletter = createServerFn({ method: "POST" })
     }
 
     return { success: true, successCount, failCount };
+  });
+
+export const importSubscribers = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ emails: z.array(z.string().email()) }))
+  .handler(async ({ data }) => {
+    requireRole(["admin", "editor"]);
+    const supabase = getSupabaseAdmin();
+
+    const { emails } = data;
+    if (!emails || emails.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const payload = emails.map((email) => ({
+      email,
+      status: "subscribed",
+    }));
+
+    // Upsert emails into the database
+    // onConflict: "email" ensures that if they already exist, we update their status to "subscribed"
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .upsert(payload, { onConflict: "email" });
+
+    if (error) {
+      throw new Error(`Failed to import subscribers: ${error.message}`);
+    }
+
+    return { success: true, count: emails.length };
   });

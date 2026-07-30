@@ -9,7 +9,10 @@ export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
       { title: "Blog — Gaspo Studios" },
-      { name: "description", content: "Photography insights, tips, and studio stories from the Gaspo team." },
+      {
+        name: "description",
+        content: "Photography insights, tips, and studio stories from the Gaspo team.",
+      },
       { property: "og:title", content: "Blog — Gaspo Studios" },
       { property: "og:url", content: "/blog" },
     ],
@@ -58,10 +61,10 @@ function BlogPage() {
 
   return (
     <>
-      <PageHeader 
-        title="Photography Insights" 
-        crumb="Blog" 
-        subtitle="Tips, studio updates, and featured shoots from the Gaspo team." 
+      <PageHeader
+        title="Photography Insights"
+        crumb="Blog"
+        subtitle="Tips, studio updates, and featured shoots from the Gaspo team."
         image="/images/photographer_hero.webp"
       />
 
@@ -74,7 +77,9 @@ function BlogPage() {
         <div className="py-32 text-center text-muted-foreground max-w-md mx-auto px-4">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30 text-primary" />
           <p className="font-semibold text-dark text-base">No Published Articles Yet</p>
-          <p className="text-sm mt-1">Check back soon — our team is working on new photography insights.</p>
+          <p className="text-sm mt-1">
+            Check back soon — our team is working on new photography insights.
+          </p>
         </div>
       ) : (
         <>
@@ -92,8 +97,12 @@ function BlogPage() {
                     <span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-medium self-start">
                       {featured.category}
                     </span>
-                    <h2 className="text-2xl md:text-4xl font-bold text-dark mt-4">{featured.title}</h2>
-                    <p className="text-muted-foreground mt-4 leading-relaxed line-clamp-4">{featured.excerpt}</p>
+                    <h2 className="text-2xl md:text-4xl font-bold text-dark mt-4">
+                      {featured.title}
+                    </h2>
+                    <p className="text-muted-foreground mt-4 leading-relaxed line-clamp-4">
+                      {featured.excerpt}
+                    </p>
                     <div className="flex items-center justify-between mt-6">
                       <span className="text-sm text-muted-foreground">
                         {featured.publishedAt

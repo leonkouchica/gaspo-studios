@@ -39,7 +39,7 @@ export function ContactNotificationEmail({
               <Text className="text-[#333] text-[14px] leading-[24px]">
                 You have received a new message from the Gaspo Studios website contact form.
               </Text>
-              
+
               <Section className="bg-[#f9f9f9] rounded p-6 my-6 border border-[#eaeaea]">
                 <Text className="text-[#333] text-[14px] m-0 mb-2">
                   <strong>Name:</strong> {name}
@@ -53,9 +53,7 @@ export function ContactNotificationEmail({
                 <Text className="text-[#333] text-[14px] m-0 mb-2">
                   <strong>Subject:</strong> {subject}
                 </Text>
-                <Text className="text-[#333] text-[14px] m-0 mt-4 font-semibold">
-                  Message:
-                </Text>
+                <Text className="text-[#333] text-[14px] m-0 mt-4 font-semibold">Message:</Text>
                 <Text className="text-[#555] text-[14px] m-0 mt-2 whitespace-pre-wrap">
                   {message}
                 </Text>

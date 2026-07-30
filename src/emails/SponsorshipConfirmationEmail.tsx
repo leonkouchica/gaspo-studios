@@ -36,27 +36,30 @@ export function SponsorshipConfirmationEmail({
               <Heading className="text-white text-[24px] font-bold text-center p-0 my-[30px] mx-0">
                 Sponsorship Confirmed!
               </Heading>
-              <Text className="text-white text-[14px] leading-[24px]">
-                Hi {sponsorName},
-              </Text>
+              <Text className="text-white text-[14px] leading-[24px]">Hi {sponsorName},</Text>
               <Text className="text-white/80 text-[14px] leading-[24px]">
-                Thank you for your generous sponsorship of <strong>{eventName}</strong>. 
-                Your payment for the <strong>{packageName}</strong> package has been received and verified successfully.
+                Thank you for your generous sponsorship of <strong>{eventName}</strong>. Your
+                payment for the <strong>{packageName}</strong> package has been received and
+                verified successfully.
               </Text>
-              
+
               <Section className="bg-[#222] rounded p-6 my-6 border border-[#444] text-center">
-                <Text className="text-white/70 text-[14px] m-0 mb-2 uppercase tracking-widest text-xs">Total Paid</Text>
+                <Text className="text-white/70 text-[14px] m-0 mb-2 uppercase tracking-widest text-xs">
+                  Total Paid
+                </Text>
                 <Text className="text-white text-[32px] font-bold m-0 text-[#FF3333]">
                   {currency} {amount.toLocaleString()}
                 </Text>
               </Section>
 
               <Text className="text-white/80 text-[14px] leading-[24px] mt-6">
-                Our team will be in touch shortly to collect your assets (logos, bios) and discuss the next steps to maximize your brand's presence at the event.
+                Our team will be in touch shortly to collect your assets (logos, bios) and discuss
+                the next steps to maximize your brand's presence at the event.
               </Text>
 
               <Text className="text-white/80 text-[14px] leading-[24px] mt-6">
-                Thank you for supporting the creative community!<br />
+                Thank you for supporting the creative community!
+                <br />
                 The Gaspo Studios Team
               </Text>
               <Hr className="border border-[#333] my-[26px] mx-0" />

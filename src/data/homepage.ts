@@ -167,20 +167,15 @@ export const homepageContent: HomepageContent = {
     eyebrow: "Portfolio",
     headline: "Stunning Visuals for Every Occasion",
     body: "Explore a curated selection of weddings, portraits, and brand work spanning more than a decade. Every project is a collaboration — and the proof is in the gallery.",
-    mainImage:
-      "/images/wedding_couple.webp",
-    thumbnails: [
-      "/images/portrait_woman.webp",
-      "/images/events_crowd.webp",
-    ],
+    mainImage: "/images/wedding_couple.webp",
+    thumbnails: ["/images/portrait_woman.webp", "/images/events_crowd.webp"],
   },
   bookingCta: {
     headline: "Ready to Capture Your Next Moment?",
     body: "Booking your photo shoot with Gaspo Studios is simple and convenient. Choose from our wide range of photography services tailored to meet your needs.",
     buttonLabel: "Book Your Session Today",
     buttonTo: "/book",
-    backgroundImage:
-      "/images/photographer_hero.webp",
+    backgroundImage: "/images/photographer_hero.webp",
   },
   faq: [
     {

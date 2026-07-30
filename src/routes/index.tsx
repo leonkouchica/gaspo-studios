@@ -23,7 +23,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Gaspo Studios — Capture Your Moments" },
-      { name: "description", content: "Where art meets precision in photography. Weddings, portraits, corporate and commercial photography by Gaspo Studios." },
+      {
+        name: "description",
+        content:
+          "Where art meets precision in photography. Weddings, portraits, corporate and commercial photography by Gaspo Studios.",
+      },
       { property: "og:title", content: "Gaspo Studios — Capture Your Moments" },
       { property: "og:description", content: "Where art meets precision in photography." },
     ],
@@ -33,9 +37,24 @@ export const Route = createFileRoute("/")({
 });
 
 const services = [
-  { icon: Camera, title: "Wedding Photography", desc: "Let us capture the romance and joy of your special day with cinematic detail.", img: "/images/wedding_couple.webp" },
-  { icon: Building2, title: "Corporate Photography", desc: "Elevate your brand with professional photographs that make a lasting statement.", img: "/images/corporate_team.webp" },
-  { icon: Users, title: "Special Events", desc: "From birthdays to graduations, treasure every moment with stunning photographs.", img: "/images/events_crowd.webp" },
+  {
+    icon: Camera,
+    title: "Wedding Photography",
+    desc: "Let us capture the romance and joy of your special day with cinematic detail.",
+    img: "/images/wedding_couple.webp",
+  },
+  {
+    icon: Building2,
+    title: "Corporate Photography",
+    desc: "Elevate your brand with professional photographs that make a lasting statement.",
+    img: "/images/corporate_team.webp",
+  },
+  {
+    icon: Users,
+    title: "Special Events",
+    desc: "From birthdays to graduations, treasure every moment with stunning photographs.",
+    img: "/images/events_crowd.webp",
+  },
 ];
 
 const brands = [
@@ -47,12 +66,25 @@ const brands = [
 ];
 
 const steps = [
-  { num: 1, title: "Select Service", desc: "Choose from weddings, portraits, events or commercial.", img: "/images/wedding_couple.webp" },
-  { num: 2, title: "Choose Your Date", desc: "Pick an available slot that fits your schedule.", img: "/images/portrait_woman.webp" },
-  { num: 3, title: "Confirm Booking", desc: "Secure your session with a simple deposit.", img: "/images/corporate_team.webp" },
+  {
+    num: 1,
+    title: "Select Service",
+    desc: "Choose from weddings, portraits, events or commercial.",
+    img: "/images/wedding_couple.webp",
+  },
+  {
+    num: 2,
+    title: "Choose Your Date",
+    desc: "Pick an available slot that fits your schedule.",
+    img: "/images/portrait_woman.webp",
+  },
+  {
+    num: 3,
+    title: "Confirm Booking",
+    desc: "Secure your session with a simple deposit.",
+    img: "/images/corporate_team.webp",
+  },
 ];
-
-
 
 const heroSlides = [
   {
@@ -117,7 +149,10 @@ function Index() {
 
         {/* Content */}
         <div className="container-x relative z-20 w-full text-center flex flex-col items-center mt-10 md:mt-16">
-          <div key={heroIndex} className="max-w-4xl text-white animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center">
+          <div
+            key={heroIndex}
+            className="max-w-4xl text-white animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center"
+          >
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
               {heroSlides[heroIndex].label}
             </p>
@@ -149,21 +184,21 @@ function Index() {
         </div>
 
         {/* Navigation Arrows */}
-        <button 
+        <button
           onClick={() => setHeroIndex((i) => (i === 0 ? heroSlides.length - 1 : i - 1))}
           className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-primary border border-white/20 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Previous slide"
         >
           <ChevronLeft size={20} />
         </button>
-        <button 
+        <button
           onClick={() => setHeroIndex((i) => (i + 1) % heroSlides.length)}
           className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-primary border border-white/20 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Next slide"
         >
           <ChevronRight size={20} />
         </button>
-        
+
         {/* Indicators */}
         <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
           {heroSlides.map((_, i) => (
@@ -177,8 +212,6 @@ function Index() {
             />
           ))}
         </div>
-
-
       </section>
 
       {/* ─── TRUST / LOGO BAR ─── */}
@@ -214,7 +247,10 @@ function Index() {
               </div>
               <div className="md:pt-10">
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  At Gaspo Studios, we believe in creating memorable images that last a lifetime. Founded over a decade ago, our studio has been at the forefront of capturing stunning visual stories — blending creativity, reliability, and uncompromising craft.
+                  At Gaspo Studios, we believe in creating memorable images that last a lifetime.
+                  Founded over a decade ago, our studio has been at the forefront of capturing
+                  stunning visual stories — blending creativity, reliability, and uncompromising
+                  craft.
                 </p>
               </div>
             </div>
@@ -239,8 +275,16 @@ function Index() {
             {/* Dark feature cards — right 2 cols, stacked */}
             <div className="md:col-span-2 flex flex-col gap-5">
               {[
-                { icon: Sparkles, t: "Creative Direction", d: "Tailored concepts crafted from the first sketch all the way to the final frame." },
-                { icon: Award, t: "Professional Editing", d: "Color-graded and retouched by award-winning artists with a decade of precision." },
+                {
+                  icon: Sparkles,
+                  t: "Creative Direction",
+                  d: "Tailored concepts crafted from the first sketch all the way to the final frame.",
+                },
+                {
+                  icon: Award,
+                  t: "Professional Editing",
+                  d: "Color-graded and retouched by award-winning artists with a decade of precision.",
+                },
               ].map(({ icon: Icon, t, d }, idx) => (
                 <ScrollReveal key={t} delay={idx * 150} direction="right" className="flex-1">
                   <div className="bg-dark rounded-2xl p-7 border border-border-dark h-full relative group hover:-translate-y-1 transition-all duration-300">
@@ -286,12 +330,17 @@ function Index() {
           <ScrollReveal>
             <div className="grid md:grid-cols-2 gap-8 items-end mb-12">
               <div>
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Our Services</p>
-                <h2 className="text-4xl md:text-5xl font-bold text-dark mt-3">Integrated Photography Solutions</h2>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                  Our Services
+                </p>
+                <h2 className="text-4xl md:text-5xl font-bold text-dark mt-3">
+                  Integrated Photography Solutions
+                </h2>
               </div>
               <div className="md:text-right md:pb-1">
                 <p className="text-muted-foreground text-base leading-relaxed">
-                  From intimate portraits to large-scale commercial campaigns — one studio, every story told perfectly.
+                  From intimate portraits to large-scale commercial campaigns — one studio, every
+                  story told perfectly.
                 </p>
               </div>
             </div>
@@ -301,9 +350,7 @@ function Index() {
           <div className="grid md:grid-cols-3 gap-6">
             {services.map(({ icon: Icon, title, desc, img }, idx) => (
               <ScrollReveal key={title} delay={idx * 150} className="h-full">
-                <div
-                  className="group relative bg-dark rounded-2xl p-6 border border-border-dark text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full flex flex-col justify-between"
-                >
+                <div className="group relative bg-dark rounded-2xl p-6 border border-border-dark text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full flex flex-col justify-between">
                   <div>
                     <button className="absolute top-5 right-5 w-9 h-9 rounded-full bg-primary hover:bg-primary-hover transition-colors text-white flex items-center justify-center">
                       <ArrowUpRight size={16} />
@@ -360,7 +407,11 @@ function Index() {
                 <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center">
                   <Camera size={20} />
                 </div>
-                <p className="font-bold text-white mt-3 text-sm leading-snug">Award Winning<br />Portfolio</p>
+                <p className="font-bold text-white mt-3 text-sm leading-snug">
+                  Award Winning
+                  <br />
+                  Portfolio
+                </p>
                 <div className="flex justify-end mt-3">
                   <button className="w-8 h-8 rounded-full bg-primary hover:bg-primary-hover transition-colors text-white flex items-center justify-center">
                     <ArrowUpRight size={14} />
@@ -374,14 +425,19 @@ function Index() {
           <ScrollReveal direction="right" delay={150}>
             <div>
               <div className="flex items-center justify-between">
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Portfolio</p>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                  Portfolio
+                </p>
                 <button className="w-9 h-9 rounded-full border border-border text-dark hover:bg-dark hover:text-white transition-all flex items-center justify-center">
                   <ArrowUpRight size={16} />
                 </button>
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Stunning Visuals for Every Occasion</h2>
+              <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">
+                Stunning Visuals for Every Occasion
+              </h2>
               <p className="text-muted-foreground mt-5 text-lg leading-relaxed">
-                Explore a curated selection of weddings, portraits, and brand work spanning more than a decade. Every project is a collaboration — and the proof is in the gallery.
+                Explore a curated selection of weddings, portraits, and brand work spanning more
+                than a decade. Every project is a collaboration — and the proof is in the gallery.
               </p>
               <Link
                 to="/gallery"
@@ -433,16 +489,19 @@ function Index() {
           <ScrollReveal>
             <div className="bg-dark rounded-3xl p-10 md:p-16 relative overflow-hidden animate-gradient-slow">
               {/* Background Image */}
-              <img 
-                src="/images/corporate_team.webp" 
-                alt="Studio Background" 
+              <img
+                src="/images/corporate_team.webp"
+                alt="Studio Background"
                 className="absolute inset-0 w-full h-full object-cover opacity-[0.29] mix-blend-overlay"
               />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(225,45,45,0.4),transparent_60%)]" />
               <div className="relative text-center">
-                <h2 className="text-3xl md:text-5xl font-bold text-white">Ready to Capture Your Next Moment?</h2>
+                <h2 className="text-3xl md:text-5xl font-bold text-white">
+                  Ready to Capture Your Next Moment?
+                </h2>
                 <p className="text-white/70 max-w-2xl mx-auto mt-5 text-lg">
-                  Booking your photo shoot with Gaspo Studios is simple and convenient. Choose from our wide range of photography services tailored to meet your needs.
+                  Booking your photo shoot with Gaspo Studios is simple and convenient. Choose from
+                  our wide range of photography services tailored to meet your needs.
                 </p>
                 <Link
                   to="/book"
@@ -492,8 +551,6 @@ function Index() {
           </ScrollReveal>
         </div>
       </section>
-
-
     </>
   );
 }

@@ -61,7 +61,11 @@ vi.mock("./upload.server.ts", () => ({
 
 // Mock window/File globally since we construct File in tests
 globalThis.File = class File {
-  constructor(public bits: any[], public name: string, public options?: any) {}
+  constructor(
+    public bits: any[],
+    public name: string,
+    public options?: any,
+  ) {}
 } as any;
 
 describe("Gallery Server Actions", () => {
@@ -125,7 +129,9 @@ describe("Gallery Server Actions", () => {
   describe("toggleImageVisibility", () => {
     it("should toggle visibility database flag", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({ data: { ...mockImages[0], visible: false }, error: null }));
+        return Promise.resolve(
+          onfulfilled({ data: { ...mockImages[0], visible: false }, error: null }),
+        );
       });
 
       const result = await toggleImageVisibility({ id: "img-123", visible: false });
@@ -167,10 +173,14 @@ describe("Gallery Server Actions", () => {
     it("should remove image record from database and storage", async () => {
       // 1. SELECT query to get image URL
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { src: "https://example.com/storage/v1/object/public/gaspo-media/gallery/12345.webp" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: {
+              src: "https://example.com/storage/v1/object/public/gaspo-media/gallery/12345.webp",
+            },
+            error: null,
+          }),
+        );
       });
 
       // 2. DELETE row query

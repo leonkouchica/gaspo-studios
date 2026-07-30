@@ -1,8 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Upload, Search, Trash2, Eye, EyeOff, LayoutGrid, CheckCircle2,
-  Loader2, RefreshCw, AlertCircle, X
+  Upload,
+  Search,
+  Trash2,
+  Eye,
+  EyeOff,
+  LayoutGrid,
+  CheckCircle2,
+  Loader2,
+  RefreshCw,
+  AlertCircle,
+  X,
 } from "lucide-react";
 import { arrayBufferToBase64 } from "../../../lib/base64";
 import {
@@ -222,7 +231,9 @@ function AdminGalleryPage() {
     try {
       const updated = await toggleImageVisibility({ data: { id: img.id, visible: !img.visible } });
       setImages((prev) => prev.map((i) => (i.id === img.id ? (updated as GalleryImage) : i)));
-      toast.success(img.visible ? "Image hidden from public gallery." : "Image visible on public gallery.");
+      toast.success(
+        img.visible ? "Image hidden from public gallery." : "Image visible on public gallery.",
+      );
     } catch (err: any) {
       toast.error(`Failed to toggle: ${err.message}`);
     } finally {
@@ -273,7 +284,10 @@ function AdminGalleryPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={15}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -333,7 +347,12 @@ function AdminGalleryPage() {
               }`}
             >
               <div className="aspect-[4/3] bg-muted">
-                <img src={img.src} alt={img.title} className="w-full h-full object-cover" loading="lazy" />
+                <img
+                  src={img.src}
+                  alt={img.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
               <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                 <div className="flex justify-end gap-1">
@@ -383,9 +402,10 @@ function AdminGalleryPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
           <CheckCircle2 size={18} className="text-blue-500 mt-0.5 shrink-0" />
           <p className="text-xs text-blue-700 leading-relaxed">
-            <strong>Supabase Storage Active:</strong> All uploaded images are automatically converted to WebP and stored in the{" "}
-            <code className="bg-blue-100 px-1 rounded">gaspo-media/gallery</code> bucket. Toggle visibility
-            to show/hide images on the public gallery page.
+            <strong>Supabase Storage Active:</strong> All uploaded images are automatically
+            converted to WebP and stored in the{" "}
+            <code className="bg-blue-100 px-1 rounded">gaspo-media/gallery</code> bucket. Toggle
+            visibility to show/hide images on the public gallery page.
           </p>
         </div>
       )}

@@ -22,20 +22,19 @@ export function NewsletterWelcomeEmail() {
               <Heading className="text-[#FF3333] text-[24px] font-bold text-center p-0 my-[30px] mx-0">
                 Welcome to Gaspo Studios!
               </Heading>
-              <Text className="text-white text-[14px] leading-[24px]">
-                Hi there,
-              </Text>
+              <Text className="text-white text-[14px] leading-[24px]">Hi there,</Text>
               <Text className="text-white/80 text-[14px] leading-[24px]">
-                Thank you for subscribing to the Gaspo Studios newsletter! 
-                You're now on the list to receive our latest updates, photography tips, and exclusive event invitations.
+                Thank you for subscribing to the Gaspo Studios newsletter! You're now on the list to
+                receive our latest updates, photography tips, and exclusive event invitations.
               </Text>
-              
+
               <Text className="text-white/80 text-[14px] leading-[24px] mt-6">
                 We promise to only send you the good stuff. Keep an eye on your inbox!
               </Text>
 
               <Text className="text-white/80 text-[14px] leading-[24px] mt-6">
-                Best,<br />
+                Best,
+                <br />
                 The Gaspo Studios Team
               </Text>
               <Hr className="border border-[#333] my-[26px] mx-0" />

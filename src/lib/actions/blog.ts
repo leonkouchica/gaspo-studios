@@ -24,7 +24,13 @@ const seoSchema = z.object({
 });
 
 export const fetchBlogPosts = createServerFn({ method: "GET" })
-  .inputValidator((input: { category?: string; status?: string; search?: string; page?: number; limit?: number } | undefined) => input)
+  .inputValidator(
+    (
+      input:
+        | { category?: string; status?: string; search?: string; page?: number; limit?: number }
+        | undefined,
+    ) => input,
+  )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
     const page = data?.page || 1;
@@ -40,7 +46,9 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
       countQuery = countQuery.eq("status", data.status);
     }
     if (data?.search) {
-      countQuery = countQuery.or(`title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`);
+      countQuery = countQuery.or(
+        `title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`,
+      );
     }
     const { count: total } = await countQuery;
 
@@ -57,7 +65,9 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
       query = query.eq("status", data.status);
     }
     if (data?.search) {
-      query = query.or(`title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`);
+      query = query.or(
+        `title.ilike.%${data.search}%,excerpt.ilike.%${data.search}%,body.ilike.%${data.search}%`,
+      );
     }
 
     const { data: posts, error } = await query;
@@ -187,7 +197,7 @@ export const recordBlogPostView = createServerFn({ method: "POST" })
       slug: z.string(),
       // Optional deduplication token from the client to prevent double-counting
       dedupeToken: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -206,10 +216,7 @@ export const recordBlogPostView = createServerFn({ method: "POST" })
 
     // Increment views counter
     const newViews = (post.views || 0) + 1;
-    await supabase
-      .from("blog_posts")
-      .update({ views: newViews })
-      .eq("id", post.id);
+    await supabase.from("blog_posts").update({ views: newViews }).eq("id", post.id);
 
     return { views: newViews };
   });
@@ -230,7 +237,7 @@ export const uploadBlogImage = createServerFn({ method: "POST" })
       fileBase64: z.string(),
       fileName: z.string(),
       mimeType: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -255,7 +262,7 @@ export const createBlogPost = createServerFn({ method: "POST" })
       status: postStatusSchema,
       scheduledFor: z.string().optional(),
       seo: seoSchema.optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -314,7 +321,7 @@ export const updateBlogPost = createServerFn({ method: "POST" })
       status: postStatusSchema,
       scheduledFor: z.string().optional(),
       seo: seoSchema.optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -385,10 +392,7 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .single();
 
-    const { error } = await supabase
-      .from("blog_posts")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabase.from("blog_posts").delete().eq("id", data.id);
 
     if (error) {
       throw new Error(`Failed to delete blog post: ${error.message}`);
@@ -409,34 +413,33 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
   });
 
 // ── Blog scheduling: auto-publish posts whose scheduled_for time has passed ──
-export const publishScheduledPosts = createServerFn({ method: "POST" })
-  .handler(async () => {
-    requireAuth();
-    const supabase = getSupabaseAdmin();
-    const now = new Date().toISOString();
+export const publishScheduledPosts = createServerFn({ method: "POST" }).handler(async () => {
+  requireAuth();
+  const supabase = getSupabaseAdmin();
+  const now = new Date().toISOString();
 
-    const { data: scheduled, error: fetchErr } = await supabase
-      .from("blog_posts")
-      .select("id, title")
-      .eq("status", "scheduled")
-      .lte("scheduled_for", now);
+  const { data: scheduled, error: fetchErr } = await supabase
+    .from("blog_posts")
+    .select("id, title")
+    .eq("status", "scheduled")
+    .lte("scheduled_for", now);
 
-    if (fetchErr) throw new Error(`Failed to fetch scheduled posts: ${fetchErr.message}`);
+  if (fetchErr) throw new Error(`Failed to fetch scheduled posts: ${fetchErr.message}`);
 
-    if (!scheduled || scheduled.length === 0) {
-      return { published: 0, message: "No scheduled posts are ready to publish." };
-    }
+  if (!scheduled || scheduled.length === 0) {
+    return { published: 0, message: "No scheduled posts are ready to publish." };
+  }
 
-    const ids = scheduled.map((p) => p.id);
-    const { error: updateErr } = await supabase
-      .from("blog_posts")
-      .update({ status: "published", published_at: now })
-      .in("id", ids);
+  const ids = scheduled.map((p) => p.id);
+  const { error: updateErr } = await supabase
+    .from("blog_posts")
+    .update({ status: "published", published_at: now })
+    .in("id", ids);
 
-    if (updateErr) throw new Error(`Failed to publish posts: ${updateErr.message}`);
+  if (updateErr) throw new Error(`Failed to publish posts: ${updateErr.message}`);
 
-    return { published: ids.length, posts: scheduled.map((p) => p.title) };
-  });
+  return { published: ids.length, posts: scheduled.map((p) => p.title) };
+});
 
 export const triggerBlogPushNotification = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
@@ -454,12 +457,15 @@ export const triggerBlogPushNotification = createServerFn({ method: "POST" })
       throw new Error(`Failed to fetch post: ${error?.message}`);
     }
 
-    const result = await sendPushNotifications({
-      type: "blog",
-      title: post.title,
-      body: post.excerpt,
-      url: `/blog/${post.slug}`,
-    }, { bypassRateLimit: true });
+    const result = await sendPushNotifications(
+      {
+        type: "blog",
+        title: post.title,
+        body: post.excerpt,
+        url: `/blog/${post.slug}`,
+      },
+      { bypassRateLimit: true },
+    );
 
     return result;
   });
@@ -495,7 +501,7 @@ export const broadcastBlogNewsletter = createServerFn({ method: "POST" })
 
     const htmlContent = `
       <h2>${post.title}</h2>
-      ${post.featured_image ? `<img src="${post.featured_image.startsWith('/') ? 'https://gaspostudios.com' + post.featured_image : post.featured_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ''}
+      ${post.featured_image ? `<img src="${post.featured_image.startsWith("/") ? "https://gaspostudios.com" + post.featured_image : post.featured_image}" alt="Featured" style="width:100%;border-radius:8px;margin-bottom:16px;" />` : ""}
       <p style="font-size: 16px; line-height: 1.5; color: #374151;">${post.excerpt}</p>
       <div style="margin-top: 24px; text-align: center;">
         <a href="https://gaspostudios.com/blog/${post.slug}" style="display:inline-block;background-color:#10b981;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">Read the Full Post</a>
@@ -513,10 +519,12 @@ export const broadcastBlogNewsletter = createServerFn({ method: "POST" })
     let successCount = 0;
     let failCount = 0;
 
-    const emailHtml = await render(React.createElement(NewsletterBroadcastEmail, {
-      subject: post.title,
-      content: htmlContent,
-    }));
+    const emailHtml = await render(
+      React.createElement(NewsletterBroadcastEmail, {
+        subject: post.title,
+        content: htmlContent,
+      }),
+    );
 
     for (const batch of batches) {
       const payload = batch.map((email) => ({

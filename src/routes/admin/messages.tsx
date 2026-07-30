@@ -2,14 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAdmin } from "../admin";
 import {
-  Mail, MailOpen, Trash2, Search, Calendar, Phone,
-  User, MessageSquare, ChevronRight, Inbox, MailWarning, ExternalLink
+  Mail,
+  MailOpen,
+  Trash2,
+  Search,
+  Calendar,
+  Phone,
+  User,
+  MessageSquare,
+  ChevronRight,
+  Inbox,
+  MailWarning,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   fetchContactMessages,
   markMessageRead,
-  deleteContactMessage
+  deleteContactMessage,
 } from "../../lib/actions/contact";
 
 export const Route = createFileRoute("/admin/messages")({
@@ -31,8 +41,8 @@ function AdminMessagesPage() {
       const data = await fetchContactMessages({
         data: {
           filter: filterTab,
-          search: searchQuery || undefined
-        }
+          search: searchQuery || undefined,
+        },
       });
       setMessages(data);
       // Auto-select the first message if none is selected
@@ -56,13 +66,11 @@ function AdminMessagesPage() {
     if (!msg.read) {
       try {
         await markMessageRead({
-          data: { id: msg.id, read: true }
+          data: { id: msg.id, read: true },
         });
         // Update local state
-        setMessages(prev =>
-          prev.map(m => (m.id === msg.id ? { ...m, read: true } : m))
-        );
-        setSelectedMessage(prev => (prev && prev.id === msg.id ? { ...prev, read: true } : prev));
+        setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, read: true } : m)));
+        setSelectedMessage((prev) => (prev && prev.id === msg.id ? { ...prev, read: true } : prev));
       } catch (err: any) {
         console.error("Failed to mark message read:", err);
       }
@@ -74,14 +82,12 @@ function AdminMessagesPage() {
     e.stopPropagation();
     try {
       await markMessageRead({
-        data: { id: msgId, read: !currentRead }
+        data: { id: msgId, read: !currentRead },
       });
       toast.success(currentRead ? "Marked as unread" : "Marked as read");
-      setMessages(prev =>
-        prev.map(m => (m.id === msgId ? { ...m, read: !currentRead } : m))
-      );
+      setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, read: !currentRead } : m)));
       if (selectedMessage && selectedMessage.id === msgId) {
-        setSelectedMessage(prev => ({ ...prev, read: !currentRead }));
+        setSelectedMessage((prev) => ({ ...prev, read: !currentRead }));
       }
     } catch (err: any) {
       toast.error(`Failed to change message state: ${err.message}`);
@@ -96,7 +102,7 @@ function AdminMessagesPage() {
     try {
       await deleteContactMessage({ data: { id: msgId } });
       toast.success("Message deleted successfully.");
-      setMessages(prev => prev.filter(m => m.id !== msgId));
+      setMessages((prev) => prev.filter((m) => m.id !== msgId));
       if (selectedMessage && selectedMessage.id === msgId) {
         setSelectedMessage(null);
       }
@@ -110,7 +116,9 @@ function AdminMessagesPage() {
       <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-dark">Inbox Messages</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">Read and manage inquiries sent through the contact form.</p>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Read and manage inquiries sent through the contact form.
+          </p>
         </div>
       </div>
 
@@ -120,7 +128,10 @@ function AdminMessagesPage() {
           {/* Filters & Search */}
           <div className="p-4 space-y-3 shrink-0 bg-white border-b border-border">
             <div className="relative">
-              <Search size={15} className="text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search
+                size={15}
+                className="text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+              />
               <input
                 type="text"
                 value={searchQuery}
@@ -136,7 +147,9 @@ function AdminMessagesPage() {
                   key={tab}
                   onClick={() => setFilterTab(tab)}
                   className={`flex-1 py-1.5 rounded-lg capitalize transition-all cursor-pointer ${
-                    filterTab === tab ? "bg-white text-dark shadow-sm" : "text-slate-500 hover:text-dark"
+                    filterTab === tab
+                      ? "bg-white text-dark shadow-sm"
+                      : "text-slate-500 hover:text-dark"
                   }`}
                 >
                   {tab}
@@ -173,20 +186,30 @@ function AdminMessagesPage() {
                       } ${!msg.read ? "bg-primary/5 font-semibold" : ""}`}
                     >
                       <div className="mt-0.5 text-slate-400 shrink-0">
-                        {msg.read ? <MailOpen size={16} className="text-slate-400" /> : <Mail size={16} className="text-primary" />}
+                        {msg.read ? (
+                          <MailOpen size={16} className="text-slate-400" />
+                        ) : (
+                          <Mail size={16} className="text-primary" />
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center justify-between">
-                          <p className={`text-sm truncate ${!msg.read ? "text-dark font-bold" : "text-slate-700 font-medium"}`}>
+                          <p
+                            className={`text-sm truncate ${!msg.read ? "text-dark font-bold" : "text-slate-700 font-medium"}`}
+                          >
                             {msg.name}
                           </p>
                           <span className="text-slate-400 text-[10px] whitespace-nowrap">
                             {new Date(msg.submittedAt).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-xs text-dark font-medium truncate">{msg.subject || "(No Subject)"}</p>
-                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{msg.message}</p>
+                        <p className="text-xs text-dark font-medium truncate">
+                          {msg.subject || "(No Subject)"}
+                        </p>
+                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                          {msg.message}
+                        </p>
                       </div>
 
                       {/* Small action panel in hover */}
@@ -222,14 +245,25 @@ function AdminMessagesPage() {
               <div className="p-6 border-b border-border space-y-4 shrink-0 bg-slate-50/30">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <h2 className="text-lg font-bold text-dark">{selectedMessage.subject || "(No Subject)"}</h2>
+                    <h2 className="text-lg font-bold text-dark">
+                      {selectedMessage.subject || "(No Subject)"}
+                    </h2>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-500">
-                      <span className="flex items-center gap-1"><User size={13} /> {selectedMessage.name}</span>
-                      <span className="flex items-center gap-1"><Mail size={13} /> {selectedMessage.email}</span>
+                      <span className="flex items-center gap-1">
+                        <User size={13} /> {selectedMessage.name}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Mail size={13} /> {selectedMessage.email}
+                      </span>
                       {selectedMessage.phone && (
-                        <span className="flex items-center gap-1"><Phone size={13} /> {selectedMessage.phone}</span>
+                        <span className="flex items-center gap-1">
+                          <Phone size={13} /> {selectedMessage.phone}
+                        </span>
                       )}
-                      <span className="flex items-center gap-1"><Calendar size={13} /> {new Date(selectedMessage.submittedAt).toLocaleString()}</span>
+                      <span className="flex items-center gap-1">
+                        <Calendar size={13} />{" "}
+                        {new Date(selectedMessage.submittedAt).toLocaleString()}
+                      </span>
                     </div>
                   </div>
 

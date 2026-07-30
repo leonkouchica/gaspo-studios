@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { Building2, Search, CheckCircle2, AlertCircle, Eye, Loader2, RefreshCw, CalendarDays } from "lucide-react";
+import {
+  Building2,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
+  Loader2,
+  RefreshCw,
+  CalendarDays,
+} from "lucide-react";
 import { fetchEventSponsors } from "../../lib/actions/sponsors";
 import { toast } from "sonner";
 
@@ -58,7 +67,7 @@ function SponsorPortalPage() {
       s.eventTitle.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const paidSponsors = sponsors.filter(s => s.paymentStatus === "paid");
+  const paidSponsors = sponsors.filter((s) => s.paymentStatus === "paid");
   const totalPaidValue = paidSponsors.reduce((sum, s) => sum + Number(s.packagePrice), 0);
 
   const formatNaira = (val: number) => {
@@ -73,7 +82,9 @@ function SponsorPortalPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-dark">Sponsor Portal</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage event sponsorships and track payments.</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            Manage event sponsorships and track payments.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -89,7 +100,9 @@ function SponsorPortalPage() {
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Sponsors</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            Total Sponsors
+          </p>
           {loading ? (
             <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
           ) : (
@@ -97,7 +110,9 @@ function SponsorPortalPage() {
           )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Paid Sponsors</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            Paid Sponsors
+          </p>
           {loading ? (
             <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
           ) : (
@@ -105,7 +120,9 @@ function SponsorPortalPage() {
           )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Value</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            Total Value
+          </p>
           {loading ? (
             <div className="w-20 h-7 bg-muted animate-pulse rounded-lg mt-2" />
           ) : (
@@ -113,11 +130,15 @@ function SponsorPortalPage() {
           )}
         </div>
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pending</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            Pending
+          </p>
           {loading ? (
             <div className="w-12 h-7 bg-muted animate-pulse rounded-lg mt-2" />
           ) : (
-            <p className="text-2xl font-bold text-amber-600 mt-2">{sponsors.filter(s => s.paymentStatus === "pending").length}</p>
+            <p className="text-2xl font-bold text-amber-600 mt-2">
+              {sponsors.filter((s) => s.paymentStatus === "pending").length}
+            </p>
           )}
         </div>
       </div>
@@ -127,7 +148,9 @@ function SponsorPortalPage() {
         <button
           onClick={() => setActiveTab("directory")}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-            activeTab === "directory" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"
+            activeTab === "directory"
+              ? "bg-white shadow text-dark"
+              : "text-muted-foreground hover:text-dark"
           }`}
         >
           Sponsor Packages
@@ -135,11 +158,15 @@ function SponsorPortalPage() {
         <button
           onClick={() => setActiveTab("requests")}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === "requests" ? "bg-white shadow text-dark" : "text-muted-foreground hover:text-dark"
+            activeTab === "requests"
+              ? "bg-white shadow text-dark"
+              : "text-muted-foreground hover:text-dark"
           }`}
         >
           New Requests{" "}
-          <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+          <span className="bg-primary/20 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            0
+          </span>
         </button>
       </div>
 
@@ -154,7 +181,10 @@ function SponsorPortalPage() {
         <div className="bg-white rounded-2xl border border-border overflow-hidden">
           <div className="p-4 border-b border-border flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search
+                size={15}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -183,10 +213,18 @@ function SponsorPortalPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted/40 border-b border-border">
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Package</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Event</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price</th>
-                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Package
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Event
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
                     <th className="px-5 py-3.5"></th>
                   </tr>
                 </thead>
@@ -200,7 +238,9 @@ function SponsorPortalPage() {
                         <p className="text-dark font-medium line-clamp-1">{sponsor.eventTitle}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-sm font-medium text-dark">{formatNaira(sponsor.packagePrice)}</p>
+                        <p className="text-sm font-medium text-dark">
+                          {formatNaira(sponsor.packagePrice)}
+                        </p>
                       </td>
                       <td className="px-5 py-4">
                         <span
@@ -236,7 +276,8 @@ function SponsorPortalPage() {
           <Building2 size={40} className="mx-auto mb-3 text-muted-foreground/40" />
           <p className="font-semibold text-dark">Sponsorship Inquiries</p>
           <p className="text-sm mt-1 max-w-sm mx-auto">
-            Public sponsorship requests from event pages will appear here. Enable sponsorship on an event to start receiving applications.
+            Public sponsorship requests from event pages will appear here. Enable sponsorship on an
+            event to start receiving applications.
           </p>
         </div>
       )}

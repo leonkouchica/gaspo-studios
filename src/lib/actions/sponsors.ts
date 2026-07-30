@@ -18,7 +18,7 @@ export const initSponsorPayment = createServerFn({ method: "POST" })
       packageId: z.string(),
       packageName: z.string(),
       packagePrice: z.number().positive(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
@@ -58,10 +58,7 @@ export const initSponsorPayment = createServerFn({ method: "POST" })
     if (!secretKey) {
       // Mock flow for development
       const mockRef = `pstk_sp_${Math.random().toString(36).substring(7)}`;
-      await supabase
-        .from("event_sponsors")
-        .update({ payment_ref: mockRef })
-        .eq("id", sponsor.id);
+      await supabase.from("event_sponsors").update({ payment_ref: mockRef }).eq("id", sponsor.id);
 
       return {
         authorizationUrl: `/events/confirmation?type=sponsor&ref=${mockRef}&mock=true`,
@@ -158,17 +155,17 @@ export const verifySponsorPayment = createServerFn({ method: "POST" })
     }
 
     // Real Paystack verification
-    const response = await fetch(
-      `https://api.paystack.co/transaction/verify/${data.reference}`,
-      {
-        headers: { Authorization: `Bearer ${secretKey}` },
-      }
-    );
+    const response = await fetch(`https://api.paystack.co/transaction/verify/${data.reference}`, {
+      headers: { Authorization: `Bearer ${secretKey}` },
+    });
 
     const resJson = await response.json();
     if (!resJson.status || resJson.data.status !== "success") {
       // Payment not successful yet
-      return { verified: false, message: resJson.data?.gateway_response || "Payment not confirmed." };
+      return {
+        verified: false,
+        message: resJson.data?.gateway_response || "Payment not confirmed.",
+      };
     }
 
     // Mark as paid
@@ -200,9 +197,7 @@ export const verifySponsorPayment = createServerFn({ method: "POST" })
 // ── Admin: Fetch Sponsors ────────────────────────────────────────────────────
 
 export const fetchEventSponsors = createServerFn({ method: "GET" })
-  .inputValidator(
-    (input: { eventId?: string; paymentStatus?: string } | undefined) => input
-  )
+  .inputValidator((input: { eventId?: string; paymentStatus?: string } | undefined) => input)
   .handler(async ({ data }) => {
     requireAuth();
     const supabase = getSupabaseAdmin();
@@ -254,7 +249,7 @@ export const updateSponsorStatus = createServerFn({ method: "POST" })
       sponsorId: z.string(),
       status: z.enum(["active", "cancelled", "completed"]),
       adminNotes: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     requireRole(["admin", "editor"]);
@@ -295,16 +290,15 @@ function getBaseUrl(): string {
   return "http://localhost:8081";
 }
 
-
-async function sendSponsorEmails(
-  supabase: any,
-  sponsor: any,
-  event: any
-) {
+async function sendSponsorEmails(supabase: any, sponsor: any, event: any) {
   const eventTitle = event?.title || "Event";
-  const eventDate = event?.date ? new Date(event.date).toLocaleDateString("en-GB", {
-    day: "numeric", month: "long", year: "numeric",
-  }) : "TBD";
+  const eventDate = event?.date
+    ? new Date(event.date).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "TBD";
   const eventVenue = event?.venue || "TBD";
 
   // Sponsor confirmation email
@@ -347,7 +341,6 @@ Contact us at gaspotechgraphic@gmail.com for any questions.
       currency: "NGN", // Assuming NGN based on the ₦ symbol in the code
     }),
   });
-
 
   // Admin alert email (log)
   const adminSubject = `New Sponsor Payment — ${sponsor.company_name} • ₦${Number(sponsor.package_price).toLocaleString()}`;

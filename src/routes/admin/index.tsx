@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
-  CalendarDays, Camera, Image, BookOpen, TrendingUp,
-  ArrowRight, CheckCircle2, AlertCircle, Mail,
+  CalendarDays,
+  Camera,
+  Image,
+  BookOpen,
+  TrendingUp,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Mail,
 } from "lucide-react";
 import { fetchDashboardSummary } from "../../lib/actions/dashboard";
 
@@ -85,9 +92,18 @@ interface DashboardData {
 
 function AdminDashboard() {
   const [data, setData] = useState<DashboardData>({
-    upcomingEvents: 0, upcomingEventsList: [], totalRegistrations: 0, newBookings: 0, totalBookings: 0,
-    publishedPosts: 0, draftPosts: 0, visibleImages: 0, hiddenImages: 0,
-    unreadMessages: 0, recentBookings: [], recentPosts: [],
+    upcomingEvents: 0,
+    upcomingEventsList: [],
+    totalRegistrations: 0,
+    newBookings: 0,
+    totalBookings: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    visibleImages: 0,
+    hiddenImages: 0,
+    unreadMessages: 0,
+    recentBookings: [],
+    recentPosts: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -171,9 +187,12 @@ function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm font-semibold text-dark">
-                {data.unreadMessages} unread message{data.unreadMessages > 1 ? "s" : ""} in your inbox
+                {data.unreadMessages} unread message{data.unreadMessages > 1 ? "s" : ""} in your
+                inbox
               </p>
-              <p className="text-xs text-muted-foreground">New contact form submissions waiting for review</p>
+              <p className="text-xs text-muted-foreground">
+                New contact form submissions waiting for review
+              </p>
             </div>
           </div>
           <Link
@@ -213,14 +232,20 @@ function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-border p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-semibold text-dark">Recent Bookings</h2>
-            <Link to="/admin/bookings" className="text-xs text-primary hover:underline flex items-center gap-1">
+            <Link
+              to="/admin/bookings"
+              className="text-xs text-primary hover:underline flex items-center gap-1"
+            >
               View all <ArrowRight size={12} />
             </Link>
           </div>
           <div className="space-y-3">
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4 py-3 border-b border-border last:border-0 animate-pulse">
+                <div
+                  key={i}
+                  className="flex items-center gap-4 py-3 border-b border-border last:border-0 animate-pulse"
+                >
                   <div className="flex-1 space-y-1.5">
                     <div className="h-3.5 bg-muted rounded w-1/2" />
                     <div className="h-3 bg-muted rounded w-1/3" />
@@ -261,14 +286,20 @@ function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-border p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-semibold text-dark">Recent Blog Posts</h2>
-            <Link to="/admin/blog" className="text-xs text-primary hover:underline flex items-center gap-1">
+            <Link
+              to="/admin/blog"
+              className="text-xs text-primary hover:underline flex items-center gap-1"
+            >
               View all <ArrowRight size={12} />
             </Link>
           </div>
           <div className="space-y-3">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-start gap-3 py-3 border-b border-border last:border-0 animate-pulse">
+                <div
+                  key={i}
+                  className="flex items-start gap-3 py-3 border-b border-border last:border-0 animate-pulse"
+                >
                   <div className="w-12 h-12 rounded-lg bg-muted shrink-0" />
                   <div className="flex-1 space-y-1.5">
                     <div className="h-3.5 bg-muted rounded w-3/4" />
@@ -282,7 +313,10 @@ function AdminDashboard() {
               </p>
             ) : (
               recentPosts.map((p) => (
-                <div key={p.id} className="flex items-start gap-3 py-3 border-b border-border last:border-0">
+                <div
+                  key={p.id}
+                  className="flex items-start gap-3 py-3 border-b border-border last:border-0"
+                >
                   {p.featuredImage ? (
                     <img
                       src={p.featuredImage}
@@ -368,7 +402,9 @@ function AdminDashboard() {
         <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-start gap-3">
           <CheckCircle2 size={18} className="text-green-500 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-green-700">Supabase connected &amp; operational</p>
+            <p className="text-sm font-semibold text-green-700">
+              Supabase connected &amp; operational
+            </p>
             <p className="text-xs text-green-600 mt-0.5">
               All data is live — bookings, blog, gallery, events &amp; messages.
             </p>

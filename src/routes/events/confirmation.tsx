@@ -57,7 +57,10 @@ function EventConfirmationPage() {
           </div>
           <h1 className="text-2xl font-bold text-white">Verification Failed</h1>
           <p className="text-white/60 mt-4">{details?.message || "Something went wrong."}</p>
-          <Link to="/events" className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium">
+          <Link
+            to="/events"
+            className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium"
+          >
             Back to Events <ArrowRight size={16} />
           </Link>
         </div>
@@ -85,13 +88,20 @@ function EventConfirmationPage() {
             <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
               <h3 className="text-white font-bold text-lg">{details.eventTitle}</h3>
               <p className="text-white/60 text-sm mt-2">
-                Transaction Reference: <span className="text-primary font-mono">{details.reference || "N/A"}</span>
+                Transaction Reference:{" "}
+                <span className="text-primary font-mono">{details.reference || "N/A"}</span>
               </p>
               <div className="flex flex-wrap gap-4 mt-4">
-                <Link to="/events" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-5 py-2.5 text-sm font-semibold transition-all">
+                <Link
+                  to="/events"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-5 py-2.5 text-sm font-semibold transition-all"
+                >
                   Browse Events <ExternalLink size={14} />
                 </Link>
-                <Link to="/" className="inline-flex items-center gap-2 border border-white/20 text-white rounded-full px-5 py-2.5 text-sm font-medium hover:bg-white/10 transition-all">
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-2 border border-white/20 text-white rounded-full px-5 py-2.5 text-sm font-medium hover:bg-white/10 transition-all"
+                >
                   Go Home <ArrowRight size={14} />
                 </Link>
               </div>
@@ -100,10 +110,16 @@ function EventConfirmationPage() {
 
           {!details?.eventTitle && (
             <div className="flex flex-wrap justify-center gap-3 mt-8">
-              <Link to="/events" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-6 py-3 font-medium transition-all">
+              <Link
+                to="/events"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-6 py-3 font-medium transition-all"
+              >
                 Browse Events <ArrowRight size={16} />
               </Link>
-              <Link to="/" className="inline-flex items-center gap-2 border border-white/20 text-white rounded-full px-6 py-3 font-medium hover:bg-white/10 transition-all">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 border border-white/20 text-white rounded-full px-6 py-3 font-medium hover:bg-white/10 transition-all"
+              >
                 Go Home
               </Link>
             </div>

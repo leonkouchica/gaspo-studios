@@ -3,25 +3,24 @@ import { getSupabaseAdmin } from "../supabase.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 
 /** Fetch the homepage content from the database (public read). */
-export const fetchHomepageContent = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-      .from("homepage_content")
-      .select("content, updated_at")
-      .eq("id", "main")
-      .single();
+export const fetchHomepageContent = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("homepage_content")
+    .select("content, updated_at")
+    .eq("id", "main")
+    .single();
 
-    if (error) {
-      throw new Error(`Failed to fetch homepage content: ${error.message}`);
-    }
+  if (error) {
+    throw new Error(`Failed to fetch homepage content: ${error.message}`);
+  }
 
-    return data?.content || {};
-  });
+  return data?.content || {};
+});
 
 /** Save the homepage content (admin only). */
-export const updateHomepageContent = createServerFn({ method: "POST" })
-  .handler(async ({ data }: { data: { content: Record<string, any> } }) => {
+export const updateHomepageContent = createServerFn({ method: "POST" }).handler(
+  async ({ data }: { data: { content: Record<string, any> } }) => {
     requireRole(["admin", "editor"]);
     const supabase = getSupabaseAdmin();
 
@@ -33,7 +32,7 @@ export const updateHomepageContent = createServerFn({ method: "POST" })
           content: data.content,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "id" }
+        { onConflict: "id" },
       )
       .select()
       .single();
@@ -43,4 +42,5 @@ export const updateHomepageContent = createServerFn({ method: "POST" })
     }
 
     return { success: true, updatedAt: result.updated_at };
-  });
+  },
+);

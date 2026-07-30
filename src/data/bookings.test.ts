@@ -1,16 +1,12 @@
 import { describe, it, expect } from "vitest";
-import {
-  getBookingById,
-  getBookingsByStatus,
-  bookings,
-} from "./bookings";
+import { getBookingById, getBookingsByStatus, bookings } from "./bookings";
 
 describe("Bookings Data Helpers", () => {
   describe("getBookingById", () => {
     it("should retrieve a booking by its exact ID", () => {
       const validId = "bk-001";
       const booking = getBookingById(validId);
-      
+
       expect(booking).toBeDefined();
       expect(booking?.id).toBe(validId);
       expect(booking?.name).toBe("Adaeze Okonkwo");
@@ -31,17 +27,17 @@ describe("Bookings Data Helpers", () => {
       newBookings.forEach((b) => {
         expect(b.status).toBe("new");
       });
-      
+
       // Compare counts against manual filter
       const manualNewCount = bookings.filter((b) => b.status === "new").length;
       expect(newBookings.length).toBe(manualNewCount);
-      
+
       // Test status 'confirmed'
       const confirmedBookings = getBookingsByStatus("confirmed");
       confirmedBookings.forEach((b) => {
         expect(b.status).toBe("confirmed");
       });
-      
+
       const manualConfirmedCount = bookings.filter((b) => b.status === "confirmed").length;
       expect(confirmedBookings.length).toBe(manualConfirmedCount);
 
@@ -50,7 +46,7 @@ describe("Bookings Data Helpers", () => {
       cancelledBookings.forEach((b) => {
         expect(b.status).toBe("cancelled");
       });
-      
+
       const manualCancelledCount = bookings.filter((b) => b.status === "cancelled").length;
       expect(cancelledBookings.length).toBe(manualCancelledCount);
     });

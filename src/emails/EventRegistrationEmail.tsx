@@ -11,7 +11,7 @@ import {
   Button,
   Tailwind,
   Link,
-  Img
+  Img,
 } from "@react-email/components";
 
 interface EventRegistrationEmailProps {
@@ -42,15 +42,16 @@ export function EventRegistrationEmail({
               <Heading className="text-white text-[24px] font-bold text-center p-0 my-[30px] mx-0">
                 You're Registered!
               </Heading>
-              <Text className="text-white text-[14px] leading-[24px]">
-                Hi {fullName},
-              </Text>
+              <Text className="text-white text-[14px] leading-[24px]">Hi {fullName},</Text>
               <Text className="text-white/80 text-[14px] leading-[24px]">
-                Thank you for registering for <strong>{eventName}</strong>. We are thrilled to have you join us!
+                Thank you for registering for <strong>{eventName}</strong>. We are thrilled to have
+                you join us!
               </Text>
-              
+
               <Section className="bg-[#222] rounded p-6 my-6 border border-[#444]">
-                <Text className="text-white text-[16px] font-semibold mt-0 mb-2">Event Details:</Text>
+                <Text className="text-white text-[16px] font-semibold mt-0 mb-2">
+                  Event Details:
+                </Text>
                 <Text className="text-white/70 text-[14px] m-0 mb-1">
                   <strong>Date:</strong> {eventDate}
                 </Text>
@@ -74,7 +75,8 @@ export function EventRegistrationEmail({
               ) : null}
 
               <Text className="text-white/80 text-[14px] leading-[24px] mt-6">
-                If you have any questions, feel free to reply to this email or contact our support team.
+                If you have any questions, feel free to reply to this email or contact our support
+                team.
               </Text>
               <Hr className="border border-[#333] my-[26px] mx-0" />
               <Text className="text-[#666666] text-[12px] leading-[24px] text-center">

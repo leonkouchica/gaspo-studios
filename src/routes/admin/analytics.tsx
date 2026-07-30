@@ -1,10 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer,
-  Tooltip, XAxis, YAxis, PieChart, Pie, Cell
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { CalendarDays, TrendingUp, Users, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import {
+  CalendarDays,
+  TrendingUp,
+  Users,
+  Wallet,
+  ArrowUpRight,
+  ArrowDownRight,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { fetchAnalyticsSummary } from "../../lib/actions/analytics";
 import { toast } from "sonner";
 
@@ -21,9 +41,7 @@ interface StatCardProps {
   loading?: boolean;
 }
 
-function StatCard({
-  title, value, trend, isPositive, icon: Icon, loading = false
-}: StatCardProps) {
+function StatCard({ title, value, trend, isPositive, icon: Icon, loading = false }: StatCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
       <div className="flex items-start justify-between">
@@ -40,7 +58,9 @@ function StatCard({
         </div>
       </div>
       <div className="mt-4 flex items-center gap-1.5 text-sm">
-        <span className={`inline-flex items-center gap-0.5 font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
+        <span
+          className={`inline-flex items-center gap-0.5 font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}
+        >
           {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           {trend}
         </span>
@@ -95,15 +115,17 @@ function AnalyticsPage() {
     return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
   };
 
-  const trends = data?.monthlyTrends?.map((t: any) => ({
-    ...t,
-    monthName: formatMonth(t.month),
-  })) || [];
+  const trends =
+    data?.monthlyTrends?.map((t: any) => ({
+      ...t,
+      monthName: formatMonth(t.month),
+    })) || [];
 
-  const pieData = data?.serviceBreakdown?.map((s: any, idx: number) => ({
-    ...s,
-    color: SERVICE_COLORS[idx % SERVICE_COLORS.length],
-  })) || [];
+  const pieData =
+    data?.serviceBreakdown?.map((s: any, idx: number) => ({
+      ...s,
+      color: SERVICE_COLORS[idx % SERVICE_COLORS.length],
+    })) || [];
 
   const overview = data?.overview || {
     totalRevenue: 0,
@@ -119,7 +141,9 @@ function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-dark">Analytics & Insights</h1>
-          <p className="text-muted-foreground text-sm mt-1">Track your business performance and event metrics.</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            Track your business performance and event metrics.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -201,7 +225,9 @@ function AnalyticsPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-bold text-dark text-base">Revenue & Bookings Trend</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Monthly completed earnings and total bookings.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Monthly completed earnings and total bookings.
+              </p>
             </div>
           </div>
           <div className="h-80 w-full">
@@ -218,19 +244,35 @@ function AnalyticsPage() {
                 <AreaChart data={trends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-primary, #e11d48)" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="var(--color-primary, #e11d48)" stopOpacity={0} />
+                      <stop
+                        offset="5%"
+                        stopColor="var(--color-primary, #e11d48)"
+                        stopOpacity={0.2}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="var(--color-primary, #e11d48)"
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="monthName" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <XAxis
+                    dataKey="monthName"
+                    stroke="#94a3b8"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <YAxis
                     yAxisId="left"
                     stroke="#94a3b8"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(v) => `₦${v >= 1000000 ? `${(v / 1000000).toFixed(0)}M` : `${v / 1000}K`}`}
+                    tickFormatter={(v) =>
+                      `₦${v >= 1000000 ? `${(v / 1000000).toFixed(0)}M` : `${v / 1000}K`}`
+                    }
                   />
                   <YAxis
                     yAxisId="right"
@@ -242,14 +284,36 @@ function AnalyticsPage() {
                     tickFormatter={(v) => `${v} bk`}
                   />
                   <Tooltip
-                    contentStyle={{ background: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                    contentStyle={{
+                      background: "#ffffff",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
                     formatter={(value: any, name: any) => {
                       if (name === "revenue") return [formatNaira(Number(value)), "Revenue"];
                       return [value, "Bookings"];
                     }}
                   />
-                  <Area yAxisId="left" type="monotone" dataKey="revenue" name="revenue" stroke="var(--color-primary, #e11d48)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
-                  <Bar yAxisId="right" dataKey="bookings" name="bookings" fill="#94a3b8" opacity={0.3} radius={[4, 4, 0, 0]} barSize={24} />
+                  <Area
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="revenue"
+                    name="revenue"
+                    stroke="var(--color-primary, #e11d48)"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                  />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="bookings"
+                    name="bookings"
+                    fill="#94a3b8"
+                    opacity={0.3}
+                    radius={[4, 4, 0, 0]}
+                    barSize={24}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -259,7 +323,9 @@ function AnalyticsPage() {
         {/* Services Pie Chart */}
         <div className="bg-white rounded-2xl border border-border p-6 flex flex-col shadow-sm">
           <h3 className="font-bold text-dark text-base mb-1">Services Breakdown</h3>
-          <p className="text-xs text-muted-foreground mb-6">Distribution of bookings by category.</p>
+          <p className="text-xs text-muted-foreground mb-6">
+            Distribution of bookings by category.
+          </p>
           <div className="h-60 w-full relative flex items-center justify-center">
             {loading ? (
               <div className="w-full h-full bg-muted/40 animate-pulse rounded-xl flex items-center justify-center text-sm text-muted-foreground">
@@ -284,7 +350,11 @@ function AnalyticsPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ background: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0" }}
+                    contentStyle={{
+                      background: "#ffffff",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                    }}
                     formatter={(value) => [`${value} bookings`, "Count"]}
                   />
                 </PieChart>
@@ -295,8 +365,13 @@ function AnalyticsPage() {
             {pieData.map((item: any, idx: number) => (
               <div key={idx} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                  <span className="font-medium text-slate-600 truncate max-w-[120px]">{item.name}</span>
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="font-medium text-slate-600 truncate max-w-[120px]">
+                    {item.name}
+                  </span>
                 </div>
                 <span className="font-bold text-dark">{item.value} bookings</span>
               </div>

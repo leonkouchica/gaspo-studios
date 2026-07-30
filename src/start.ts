@@ -138,10 +138,13 @@ const rateLimitMiddleware = createMiddleware().server(async ({ request, next }) 
 
   entry.count++;
   if (entry.count > maxRequests) {
-    return new Response(
-      JSON.stringify({ error: "Too many requests. Please slow down." }),
-      { status: 429, headers: { "content-type": "application/json", "retry-after": String(Math.ceil(windowMs / 1000)) } },
-    );
+    return new Response(JSON.stringify({ error: "Too many requests. Please slow down." }), {
+      status: 429,
+      headers: {
+        "content-type": "application/json",
+        "retry-after": String(Math.ceil(windowMs / 1000)),
+      },
+    });
   }
 
   return await next();

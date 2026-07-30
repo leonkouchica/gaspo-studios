@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { Search, ChevronDown, ChevronUp, Phone, Mail, RefreshCw, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Phone,
+  Mail,
+  RefreshCw,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { fetchBookings, updateBookingStatus } from "../../../lib/actions/bookings";
 import { toast } from "sonner";
 
@@ -38,7 +47,9 @@ const ALL_STATUSES: BookingStatus[] = ["new", "reviewed", "confirmed", "complete
 
 function StatusBadge({ status }: { status: BookingStatus }) {
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[status]}`}>
+    <span
+      className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[status]}`}
+    >
       {status}
     </span>
   );
@@ -74,7 +85,10 @@ function BookingRow({
 
   return (
     <>
-      <tr className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpanded((v) => !v)}>
+      <tr
+        className="hover:bg-muted/20 transition-colors cursor-pointer"
+        onClick={() => setExpanded((v) => !v)}
+      >
         <td className="px-5 py-4">
           <p className="font-semibold text-dark">{booking.name}</p>
           <p className="text-xs text-muted-foreground">{booking.email}</p>
@@ -87,7 +101,9 @@ function BookingRow({
             year: "numeric",
           })}
         </td>
-        <td className="px-5 py-4 text-sm font-medium text-dark">₦{booking.totalValue.toLocaleString()}</td>
+        <td className="px-5 py-4 text-sm font-medium text-dark">
+          ₦{booking.totalValue.toLocaleString()}
+        </td>
         <td className="px-5 py-4">
           <StatusBadge status={status} />
         </td>
@@ -129,14 +145,18 @@ function BookingRow({
                     ],
                   ].map(([label, val]) => (
                     <div key={label}>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                        {label}
+                      </p>
                       <p className="font-medium text-dark mt-0.5">{val}</p>
                     </div>
                   ))}
                 </div>
                 {booking.message && (
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Client Message</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Client Message
+                    </p>
                     <p className="text-sm text-dark mt-1 bg-white rounded-xl p-3 border border-border leading-relaxed">
                       {booking.message}
                     </p>
@@ -251,7 +271,7 @@ function AdminBookingsPage() {
   const newCount = bookings.filter((b) => b.status === "new").length;
   const countsByStatus = ALL_STATUSES.reduce(
     (acc, s) => ({ ...acc, [s]: bookings.filter((b) => b.status === s).length }),
-    {} as Record<BookingStatus, number>
+    {} as Record<BookingStatus, number>,
   );
 
   return (
@@ -307,7 +327,10 @@ function AdminBookingsPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          size={15}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}

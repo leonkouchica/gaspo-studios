@@ -41,7 +41,7 @@ export function BookingNotificationEmail({
               <Text className="text-[#333] text-[14px] leading-[24px]">
                 A new client has requested to book a shoot via the website.
               </Text>
-              
+
               <Section className="bg-[#f9f9f9] rounded p-6 my-6 border border-[#eaeaea]">
                 <Text className="text-[#333] text-[14px] m-0 mb-2">
                   <strong>Client Name:</strong> {fullName}
@@ -58,7 +58,7 @@ export function BookingNotificationEmail({
                 <Text className="text-[#333] text-[14px] m-0 mb-2">
                   <strong>Requested Date:</strong> {bookingDate}
                 </Text>
-                
+
                 {notes && (
                   <>
                     <Text className="text-[#333] text-[14px] m-0 mt-4 font-semibold">

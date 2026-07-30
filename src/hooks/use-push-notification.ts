@@ -3,11 +3,7 @@
 // Encapsulates SW registration, subscription, and preference management.
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  subscribeToPush,
-  unsubscribeFromPush,
-  updatePushPreferences,
-} from "../lib/actions/push";
+import { subscribeToPush, unsubscribeFromPush, updatePushPreferences } from "../lib/actions/push";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -179,23 +175,26 @@ export function usePushNotification(): UsePushNotificationReturn {
   }, [currentEndpoint]);
 
   // Update channel preferences without re-subscribing
-  const updatePreferences = useCallback(async (prefs: Partial<UserPreferences>) => {
-    if (!currentEndpoint) return;
+  const updatePreferences = useCallback(
+    async (prefs: Partial<UserPreferences>) => {
+      if (!currentEndpoint) return;
 
-    const updatedPrefs = { ...preferences, ...prefs };
-    setPreferences(updatedPrefs);
+      const updatedPrefs = { ...preferences, ...prefs };
+      setPreferences(updatedPrefs);
 
-    try {
-      await updatePushPreferences({
-        data: {
-          endpoint: currentEndpoint,
-          channels: updatedPrefs,
-        },
-      });
-    } catch (err: any) {
-      setError(err.message || "Failed to update preferences.");
-    }
-  }, [currentEndpoint, preferences]);
+      try {
+        await updatePushPreferences({
+          data: {
+            endpoint: currentEndpoint,
+            channels: updatedPrefs,
+          },
+        });
+      } catch (err: any) {
+        setError(err.message || "Failed to update preferences.");
+      }
+    },
+    [currentEndpoint, preferences],
+  );
 
   return {
     permission,

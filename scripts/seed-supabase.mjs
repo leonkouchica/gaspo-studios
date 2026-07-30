@@ -23,7 +23,7 @@ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
   console.error(
     "\n❌  Missing env vars.\n" +
       "    Make sure VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in .env\n" +
-      "    and that you run:  node --env-file=.env scripts/seed-supabase.mjs\n"
+      "    and that you run:  node --env-file=.env scripts/seed-supabase.mjs\n",
   );
   process.exit(1);
 }
@@ -159,8 +159,7 @@ const blogPosts = [
     id: "post-005",
     slug: "top-lenses-every-shoot",
     title: "Lenses We Reach For Every Single Shoot",
-    excerpt:
-      "From the workhorse 35mm to the dreamy 85, our editors share their favorite glass.",
+    excerpt: "From the workhorse 35mm to the dreamy 85, our editors share their favorite glass.",
     body: `<p>We get asked about our gear constantly — so here's a straight answer: these are the lenses that live on our cameras.</p>`,
     category: "Gear",
     tags: ["gear", "lenses", "equipment"],
@@ -205,7 +204,8 @@ const blogPosts = [
     id: "post-007",
     slug: "choosing-wedding-photographer-questions",
     title: "Choosing the Right Wedding Photographer: 15 Questions to Ask",
-    excerpt: "Before you sign that contract, ask these 15 questions. Your wedding album will thank you.",
+    excerpt:
+      "Before you sign that contract, ask these 15 questions. Your wedding album will thank you.",
     body: `<p>Booking a wedding photographer is one of the biggest decisions you'll make in your planning journey — and one of the few that outlasts the day itself. Here are the 15 questions every couple should ask before signing.</p>
 <h2>1. Can we see a full wedding gallery?</h2>
 <p>Not just highlights. Ask to see an entire wedding — from getting ready to the last dance. This reveals consistency, not just cherry-picked best shots.</p>
@@ -228,7 +228,8 @@ const blogPosts = [
     views: 3201,
     comments: 22,
     seo_title: "15 Questions to Ask Your Wedding Photographer — Gaspo Studios",
-    seo_description: "Before you book your wedding photographer, ask these 15 essential questions. Save time, money, and heartbreak.",
+    seo_description:
+      "Before you book your wedding photographer, ask these 15 essential questions. Save time, money, and heartbreak.",
     created_at: "2026-04-15T10:00:00Z",
     updated_at: "2026-04-18T08:50:00Z",
   },
@@ -236,7 +237,8 @@ const blogPosts = [
     id: "post-008",
     slug: "photographers-guide-social-media-2026",
     title: "The Photographer's Guide to Social Media in 2026",
-    excerpt: "Instagram's algorithm changed again. Here's what's actually working for photographers right now.",
+    excerpt:
+      "Instagram's algorithm changed again. Here's what's actually working for photographers right now.",
     body: `<p>If you're still posting three carousel images a day and wondering why your engagement tanked, this post is for you. The social media landscape for photographers has shifted dramatically — here's the playbook for 2026.</p>
 <h2>Video-first is no longer optional</h2>
 <p>Reels and TikTok-style short-form video now drive 70% of new client inquiries at Gaspo Studios. But you don't need to become a videographer — a simple BTS clip of your lighting setup or a 15-second before/after edit comparison consistently outperforms static posts.</p>
@@ -255,7 +257,8 @@ const blogPosts = [
     views: 4501,
     comments: 31,
     seo_title: "Social Media Guide for Photographers 2026 — Gaspo Studios",
-    seo_description: "What's actually working for photographers on social media in 2026. Instagram, TikTok, and LinkedIn strategies that drive bookings.",
+    seo_description:
+      "What's actually working for photographers on social media in 2026. Instagram, TikTok, and LinkedIn strategies that drive bookings.",
     created_at: "2026-03-20T08:00:00Z",
     updated_at: "2026-03-22T09:45:00Z",
   },
@@ -263,7 +266,8 @@ const blogPosts = [
     id: "post-009",
     slug: "destination-wedding-cape-town-behind-scenes",
     title: "How We Shot: A Destination Wedding in Cape Town",
-    excerpt: "Flying a photography team across the continent comes with unique challenges — and unforgettable rewards.",
+    excerpt:
+      "Flying a photography team across the continent comes with unique challenges — and unforgettable rewards.",
     body: `<p>When Tolu and Kwame asked us to photograph their wedding at a vineyard in Stellenbosch, we said yes before they finished the sentence. Here's how we planned, packed, and executed a destination wedding 4,700 kilometres from our Lagos studio.</p>
 <h2>The Gear Strategy</h2>
 <p>Flying with gear means ruthless minimalism. We packed two bodies, three lenses (35mm, 85mm, 24-70mm), two speedlights, and a single LED panel — all in carry-on. Checked luggage had light stands, modifiers, and backup chargers.</p>
@@ -282,7 +286,8 @@ const blogPosts = [
     views: 2890,
     comments: 17,
     seo_title: "Destination Wedding Photography in Cape Town — Behind the Scenes",
-    seo_description: "How the Gaspo Studios team planned and shot a destination wedding at a Stellenbosch vineyard.",
+    seo_description:
+      "How the Gaspo Studios team planned and shot a destination wedding at a Stellenbosch vineyard.",
     created_at: "2026-02-08T10:00:00Z",
     updated_at: "2026-02-10T08:30:00Z",
   },
@@ -290,7 +295,8 @@ const blogPosts = [
     id: "post-010",
     slug: "raw-vs-jpeg-photography-guide",
     title: "RAW vs JPEG: Why We Shoot RAW (And When We Don't)",
-    excerpt: "The file format debate, settled. Here's when RAW is non-negotiable — and when JPEG is the smarter choice.",
+    excerpt:
+      "The file format debate, settled. Here's when RAW is non-negotiable — and when JPEG is the smarter choice.",
     body: `<p>Every photographer has an opinion on RAW vs JPEG. Here's ours — backed by 12 years of shooting everything from dimly lit receptions to high-speed commercial campaigns.</p>
 <h2>Why we shoot RAW for 90% of our work</h2>
 <p>RAW files capture 12-14 bits of colour data per pixel. JPEG captures 8. That's the difference between recovering a blown-out wedding dress and losing it forever. For weddings, portraits, and commercial work — anything where post-processing matters — we shoot RAW, always.</p>
@@ -309,7 +315,8 @@ const blogPosts = [
     views: 5670,
     comments: 41,
     seo_title: "RAW vs JPEG Photography Guide — When to Use Each Format",
-    seo_description: "The definitive guide to RAW vs JPEG for professional photographers. When RAW is essential and when JPEG is the smarter choice.",
+    seo_description:
+      "The definitive guide to RAW vs JPEG for professional photographers. When RAW is essential and when JPEG is the smarter choice.",
     created_at: "2026-01-25T09:00:00Z",
     updated_at: "2026-01-28T09:55:00Z",
   },
@@ -317,7 +324,8 @@ const blogPosts = [
     id: "post-011",
     slug: "building-photography-portfolio-gets-hired",
     title: "Building a Photography Portfolio That Gets You Hired",
-    excerpt: "Your portfolio isn't a gallery of your best work — it's a sales tool. Here's how to build one that converts.",
+    excerpt:
+      "Your portfolio isn't a gallery of your best work — it's a sales tool. Here's how to build one that converts.",
     body: `<p>Most photographers treat their portfolio like a trophy case: 'Look at all the beautiful things I've made.' The best photographers treat it like a sales page: 'Here's exactly why you should hire me.' The difference shows in your booking rate.</p>
 <h2>Rule 1: Show the work you want to get booked for</h2>
 <p>If you want more wedding clients, don't fill your portfolio with landscape shots from your holiday in Ghana. Clients hire you for the work you show — not the work you wish you could do.</p>
@@ -336,7 +344,8 @@ const blogPosts = [
     views: 7800,
     comments: 53,
     seo_title: "How to Build a Photography Portfolio That Books Clients",
-    seo_description: "Your portfolio is a sales tool, not a gallery. Learn the 5 rules for building a photography portfolio that converts viewers into clients.",
+    seo_description:
+      "Your portfolio is a sales tool, not a gallery. Learn the 5 rules for building a photography portfolio that converts viewers into clients.",
     created_at: "2025-11-05T11:00:00Z",
     updated_at: "2025-11-08T08:40:00Z",
   },
@@ -344,7 +353,8 @@ const blogPosts = [
     id: "post-012",
     slug: "gaspo-studios-studio-refresh-2026",
     title: "Our Studio Refresh: New Gear, New Space, Same Passion",
-    excerpt: "We renovated our Ikoyi studio, added new lighting rigs, and expanded our editing suite. Here's a tour.",
+    excerpt:
+      "We renovated our Ikoyi studio, added new lighting rigs, and expanded our editing suite. Here's a tour.",
     body: `<p>After six months of planning and three weeks of construction, our refreshed Ikoyi studio is finally ready. We've doubled our shooting space, added a dedicated client lounge, and invested in new Profoto lighting equipment that's already transforming our portrait work.</p>
 <h2>The New Space</h2>
 <p>Our main shooting bay now spans 60 square metres with 4-metre ceilings — enough room for full bridal party portraits and large product installations. The north-facing windows give us consistent natural light from 9 AM to 3 PM, which our portrait clients love.</p>
@@ -363,7 +373,8 @@ const blogPosts = [
     views: 1230,
     comments: 9,
     seo_title: "Gaspo Studios Ikoyi Studio Refresh 2026 — New Space & Gear",
-    seo_description: "Take a tour of our newly renovated Ikoyi photography studio — expanded shooting bays, new Profoto lighting, and a dedicated client lounge.",
+    seo_description:
+      "Take a tour of our newly renovated Ikoyi photography studio — expanded shooting bays, new Profoto lighting, and a dedicated client lounge.",
     created_at: "2026-04-28T09:00:00Z",
     updated_at: "2026-05-01T07:45:00Z",
   },
@@ -373,30 +384,246 @@ const blogPosts = [
 // Note: schema column is `display_order` (not `order`)
 
 const galleryImages = [
-  { id: "img-001", src: "/images/wedding_couple.webp",   title: "Golden Hour Wedding",          alt: "Couple embracing at golden hour",           category: "Weddings",           visible: true,  display_order: 1,  uploaded_at: "2026-01-10T10:00:00Z" },
-  { id: "img-002", src: "/images/portrait_woman.webp",   title: "Studio Portrait — Adaeze",     alt: "Woman with natural light portrait",          category: "Portraits",          visible: true,  display_order: 2,  uploaded_at: "2026-01-15T11:00:00Z" },
-  { id: "img-003", src: "/images/corporate_team.webp",   title: "Corporate Summit — Acme Group",alt: "Business panel at conference",               category: "Commercial",         visible: true,  display_order: 3,  uploaded_at: "2026-02-01T09:00:00Z" },
-  { id: "img-004", src: "/images/events_crowd.webp",     title: "Tech Conference 2026",         alt: "Crowd at tech conference",                   category: "Events",             visible: true,  display_order: 4,  uploaded_at: "2026-02-10T14:00:00Z" },
-  { id: "img-005", src: "/images/wedding_couple.webp",   title: "Beachside Ceremony",           alt: "Wedding ceremony on the beach",              category: "Weddings",           visible: true,  display_order: 5,  uploaded_at: "2026-02-20T08:00:00Z" },
-  { id: "img-006", src: "/images/team_founder.webp",     title: "Executive Headshots — Chidi",  alt: "Male executive professional headshot",       category: "Portraits",          visible: true,  display_order: 6,  uploaded_at: "2026-03-01T10:00:00Z" },
-  { id: "img-007", src: "/images/photographer_hero.webp",title: "Studio Product Campaign",      alt: "Photographer in studio",                     category: "Commercial",         visible: true,  display_order: 7,  uploaded_at: "2026-03-10T13:00:00Z" },
-  { id: "img-008", src: "/images/events_crowd.webp",     title: "Gala Night 2026",              alt: "Event photography at formal gala",           category: "Events",             visible: true,  display_order: 8,  uploaded_at: "2026-03-15T19:00:00Z" },
-  { id: "img-009", src: "/images/wedding_couple.webp",   title: "Reception Details",            alt: "Wedding couple at reception",                category: "Weddings",           visible: true,  display_order: 9,  uploaded_at: "2026-03-20T11:00:00Z" },
-  { id: "img-010", src: "/images/portrait_woman.webp",   title: "Natural Light Portrait",       alt: "Woman photographed in natural light",        category: "Portraits",          visible: true,  display_order: 10, uploaded_at: "2026-04-01T09:00:00Z" },
-  { id: "img-011", src: "/images/corporate_team.webp",   title: "Brand Campaign — Lumière",     alt: "Corporate brand campaign imagery",           category: "Commercial",         visible: true,  display_order: 11, uploaded_at: "2026-04-10T10:00:00Z" },
-  { id: "img-012", src: "/images/events_crowd.webp",     title: "Outdoor Festival",             alt: "Photography at outdoor music festival",      category: "Events",             visible: true,  display_order: 12, uploaded_at: "2026-04-20T15:00:00Z" },
-  { id: "img-013", src: "/images/photographer_hero.webp",title: "Behind the Lens",              alt: "Photographer at work behind the scenes",     category: "Behind the Scenes",  visible: false, display_order: 13, uploaded_at: "2026-05-01T09:00:00Z" },
-  { id: "img-014", src: "/images/corporate_team.webp",   title: "Studio Setup",                 alt: "Photography studio team",                   category: "Behind the Scenes",  visible: false, display_order: 14, uploaded_at: "2026-05-10T11:00:00Z" },
-  { id: "img-015", src: "/images/wedding_couple.webp",   title: "Vintage Wedding Detail",       alt: "Vintage wedding detail shot",               category: "Weddings",           visible: true,  display_order: 15, uploaded_at: "2026-05-15T10:00:00Z" },
-  { id: "img-016", src: "/images/portrait_woman.webp",   title: "Bridal Prep — The Quiet Moments", alt: "Bride getting ready, quiet moment",        category: "Weddings",           visible: true,  display_order: 16, uploaded_at: "2026-05-18T11:00:00Z" },
-  { id: "img-017", src: "/images/team_founder.webp",     title: "Corporate Headshot Series — Ola", alt: "Corporate headshot of male executive",     category: "Portraits",          visible: true,  display_order: 17, uploaded_at: "2026-05-20T09:00:00Z" },
-  { id: "img-018", src: "/images/wedding_couple.webp",   title: "Family Portrait — The Adeyemis", alt: "Family of four portrait session",          category: "Portraits",          visible: true,  display_order: 18, uploaded_at: "2026-05-22T14:00:00Z" },
-  { id: "img-019", src: "/images/corporate_team.webp",   title: "Product Flat-Lay — Lumière Skincare", alt: "Product flat-lay skincare shoot",       category: "Commercial",         visible: true,  display_order: 19, uploaded_at: "2026-05-25T10:00:00Z" },
-  { id: "img-020", src: "/images/photographer_hero.webp",title: "Restaurant Menu Shoot — Cilantro", alt: "Restaurant menu photography session",       category: "Commercial",         visible: true,  display_order: 20, uploaded_at: "2026-05-28T13:00:00Z" },
-  { id: "img-021", src: "/images/events_crowd.webp",     title: "Award Ceremony — Tech Innovation", alt: "Tech innovation awards ceremony",           category: "Events",             visible: true,  display_order: 21, uploaded_at: "2026-05-30T16:00:00Z" },
-  { id: "img-022", src: "/images/wedding_couple.webp",   title: "Birthday Celebration — 50th Gala", alt: "50th birthday gala celebration",             category: "Events",             visible: true,  display_order: 22, uploaded_at: "2026-06-01T19:00:00Z" },
-  { id: "img-023", src: "/images/photographer_hero.webp",title: "Lighting Test Session",          alt: "Lighting test session in studio",            category: "Behind the Scenes",  visible: false, display_order: 23, uploaded_at: "2026-06-02T09:00:00Z" },
-  { id: "img-024", src: "/images/corporate_team.webp",   title: "Team Retreat — Ikoyi Studio",   alt: "Team retreat at Ikoyi studio",              category: "Behind the Scenes",  visible: false, display_order: 24, uploaded_at: "2026-06-02T15:00:00Z" },
+  {
+    id: "img-001",
+    src: "/images/wedding_couple.webp",
+    title: "Golden Hour Wedding",
+    alt: "Couple embracing at golden hour",
+    category: "Weddings",
+    visible: true,
+    display_order: 1,
+    uploaded_at: "2026-01-10T10:00:00Z",
+  },
+  {
+    id: "img-002",
+    src: "/images/portrait_woman.webp",
+    title: "Studio Portrait — Adaeze",
+    alt: "Woman with natural light portrait",
+    category: "Portraits",
+    visible: true,
+    display_order: 2,
+    uploaded_at: "2026-01-15T11:00:00Z",
+  },
+  {
+    id: "img-003",
+    src: "/images/corporate_team.webp",
+    title: "Corporate Summit — Acme Group",
+    alt: "Business panel at conference",
+    category: "Commercial",
+    visible: true,
+    display_order: 3,
+    uploaded_at: "2026-02-01T09:00:00Z",
+  },
+  {
+    id: "img-004",
+    src: "/images/events_crowd.webp",
+    title: "Tech Conference 2026",
+    alt: "Crowd at tech conference",
+    category: "Events",
+    visible: true,
+    display_order: 4,
+    uploaded_at: "2026-02-10T14:00:00Z",
+  },
+  {
+    id: "img-005",
+    src: "/images/wedding_couple.webp",
+    title: "Beachside Ceremony",
+    alt: "Wedding ceremony on the beach",
+    category: "Weddings",
+    visible: true,
+    display_order: 5,
+    uploaded_at: "2026-02-20T08:00:00Z",
+  },
+  {
+    id: "img-006",
+    src: "/images/team_founder.webp",
+    title: "Executive Headshots — Chidi",
+    alt: "Male executive professional headshot",
+    category: "Portraits",
+    visible: true,
+    display_order: 6,
+    uploaded_at: "2026-03-01T10:00:00Z",
+  },
+  {
+    id: "img-007",
+    src: "/images/photographer_hero.webp",
+    title: "Studio Product Campaign",
+    alt: "Photographer in studio",
+    category: "Commercial",
+    visible: true,
+    display_order: 7,
+    uploaded_at: "2026-03-10T13:00:00Z",
+  },
+  {
+    id: "img-008",
+    src: "/images/events_crowd.webp",
+    title: "Gala Night 2026",
+    alt: "Event photography at formal gala",
+    category: "Events",
+    visible: true,
+    display_order: 8,
+    uploaded_at: "2026-03-15T19:00:00Z",
+  },
+  {
+    id: "img-009",
+    src: "/images/wedding_couple.webp",
+    title: "Reception Details",
+    alt: "Wedding couple at reception",
+    category: "Weddings",
+    visible: true,
+    display_order: 9,
+    uploaded_at: "2026-03-20T11:00:00Z",
+  },
+  {
+    id: "img-010",
+    src: "/images/portrait_woman.webp",
+    title: "Natural Light Portrait",
+    alt: "Woman photographed in natural light",
+    category: "Portraits",
+    visible: true,
+    display_order: 10,
+    uploaded_at: "2026-04-01T09:00:00Z",
+  },
+  {
+    id: "img-011",
+    src: "/images/corporate_team.webp",
+    title: "Brand Campaign — Lumière",
+    alt: "Corporate brand campaign imagery",
+    category: "Commercial",
+    visible: true,
+    display_order: 11,
+    uploaded_at: "2026-04-10T10:00:00Z",
+  },
+  {
+    id: "img-012",
+    src: "/images/events_crowd.webp",
+    title: "Outdoor Festival",
+    alt: "Photography at outdoor music festival",
+    category: "Events",
+    visible: true,
+    display_order: 12,
+    uploaded_at: "2026-04-20T15:00:00Z",
+  },
+  {
+    id: "img-013",
+    src: "/images/photographer_hero.webp",
+    title: "Behind the Lens",
+    alt: "Photographer at work behind the scenes",
+    category: "Behind the Scenes",
+    visible: false,
+    display_order: 13,
+    uploaded_at: "2026-05-01T09:00:00Z",
+  },
+  {
+    id: "img-014",
+    src: "/images/corporate_team.webp",
+    title: "Studio Setup",
+    alt: "Photography studio team",
+    category: "Behind the Scenes",
+    visible: false,
+    display_order: 14,
+    uploaded_at: "2026-05-10T11:00:00Z",
+  },
+  {
+    id: "img-015",
+    src: "/images/wedding_couple.webp",
+    title: "Vintage Wedding Detail",
+    alt: "Vintage wedding detail shot",
+    category: "Weddings",
+    visible: true,
+    display_order: 15,
+    uploaded_at: "2026-05-15T10:00:00Z",
+  },
+  {
+    id: "img-016",
+    src: "/images/portrait_woman.webp",
+    title: "Bridal Prep — The Quiet Moments",
+    alt: "Bride getting ready, quiet moment",
+    category: "Weddings",
+    visible: true,
+    display_order: 16,
+    uploaded_at: "2026-05-18T11:00:00Z",
+  },
+  {
+    id: "img-017",
+    src: "/images/team_founder.webp",
+    title: "Corporate Headshot Series — Ola",
+    alt: "Corporate headshot of male executive",
+    category: "Portraits",
+    visible: true,
+    display_order: 17,
+    uploaded_at: "2026-05-20T09:00:00Z",
+  },
+  {
+    id: "img-018",
+    src: "/images/wedding_couple.webp",
+    title: "Family Portrait — The Adeyemis",
+    alt: "Family of four portrait session",
+    category: "Portraits",
+    visible: true,
+    display_order: 18,
+    uploaded_at: "2026-05-22T14:00:00Z",
+  },
+  {
+    id: "img-019",
+    src: "/images/corporate_team.webp",
+    title: "Product Flat-Lay — Lumière Skincare",
+    alt: "Product flat-lay skincare shoot",
+    category: "Commercial",
+    visible: true,
+    display_order: 19,
+    uploaded_at: "2026-05-25T10:00:00Z",
+  },
+  {
+    id: "img-020",
+    src: "/images/photographer_hero.webp",
+    title: "Restaurant Menu Shoot — Cilantro",
+    alt: "Restaurant menu photography session",
+    category: "Commercial",
+    visible: true,
+    display_order: 20,
+    uploaded_at: "2026-05-28T13:00:00Z",
+  },
+  {
+    id: "img-021",
+    src: "/images/events_crowd.webp",
+    title: "Award Ceremony — Tech Innovation",
+    alt: "Tech innovation awards ceremony",
+    category: "Events",
+    visible: true,
+    display_order: 21,
+    uploaded_at: "2026-05-30T16:00:00Z",
+  },
+  {
+    id: "img-022",
+    src: "/images/wedding_couple.webp",
+    title: "Birthday Celebration — 50th Gala",
+    alt: "50th birthday gala celebration",
+    category: "Events",
+    visible: true,
+    display_order: 22,
+    uploaded_at: "2026-06-01T19:00:00Z",
+  },
+  {
+    id: "img-023",
+    src: "/images/photographer_hero.webp",
+    title: "Lighting Test Session",
+    alt: "Lighting test session in studio",
+    category: "Behind the Scenes",
+    visible: false,
+    display_order: 23,
+    uploaded_at: "2026-06-02T09:00:00Z",
+  },
+  {
+    id: "img-024",
+    src: "/images/corporate_team.webp",
+    title: "Team Retreat — Ikoyi Studio",
+    alt: "Team retreat at Ikoyi studio",
+    category: "Behind the Scenes",
+    visible: false,
+    display_order: 24,
+    uploaded_at: "2026-06-02T15:00:00Z",
+  },
 ];
 
 // ── 3. bookings ───────────────────────────────────────────────────────────────
@@ -412,7 +639,8 @@ const bookings = [
     package: "Full Day Coverage",
     preferred_date: "2026-08-15",
     preferred_time: "09:00",
-    message: "We're planning an outdoor ceremony at Lekki Conservation Centre. Would love natural light shots.",
+    message:
+      "We're planning an outdoor ceremony at Lekki Conservation Centre. Would love natural light shots.",
     status: "confirmed",
     submitted_at: "2026-05-20T14:23:00Z",
     admin_notes: "Confirmed via phone call. Deposit paid ₦1,080,000.",
@@ -500,7 +728,8 @@ const bookings = [
     package: "Full Day Coverage",
     preferred_date: "2026-10-03",
     preferred_time: "09:00",
-    message: "Church ceremony at House on the Rock, reception at The Civic Centre. Approx 350 guests. We love candid, photojournalistic style.",
+    message:
+      "Church ceremony at House on the Rock, reception at The Civic Centre. Approx 350 guests. We love candid, photojournalistic style.",
     status: "new",
     submitted_at: "2026-06-01T07:15:00Z",
     total_value: 3600000,
@@ -514,7 +743,8 @@ const bookings = [
     package: "90-Minute Session",
     preferred_date: "2026-06-20",
     preferred_time: "11:00",
-    message: "Graduation portraits — Law School. Would love both indoor studio and outdoor garden shots.",
+    message:
+      "Graduation portraits — Law School. Would love both indoor studio and outdoor garden shots.",
     status: "reviewed",
     submitted_at: "2026-05-31T14:20:00Z",
     admin_notes: "Called client — confirmed outdoor location available at studio. Send mood board.",
@@ -529,7 +759,8 @@ const bookings = [
     package: "Half Day Shoot",
     preferred_date: "2026-06-25",
     preferred_time: "10:00",
-    message: "Interior design portfolio shoot. 3 completed residential projects across Ikoyi. Need architectural + detail shots.",
+    message:
+      "Interior design portfolio shoot. 3 completed residential projects across Ikoyi. Need architectural + detail shots.",
     status: "confirmed",
     submitted_at: "2026-05-25T10:45:00Z",
     admin_notes: "Deposit paid ₦540,000. Locations confirmed. Transport arranged for 3-site shoot.",
@@ -544,7 +775,8 @@ const bookings = [
     package: "Full Day Coverage",
     preferred_date: "2026-11-14",
     preferred_time: "08:00",
-    message: "Traditional Igbo wedding (morning) + white wedding (afternoon). Two venues — family compound in Enugu, then church reception.",
+    message:
+      "Traditional Igbo wedding (morning) + white wedding (afternoon). Two venues — family compound in Enugu, then church reception.",
     status: "new",
     submitted_at: "2026-06-01T16:30:00Z",
     total_value: 3600000,
@@ -558,10 +790,12 @@ const bookings = [
     package: "Half Day Coverage",
     preferred_date: "2026-05-05",
     preferred_time: "09:00",
-    message: "Branch managers' quarterly meeting. 45 attendees. Formal headshots + candid meeting coverage.",
+    message:
+      "Branch managers' quarterly meeting. 45 attendees. Formal headshots + candid meeting coverage.",
     status: "completed",
     submitted_at: "2026-04-20T09:00:00Z",
-    admin_notes: "Delivered May 12th. 340 edited images. Client requested 10 additional retouched headshots — completed May 15th.",
+    admin_notes:
+      "Delivered May 12th. 340 edited images. Client requested 10 additional retouched headshots — completed May 15th.",
     total_value: 1800000,
   },
   {
@@ -576,7 +810,8 @@ const bookings = [
     message: "Personal branding photos for my new consulting website.",
     status: "cancelled",
     submitted_at: "2026-05-28T11:00:00Z",
-    admin_notes: "Client cancelled — scheduling conflict. Offered to reschedule, awaiting response.",
+    admin_notes:
+      "Client cancelled — scheduling conflict. Offered to reschedule, awaiting response.",
     total_value: 675000,
   },
 ];
@@ -934,12 +1169,30 @@ const events = [
     id: "evt-004",
     slug: "the-art-of-photography-exhibition-2025",
     title: "The Art of Photography — Annual Exhibition 2025",
-    summary: "Our flagship annual exhibition showcasing the best work from Gaspo Studios' 2025 portfolio — weddings, portraits, and commercial campaigns under one roof.",
-    description: "In December 2025, we transformed the Terra Kulture gallery into a visual journey through a year of storytelling. Over 300 guests walked through six curated rooms, each dedicated to a different photography genre. The evening featured a fireside chat with Marco Gaspo, live portfolio reviews, and the announcement of our 2026 mentorship programme winners.",
-    objectives: ["Showcase the year's best photography work", "Connect with the Lagos creative community", "Announce the 2026 mentorship programme", "Inspire the next generation of photographers"],
-    outcomes: ["300+ attendees", "15 mentorship applications received", "Featured in 3 Lagos lifestyle magazines", "Secured 2 corporate exhibition sponsors for 2026"],
-    topics: ["Wedding photography", "Portrait artistry", "Commercial campaigns", "Documentary storytelling"],
-    target_audience: "Photography enthusiasts, art collectors, creative professionals, and the general public.",
+    summary:
+      "Our flagship annual exhibition showcasing the best work from Gaspo Studios' 2025 portfolio — weddings, portraits, and commercial campaigns under one roof.",
+    description:
+      "In December 2025, we transformed the Terra Kulture gallery into a visual journey through a year of storytelling. Over 300 guests walked through six curated rooms, each dedicated to a different photography genre. The evening featured a fireside chat with Marco Gaspo, live portfolio reviews, and the announcement of our 2026 mentorship programme winners.",
+    objectives: [
+      "Showcase the year's best photography work",
+      "Connect with the Lagos creative community",
+      "Announce the 2026 mentorship programme",
+      "Inspire the next generation of photographers",
+    ],
+    outcomes: [
+      "300+ attendees",
+      "15 mentorship applications received",
+      "Featured in 3 Lagos lifestyle magazines",
+      "Secured 2 corporate exhibition sponsors for 2026",
+    ],
+    topics: [
+      "Wedding photography",
+      "Portrait artistry",
+      "Commercial campaigns",
+      "Documentary storytelling",
+    ],
+    target_audience:
+      "Photography enthusiasts, art collectors, creative professionals, and the general public.",
     category: "Exhibition",
     type: "physical",
     status: "completed",
@@ -951,7 +1204,11 @@ const events = [
     city: "Victoria Island, Lagos",
     country: "Nigeria",
     banner_image: "/images/events_crowd.webp",
-    gallery_images: ["/images/events_crowd.webp", "/images/wedding_couple.webp", "/images/portrait_woman.webp"],
+    gallery_images: [
+      "/images/events_crowd.webp",
+      "/images/wedding_couple.webp",
+      "/images/portrait_woman.webp",
+    ],
     speakers: [
       {
         id: "spk-005",
@@ -978,7 +1235,8 @@ const events = [
     featured: true,
     seo: {
       title: "The Art of Photography Exhibition 2025 — Gaspo Studios",
-      description: "Relive our 2025 annual photography exhibition at Terra Kulture, Lagos. 300+ guests, six curated rooms, and an unforgettable evening of visual storytelling.",
+      description:
+        "Relive our 2025 annual photography exhibition at Terra Kulture, Lagos. 300+ guests, six curated rooms, and an unforgettable evening of visual storytelling.",
     },
     created_at: "2025-11-01T09:00:00Z",
     updated_at: "2025-12-09T08:00:00Z",
@@ -987,12 +1245,28 @@ const events = [
     id: "evt-005",
     slug: "corporate-photography-summit-q4-2025",
     title: "Corporate Photography Summit — Q4 2025",
-    summary: "A half-day summit for corporate communications professionals, HR leaders, and brand managers on leveraging professional photography for employer branding and corporate storytelling.",
-    description: "In partnership with the Lagos Chamber of Commerce, we hosted 120 corporate leaders for an intensive afternoon on the power of visual storytelling in business. Sessions covered executive portraiture best practices, event coverage strategy, and the ROI of professional brand imagery. Each attendee received a complimentary headshot session voucher.",
-    objectives: ["Educate corporate leaders on the ROI of professional photography", "Demonstrate best practices for executive portraiture", "Build relationships with Lagos' business community"],
-    outcomes: ["118 corporate leaders attended", "12 follow-up corporate bookings generated", "Partnership established with Lagos Chamber of Commerce"],
-    topics: ["Executive portraiture", "Event coverage strategy", "Brand imagery ROI", "Corporate visual identity"],
-    target_audience: "Corporate communications professionals, HR directors, brand managers, and business owners.",
+    summary:
+      "A half-day summit for corporate communications professionals, HR leaders, and brand managers on leveraging professional photography for employer branding and corporate storytelling.",
+    description:
+      "In partnership with the Lagos Chamber of Commerce, we hosted 120 corporate leaders for an intensive afternoon on the power of visual storytelling in business. Sessions covered executive portraiture best practices, event coverage strategy, and the ROI of professional brand imagery. Each attendee received a complimentary headshot session voucher.",
+    objectives: [
+      "Educate corporate leaders on the ROI of professional photography",
+      "Demonstrate best practices for executive portraiture",
+      "Build relationships with Lagos' business community",
+    ],
+    outcomes: [
+      "118 corporate leaders attended",
+      "12 follow-up corporate bookings generated",
+      "Partnership established with Lagos Chamber of Commerce",
+    ],
+    topics: [
+      "Executive portraiture",
+      "Event coverage strategy",
+      "Brand imagery ROI",
+      "Corporate visual identity",
+    ],
+    target_audience:
+      "Corporate communications professionals, HR directors, brand managers, and business owners.",
     category: "Corporate",
     type: "physical",
     status: "completed",
@@ -1027,8 +1301,16 @@ const events = [
     ],
     agenda: [
       { time: "12:00", title: "Registration & Lunch" },
-      { time: "13:00", title: "Keynote: 'Visual Branding in the Digital Age'", speaker: "Marco Gaspo" },
-      { time: "14:00", title: "Workshop: 'Planning Your Corporate Photoshoot'", speaker: "Aisha Bello" },
+      {
+        time: "13:00",
+        title: "Keynote: 'Visual Branding in the Digital Age'",
+        speaker: "Marco Gaspo",
+      },
+      {
+        time: "14:00",
+        title: "Workshop: 'Planning Your Corporate Photoshoot'",
+        speaker: "Aisha Bello",
+      },
       { time: "15:30", title: "Live Demo: Executive Portraiture" },
       { time: "16:30", title: "Networking Reception" },
     ],
@@ -1040,7 +1322,8 @@ const events = [
     featured: false,
     seo: {
       title: "Corporate Photography Summit Q4 2025 — Gaspo Studios",
-      description: "120 corporate leaders gathered for a half-day summit on professional photography for employer branding. Hosted at Lagos Chamber of Commerce.",
+      description:
+        "120 corporate leaders gathered for a half-day summit on professional photography for employer branding. Hosted at Lagos Chamber of Commerce.",
     },
     created_at: "2025-10-01T09:00:00Z",
     updated_at: "2025-11-16T10:00:00Z",
@@ -1049,12 +1332,23 @@ const events = [
     id: "evt-006",
     slug: "lagos-creatives-mixer-september-2025",
     title: "Lagos Creatives Mixer — September 2025",
-    summary: "An informal evening bringing together photographers, designers, stylists, and content creators for drinks, conversation, and collaboration.",
-    description: "Our quarterly creative mixer returned with its biggest turnout yet — 65 creatives from across Lagos gathered at our Ikoyi studio for an evening of genuine connection. No panels, no keynotes — just good people, great music, and the kind of conversations that spark collaborations. Special thanks to our drinks sponsor, Jameson.",
-    objectives: ["Bring together Lagos' creative community", "Foster collaboration between photographers, designers, and stylists", "Create an informal space for organic networking"],
-    outcomes: ["65 creatives attended (sold out)", "3 collaborative projects initiated", "Strong repeat attendance — 40% were returning guests"],
+    summary:
+      "An informal evening bringing together photographers, designers, stylists, and content creators for drinks, conversation, and collaboration.",
+    description:
+      "Our quarterly creative mixer returned with its biggest turnout yet — 65 creatives from across Lagos gathered at our Ikoyi studio for an evening of genuine connection. No panels, no keynotes — just good people, great music, and the kind of conversations that spark collaborations. Special thanks to our drinks sponsor, Jameson.",
+    objectives: [
+      "Bring together Lagos' creative community",
+      "Foster collaboration between photographers, designers, and stylists",
+      "Create an informal space for organic networking",
+    ],
+    outcomes: [
+      "65 creatives attended (sold out)",
+      "3 collaborative projects initiated",
+      "Strong repeat attendance — 40% were returning guests",
+    ],
     topics: ["Creative networking", "Cross-industry collaboration", "Lagos creative scene"],
-    target_audience: "Photographers, designers, stylists, content creators, and creative entrepreneurs in Lagos.",
+    target_audience:
+      "Photographers, designers, stylists, content creators, and creative entrepreneurs in Lagos.",
     category: "Networking",
     type: "physical",
     status: "completed",
@@ -1081,7 +1375,8 @@ const events = [
     featured: false,
     seo: {
       title: "Lagos Creatives Mixer September 2025 — Gaspo Studios",
-      description: "65 Lagos creatives gathered at Gaspo Studios for an evening of networking, collaboration, and genuine connection. Sold out.",
+      description:
+        "65 Lagos creatives gathered at Gaspo Studios for an evening of networking, collaboration, and genuine connection. Sold out.",
     },
     created_at: "2025-08-15T09:00:00Z",
     updated_at: "2025-09-21T08:00:00Z",
@@ -1090,12 +1385,29 @@ const events = [
     id: "evt-007",
     slug: "mobile-photography-workshop-august-2025",
     title: "Mobile Photography Workshop — August 2025",
-    summary: "A practical workshop teaching content creators and small business owners how to capture professional-quality images using only their smartphones.",
-    description: "Not everyone has a DSLR — but everyone has a phone. This sold-out workshop taught 40 participants the fundamentals of composition, lighting, and editing using nothing but their smartphone cameras. Attendees left with a 30-page mobile photography guide, hands-on practice with product flat-lays, and edited images ready for social media.",
-    objectives: ["Teach mobile photography fundamentals", "Demonstrate composition and lighting techniques", "Equip small business owners with practical photography skills"],
-    outcomes: ["40 participants trained (sold out)", "30-page mobile photography guide distributed", "95% satisfaction rating in post-event survey"],
-    topics: ["Smartphone camera basics", "Composition rules", "Natural lighting techniques", "Mobile editing apps", "Product flat-lay photography"],
-    target_audience: "Content creators, small business owners, social media managers, and anyone wanting to improve their mobile photography.",
+    summary:
+      "A practical workshop teaching content creators and small business owners how to capture professional-quality images using only their smartphones.",
+    description:
+      "Not everyone has a DSLR — but everyone has a phone. This sold-out workshop taught 40 participants the fundamentals of composition, lighting, and editing using nothing but their smartphone cameras. Attendees left with a 30-page mobile photography guide, hands-on practice with product flat-lays, and edited images ready for social media.",
+    objectives: [
+      "Teach mobile photography fundamentals",
+      "Demonstrate composition and lighting techniques",
+      "Equip small business owners with practical photography skills",
+    ],
+    outcomes: [
+      "40 participants trained (sold out)",
+      "30-page mobile photography guide distributed",
+      "95% satisfaction rating in post-event survey",
+    ],
+    topics: [
+      "Smartphone camera basics",
+      "Composition rules",
+      "Natural lighting techniques",
+      "Mobile editing apps",
+      "Product flat-lay photography",
+    ],
+    target_audience:
+      "Content creators, small business owners, social media managers, and anyone wanting to improve their mobile photography.",
     category: "Workshop",
     type: "physical",
     status: "completed",
@@ -1134,7 +1446,8 @@ const events = [
     featured: false,
     seo: {
       title: "Mobile Photography Workshop August 2025 — Gaspo Studios",
-      description: "Sold-out workshop teaching 40 participants professional-quality mobile photography. Smartphone composition, lighting, and editing.",
+      description:
+        "Sold-out workshop teaching 40 participants professional-quality mobile photography. Smartphone composition, lighting, and editing.",
     },
     created_at: "2025-07-01T09:00:00Z",
     updated_at: "2025-08-11T10:00:00Z",
@@ -1144,12 +1457,32 @@ const events = [
     id: "evt-008",
     slug: "creative-business-bootcamp-october-2026",
     title: "Creative Business Bootcamp — October 2026",
-    summary: "A two-day intensive bootcamp for photographers and creatives ready to turn their craft into a sustainable, profitable business.",
-    description: "Over two packed days, Marco Gaspo and guest speakers from finance, legal, and marketing will walk you through the business side of creativity — pricing strategies, client contracts, tax planning, social media marketing, and scaling your studio without burning out. Includes one-on-one portfolio and business plan reviews.",
-    objectives: ["Teach profitable pricing strategies", "Cover client contracts and IP protection", "Provide tax and finance basics for creatives", "Develop marketing and scaling strategies"],
-    outcomes: ["Comprehensive business plan template", "Client contract template", "Pricing calculator tool", "Certificate of completion"],
-    topics: ["Pricing your work profitably", "Client contracts and IP rights", "Marketing on a budget", "Tax basics for freelancers", "Scaling from solo to studio", "Avoiding creative burnout"],
-    target_audience: "Photographers, designers, and creative professionals ready to build sustainable businesses.",
+    summary:
+      "A two-day intensive bootcamp for photographers and creatives ready to turn their craft into a sustainable, profitable business.",
+    description:
+      "Over two packed days, Marco Gaspo and guest speakers from finance, legal, and marketing will walk you through the business side of creativity — pricing strategies, client contracts, tax planning, social media marketing, and scaling your studio without burning out. Includes one-on-one portfolio and business plan reviews.",
+    objectives: [
+      "Teach profitable pricing strategies",
+      "Cover client contracts and IP protection",
+      "Provide tax and finance basics for creatives",
+      "Develop marketing and scaling strategies",
+    ],
+    outcomes: [
+      "Comprehensive business plan template",
+      "Client contract template",
+      "Pricing calculator tool",
+      "Certificate of completion",
+    ],
+    topics: [
+      "Pricing your work profitably",
+      "Client contracts and IP rights",
+      "Marketing on a budget",
+      "Tax basics for freelancers",
+      "Scaling from solo to studio",
+      "Avoiding creative burnout",
+    ],
+    target_audience:
+      "Photographers, designers, and creative professionals ready to build sustainable businesses.",
     category: "Workshop",
     type: "physical",
     status: "upcoming",
@@ -1194,7 +1527,8 @@ const events = [
     featured: false,
     seo: {
       title: "Creative Business Bootcamp October 2026 — Gaspo Studios Workshop",
-      description: "Two-day intensive bootcamp for photographers. Pricing, contracts, tax, marketing, and scaling. Limited to 20 participants.",
+      description:
+        "Two-day intensive bootcamp for photographers. Pricing, contracts, tax, marketing, and scaling. Limited to 20 participants.",
     },
     created_at: "2026-05-15T09:00:00Z",
     updated_at: "2026-05-20T10:00:00Z",
@@ -1203,12 +1537,29 @@ const events = [
     id: "evt-009",
     slug: "end-of-year-portfolio-review-gala-2026",
     title: "End-of-Year Portfolio Review & Gala 2026",
-    summary: "Close the year with Gaspo Studios at our annual portfolio review night — featuring expert critique, champagne, and the announcement of our 2027 exhibition theme.",
-    description: "Our most anticipated event of the year returns. Submit up to 10 of your best 2026 images for live critique from the Gaspo Studios team and guest judges. The evening culminates in awards for Best Wedding Image, Best Portrait, Best Commercial Work, and the People's Choice award. Black tie optional — champagne mandatory.",
-    objectives: ["Celebrate the year's best photography", "Provide expert portfolio critique", "Announce the 2027 exhibition theme", "Award outstanding work across categories"],
-    outcomes: ["4 category awards presented", "2027 exhibition theme revealed", "Networking with Lagos' photography elite"],
-    topics: ["Portfolio critique", "Photography awards", "Year-in-review", "2027 creative direction"],
-    target_audience: "Professional and aspiring photographers, creative directors, and photography enthusiasts.",
+    summary:
+      "Close the year with Gaspo Studios at our annual portfolio review night — featuring expert critique, champagne, and the announcement of our 2027 exhibition theme.",
+    description:
+      "Our most anticipated event of the year returns. Submit up to 10 of your best 2026 images for live critique from the Gaspo Studios team and guest judges. The evening culminates in awards for Best Wedding Image, Best Portrait, Best Commercial Work, and the People's Choice award. Black tie optional — champagne mandatory.",
+    objectives: [
+      "Celebrate the year's best photography",
+      "Provide expert portfolio critique",
+      "Announce the 2027 exhibition theme",
+      "Award outstanding work across categories",
+    ],
+    outcomes: [
+      "4 category awards presented",
+      "2027 exhibition theme revealed",
+      "Networking with Lagos' photography elite",
+    ],
+    topics: [
+      "Portfolio critique",
+      "Photography awards",
+      "Year-in-review",
+      "2027 creative direction",
+    ],
+    target_audience:
+      "Professional and aspiring photographers, creative directors, and photography enthusiasts.",
     category: "Networking",
     type: "physical",
     status: "upcoming",
@@ -1258,7 +1609,8 @@ const events = [
     featured: true,
     seo: {
       title: "End-of-Year Portfolio Review & Gala 2026 — Gaspo Studios",
-      description: "Annual portfolio review night with expert critique, champagne, and photography awards. Limited tickets. Black tie optional.",
+      description:
+        "Annual portfolio review night with expert critique, champagne, and photography awards. Limited tickets. Black tie optional.",
     },
     created_at: "2026-05-20T09:00:00Z",
     updated_at: "2026-05-25T14:00:00Z",
@@ -1273,10 +1625,10 @@ async function main() {
   console.log("─".repeat(50));
 
   const results = await Promise.allSettled([
-    upsertTable("blog_posts",     blogPosts,     "slug"),
+    upsertTable("blog_posts", blogPosts, "slug"),
     upsertTable("gallery_images", galleryImages, "id"),
-    upsertTable("bookings",       bookings,      "id"),
-    upsertTable("events",         events,        "slug"),
+    upsertTable("bookings", bookings, "id"),
+    upsertTable("events", events, "slug"),
   ]);
 
   console.log("\n─".repeat(50));

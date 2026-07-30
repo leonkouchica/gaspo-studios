@@ -37,7 +37,9 @@ export const fetchAnalyticsSummary = createServerFn({ method: "GET" })
       .eq("read", false);
 
     if (err1 || err2 || err3 || err4) {
-      throw new Error(`Analytics fetch failed: ${err1?.message || err2?.message || err3?.message || err4?.message}`);
+      throw new Error(
+        `Analytics fetch failed: ${err1?.message || err2?.message || err3?.message || err4?.message}`,
+      );
     }
 
     // 2. Total completed revenue (filtered by date range)

@@ -33,7 +33,7 @@ export function ScrollReveal({
       {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px", // Trigger slightly before the element is fully in view
-      }
+      },
     );
 
     if (ref.current) {
@@ -42,7 +42,6 @@ export function ScrollReveal({
 
     return () => {
       if (ref.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         if (ref.current) {
           observer.unobserve(ref.current);
         }

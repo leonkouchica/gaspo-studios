@@ -2,10 +2,31 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  MapPin, CalendarDays, Clock, Users, ArrowRight, Share2,
-  Linkedin, Twitter, Facebook, ExternalLink, ChevronDown,
-  Check, X, Award, Zap, Network, Lightbulb,
-  Globe, Wifi, Landmark, Phone, Mail, Send, Loader2, CreditCard,
+  MapPin,
+  CalendarDays,
+  Clock,
+  Users,
+  ArrowRight,
+  Share2,
+  Linkedin,
+  Twitter,
+  Facebook,
+  ExternalLink,
+  ChevronDown,
+  Check,
+  X,
+  Award,
+  Zap,
+  Network,
+  Lightbulb,
+  Globe,
+  Wifi,
+  Landmark,
+  Phone,
+  Mail,
+  Send,
+  Loader2,
+  CreditCard,
 } from "lucide-react";
 import { type Event, type Speaker, type SponsorPackage } from "../../data/events";
 import { fetchEvent, registerForEvent } from "../../lib/actions/events";
@@ -25,14 +46,14 @@ export const Route = createFileRoute("/events/$eventId")({
   },
   head: ({ loaderData: event }) => {
     if (!event) return { meta: [{ title: "Event Not Found" }] };
-    
+
     const pathname = `/events/${event.slug}`;
-    
+
     return {
       meta: [
         { title: `${event.seo?.title || event.title} — Gaspo Studios` },
         { name: "description", content: event.seo?.description || event.summary },
-        
+
         /* OpenGraph / Facebook */
         { property: "og:type", content: "website" },
         { property: "og:url", content: `https://www.gaspostudios.com${pathname}` },
@@ -41,7 +62,7 @@ export const Route = createFileRoute("/events/$eventId")({
         { property: "og:image", content: event.seo?.ogImage || event.bannerImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
-        
+
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:url", content: `https://www.gaspostudios.com${pathname}` },
@@ -58,7 +79,10 @@ export const Route = createFileRoute("/events/$eventId")({
       <div>
         <h1 className="text-5xl font-bold">Event Not Found</h1>
         <p className="text-white/60 mt-4">This event doesn't exist or has been removed.</p>
-        <Link to="/events" className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium">
+        <Link
+          to="/events"
+          className="mt-8 inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-medium"
+        >
           Browse Events <ArrowRight size={16} />
         </Link>
       </div>
@@ -78,7 +102,7 @@ function useCountdown(targetDate: string) {
         if (isNaN(time)) time = new Date(safeDate).getTime();
       }
     }
-    
+
     const diff = time - Date.now();
     if (isNaN(diff) || diff <= 0) return { days: 0, hours: 0, mins: 0, secs: 0 };
     return {
@@ -103,7 +127,9 @@ function useCountdown(targetDate: string) {
 // ─── SPEAKER MODAL ───────────────────────────────────────────────────────────
 function SpeakerModal({ speaker, onClose }: { speaker: Speaker; onClose: () => void }) {
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const fn = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", fn);
     return () => document.removeEventListener("keydown", fn);
   }, [onClose]);
@@ -123,21 +149,33 @@ function SpeakerModal({ speaker, onClose }: { speaker: Speaker; onClose: () => v
         >
           <X size={16} />
         </button>
-        <img src={speaker.photo} alt={speaker.name} className="w-24 h-24 rounded-2xl object-cover object-top" />
+        <img
+          src={speaker.photo}
+          alt={speaker.name}
+          className="w-24 h-24 rounded-2xl object-cover object-top"
+        />
         <h3 className="text-xl font-bold text-dark mt-4">{speaker.name}</h3>
         <p className="text-primary text-sm font-medium">{speaker.title}</p>
         <p className="text-muted-foreground text-sm">{speaker.company}</p>
         <p className="text-dark text-sm leading-relaxed mt-4">{speaker.bio}</p>
         <div className="flex gap-2 mt-5">
           {speaker.linkedin && (
-            <a href={speaker.linkedin} target="_blank" rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full bg-muted hover:bg-primary hover:text-white text-dark flex items-center justify-center transition-colors">
+            <a
+              href={speaker.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-muted hover:bg-primary hover:text-white text-dark flex items-center justify-center transition-colors"
+            >
               <Linkedin size={15} />
             </a>
           )}
           {speaker.twitter && (
-            <a href={speaker.twitter} target="_blank" rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full bg-muted hover:bg-primary hover:text-white text-dark flex items-center justify-center transition-colors">
+            <a
+              href={speaker.twitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-muted hover:bg-primary hover:text-white text-dark flex items-center justify-center transition-colors"
+            >
               <Twitter size={15} />
             </a>
           )}
@@ -148,15 +186,25 @@ function SpeakerModal({ speaker, onClose }: { speaker: Speaker; onClose: () => v
 }
 
 // ─── SPONSORSHIP CARD ────────────────────────────────────────────────────────
-function SponsorCard({ pkg, onSelect }: { pkg: SponsorPackage; onSelect: (pkg: SponsorPackage) => void }) {
+function SponsorCard({
+  pkg,
+  onSelect,
+}: {
+  pkg: SponsorPackage;
+  onSelect: (pkg: SponsorPackage) => void;
+}) {
   return (
-    <div className={`rounded-2xl border p-6 flex flex-col ${pkg.highlighted ? "bg-dark text-white border-primary shadow-xl shadow-primary/20 scale-[1.02]" : "bg-white border-border"}`}>
+    <div
+      className={`rounded-2xl border p-6 flex flex-col ${pkg.highlighted ? "bg-dark text-white border-primary shadow-xl shadow-primary/20 scale-[1.02]" : "bg-white border-border"}`}
+    >
       {pkg.highlighted && (
         <span className="self-start bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
           ⭐ Most Popular
         </span>
       )}
-      <h4 className={`text-lg font-bold ${pkg.highlighted ? "text-white" : "text-dark"}`}>{pkg.name}</h4>
+      <h4 className={`text-lg font-bold ${pkg.highlighted ? "text-white" : "text-dark"}`}>
+        {pkg.name}
+      </h4>
       <p className={`text-3xl font-bold mt-2 ${pkg.highlighted ? "text-primary" : "text-dark"}`}>
         ₦{pkg.price.toLocaleString()}
       </p>
@@ -179,7 +227,17 @@ function SponsorCard({ pkg, onSelect }: { pkg: SponsorPackage; onSelect: (pkg: S
 }
 
 // ─── SPONSOR CHECKOUT ────────────────────────────────────────────────────────
-function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg: SponsorPackage; onBack: () => void; onSuccess: () => void }) {
+function SponsorCheckout({
+  event,
+  pkg,
+  onBack,
+  onSuccess,
+}: {
+  event: Event;
+  pkg: SponsorPackage;
+  onBack: () => void;
+  onSuccess: () => void;
+}) {
   const [step, setStep] = useState<"info" | "confirm" | "paying">("info");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -231,20 +289,35 @@ function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg:
       {step === "info" && (
         <>
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={onBack} className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors">
+            <button
+              onClick={onBack}
+              className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors"
+            >
               <X size={14} />
             </button>
             <div>
               <h3 className="font-bold text-lg">Sponsor This Event</h3>
-              <p className="text-sm text-muted-foreground">{pkg.name} — ₦{pkg.price.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">
+                {pkg.name} — ₦{pkg.price.toLocaleString()}
+              </p>
             </div>
           </div>
           <div className="space-y-4">
             {[
               { key: "companyName", label: "Company Name *", placeholder: "Your Company Ltd" },
               { key: "contactName", label: "Contact Person *", placeholder: "Full Name" },
-              { key: "contactEmail", label: "Email Address *", placeholder: "you@company.com", type: "email" },
-              { key: "contactPhone", label: "Phone Number *", placeholder: "+234 800 000 0000", type: "tel" },
+              {
+                key: "contactEmail",
+                label: "Email Address *",
+                placeholder: "you@company.com",
+                type: "email",
+              },
+              {
+                key: "contactPhone",
+                label: "Phone Number *",
+                placeholder: "+234 800 000 0000",
+                type: "tel",
+              },
             ].map(({ key, label, placeholder, type }) => (
               <div key={key}>
                 <label className="text-sm font-semibold text-dark block mb-1.5">{label}</label>
@@ -270,20 +343,41 @@ function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg:
       {step === "confirm" && (
         <>
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => setStep("info")} className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors">
+            <button
+              onClick={() => setStep("info")}
+              className="w-8 h-8 rounded-full bg-muted hover:bg-dark hover:text-white flex items-center justify-center transition-colors"
+            >
               <ArrowRight size={14} className="rotate-180" />
             </button>
             <h3 className="font-bold text-lg">Confirm Sponsorship</h3>
           </div>
           <div className="space-y-3 mb-6">
             <div className="bg-muted/50 rounded-2xl p-4 space-y-2">
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Event</span><span className="font-semibold">{event.title}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Package</span><span className="font-semibold">{pkg.name}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Company</span><span className="font-semibold">{form.companyName}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Contact</span><span className="font-semibold">{form.contactName}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Email</span><span className="font-semibold">{form.contactEmail}</span></div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Event</span>
+                <span className="font-semibold">{event.title}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Package</span>
+                <span className="font-semibold">{pkg.name}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Company</span>
+                <span className="font-semibold">{form.companyName}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Contact</span>
+                <span className="font-semibold">{form.contactName}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Email</span>
+                <span className="font-semibold">{form.contactEmail}</span>
+              </div>
               <hr className="border-border" />
-              <div className="flex justify-between text-base"><span className="font-bold">Total</span><span className="font-bold text-primary">₦{pkg.price.toLocaleString()}</span></div>
+              <div className="flex justify-between text-base">
+                <span className="font-bold">Total</span>
+                <span className="font-bold text-primary">₦{pkg.price.toLocaleString()}</span>
+              </div>
             </div>
             <button
               onClick={handlePay}
@@ -293,7 +387,9 @@ function SponsorCheckout({ event, pkg, onBack, onSuccess }: { event: Event; pkg:
               {loading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
               {loading ? "Processing…" : `Pay ₦${pkg.price.toLocaleString()}`}
             </button>
-            <p className="text-xs text-muted-foreground text-center">Secured by Paystack • You'll be redirected to complete payment</p>
+            <p className="text-xs text-muted-foreground text-center">
+              Secured by Paystack • You'll be redirected to complete payment
+            </p>
           </div>
         </>
       )}
@@ -307,23 +403,49 @@ function RegistrationForm({ event }: { event: Event }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    fullName: "", email: "", phone: "", company: "", jobTitle: "",
-    country: "", city: "", linkedin: "", howHeard: "", interests: [] as string[],
-    questions: "", consent: false,
+    fullName: "",
+    email: "",
+    phone: "",
+    company: "",
+    jobTitle: "",
+    country: "",
+    city: "",
+    linkedin: "",
+    howHeard: "",
+    interests: [] as string[],
+    questions: "",
+    consent: false,
   });
 
-  const interests = ["AI & Technology", "Business Innovation", "Networking", "Startups & Funding", "Research & Academia"];
+  const interests = [
+    "AI & Technology",
+    "Business Innovation",
+    "Networking",
+    "Startups & Funding",
+    "Research & Academia",
+  ];
 
   const toggleInterest = (item: string) => {
     setForm((f) => ({
       ...f,
-      interests: f.interests.includes(item) ? f.interests.filter((i) => i !== item) : [...f.interests, item],
+      interests: f.interests.includes(item)
+        ? f.interests.filter((i) => i !== item)
+        : [...f.interests, item],
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.fullName || !form.email || !form.phone || !form.company || !form.jobTitle || !form.country || !form.city || !form.howHeard) {
+    if (
+      !form.fullName ||
+      !form.email ||
+      !form.phone ||
+      !form.company ||
+      !form.jobTitle ||
+      !form.country ||
+      !form.city ||
+      !form.howHeard
+    ) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -367,7 +489,9 @@ function RegistrationForm({ event }: { event: Event }) {
         </div>
         <h3 className="text-3xl font-bold text-white">You're Registered!</h3>
         <p className="text-white/60 mt-4 max-w-sm mx-auto leading-relaxed">
-          Thank you, <strong className="text-white">{form.fullName}</strong>! A confirmation has been sent to <strong className="text-white">{form.email}</strong>. Check your inbox for your attendee ID.
+          Thank you, <strong className="text-white">{form.fullName}</strong>! A confirmation has
+          been sent to <strong className="text-white">{form.email}</strong>. Check your inbox for
+          your attendee ID.
         </p>
       </div>
     );
@@ -395,10 +519,23 @@ function RegistrationForm({ event }: { event: Event }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
-            {(["fullName", "email", "phone", "company", "jobTitle", "country", "city"] as const).map((field) => (
-              <div key={field} className={field === "email" || field === "company" || field === "jobTitle" ? "md:col-span-1" : ""}>
+            {(
+              ["fullName", "email", "phone", "company", "jobTitle", "country", "city"] as const
+            ).map((field) => (
+              <div
+                key={field}
+                className={
+                  field === "email" || field === "company" || field === "jobTitle"
+                    ? "md:col-span-1"
+                    : ""
+                }
+              >
                 <label className="text-sm text-white/60 block mb-1.5 capitalize">
-                  {field === "fullName" ? "Full Name *" : field === "jobTitle" ? "Job Title *" : `${field.charAt(0).toUpperCase() + field.slice(1)} *`}
+                  {field === "fullName"
+                    ? "Full Name *"
+                    : field === "jobTitle"
+                      ? "Job Title *"
+                      : `${field.charAt(0).toUpperCase() + field.slice(1)} *`}
                 </label>
                 <input
                   type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
@@ -407,12 +544,19 @@ function RegistrationForm({ event }: { event: Event }) {
                   required={field !== "city"}
                   className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   placeholder={
-                    field === "fullName" ? "Jane Doe" :
-                    field === "email" ? "jane@company.com" :
-                    field === "phone" ? "+234 800 000 0000" :
-                    field === "company" ? "Your Company" :
-                    field === "jobTitle" ? "Software Engineer" :
-                    field === "country" ? "Nigeria" : "Lagos"
+                    field === "fullName"
+                      ? "Jane Doe"
+                      : field === "email"
+                        ? "jane@company.com"
+                        : field === "phone"
+                          ? "+234 800 000 0000"
+                          : field === "company"
+                            ? "Your Company"
+                            : field === "jobTitle"
+                              ? "Software Engineer"
+                              : field === "country"
+                                ? "Nigeria"
+                                : "Lagos"
                   }
                 />
               </div>
@@ -430,16 +574,29 @@ function RegistrationForm({ event }: { event: Event }) {
           </div>
 
           <div>
-            <label className="text-sm text-white/60 block mb-1.5">How did you hear about this event? *</label>
+            <label className="text-sm text-white/60 block mb-1.5">
+              How did you hear about this event? *
+            </label>
             <select
               value={form.howHeard}
               onChange={(e) => setForm((f) => ({ ...f, howHeard: e.target.value }))}
               required
               className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:border-primary outline-none"
             >
-              <option value="" className="bg-dark">Select an option</option>
-              {["Social Media", "Email Newsletter", "Friend / Colleague", "Google Search", "LinkedIn", "Other"].map((o) => (
-                <option key={o} value={o} className="bg-dark">{o}</option>
+              <option value="" className="bg-dark">
+                Select an option
+              </option>
+              {[
+                "Social Media",
+                "Email Newsletter",
+                "Friend / Colleague",
+                "Google Search",
+                "LinkedIn",
+                "Other",
+              ].map((o) => (
+                <option key={o} value={o} className="bg-dark">
+                  {o}
+                </option>
               ))}
             </select>
           </div>
@@ -461,7 +618,9 @@ function RegistrationForm({ event }: { event: Event }) {
           </div>
 
           <div>
-            <label className="text-sm text-white/60 block mb-1.5">Questions for Speakers (optional)</label>
+            <label className="text-sm text-white/60 block mb-1.5">
+              Questions for Speakers (optional)
+            </label>
             <textarea
               value={form.questions}
               onChange={(e) => setForm((f) => ({ ...f, questions: e.target.value }))}
@@ -480,7 +639,8 @@ function RegistrationForm({ event }: { event: Event }) {
               className="mt-0.5 accent-primary"
             />
             <span className="text-sm text-white/60 leading-relaxed">
-              I agree to receive event communications and updates from Gaspo Studios. I can unsubscribe at any time.
+              I agree to receive event communications and updates from Gaspo Studios. I can
+              unsubscribe at any time.
             </span>
           </label>
 
@@ -489,7 +649,11 @@ function RegistrationForm({ event }: { event: Event }) {
             disabled={submitting}
             className="w-full bg-primary hover:bg-primary-hover text-white rounded-full py-4 font-bold text-base transition-all hover:scale-[1.02] shadow-lg shadow-primary/30 disabled:opacity-60 disabled:pointer-events-none"
           >
-            {submitting ? <Loader2 size={20} className="animate-spin mx-auto" /> : "Register Now — It's Free"}
+            {submitting ? (
+              <Loader2 size={20} className="animate-spin mx-auto" />
+            ) : (
+              "Register Now — It's Free"
+            )}
           </button>
         </form>
       </div>
@@ -498,7 +662,8 @@ function RegistrationForm({ event }: { event: Event }) {
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
         <h4 className="font-bold text-white text-lg">Get In Touch</h4>
         <p className="text-white/60 text-sm leading-relaxed">
-          Have questions about the event? We're here to help with registration, partnerships, or any queries.
+          Have questions about the event? We're here to help with registration, partnerships, or any
+          queries.
         </p>
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-3 text-white/70">
@@ -517,14 +682,21 @@ function RegistrationForm({ event }: { event: Event }) {
             <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
               <MapPin size={14} />
             </div>
-            <span>{event.venue},<br />{event.address}</span>
+            <span>
+              {event.venue},<br />
+              {event.address}
+            </span>
           </div>
         </div>
         <div className="pt-4 border-t border-white/10">
           <p className="text-xs text-white/40 mb-3">Follow Us</p>
           <div className="flex gap-2">
             {[Linkedin, Twitter, Facebook].map((Icon, i) => (
-              <a key={i} href="#" className="w-9 h-9 rounded-full bg-white/5 hover:bg-primary text-white/60 hover:text-white flex items-center justify-center transition-colors">
+              <a
+                key={i}
+                href="#"
+                className="w-9 h-9 rounded-full bg-white/5 hover:bg-primary text-white/60 hover:text-white flex items-center justify-center transition-colors"
+              >
                 <Icon size={14} />
               </a>
             ))}
@@ -552,7 +724,11 @@ function EventDetailPage() {
     <>
       {/* ── HERO ── */}
       <section className="relative min-h-[calc(65vh+80px)] flex items-end overflow-hidden bg-dark">
-        <img src={event.bannerImage} alt={event.title} className="absolute inset-0 w-full h-full object-cover object-top" />
+        <img
+          src={event.bannerImage}
+          alt={event.title}
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/70 to-dark/20" />
         <div className="container-x relative z-10 pt-28 pb-14 md:pt-32 w-full">
           <div className="max-w-4xl">
@@ -564,15 +740,23 @@ function EventDetailPage() {
                 <TypeIcon size={11} /> {typeLabel}
               </span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">{event.title}</h1>
+            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              {event.title}
+            </h1>
             <div className="flex flex-wrap gap-5 mt-5 text-white/70 text-sm">
               <span className="flex items-center gap-1.5">
                 <CalendarDays size={15} className="text-primary" />
-                {new Date(event.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                {new Date(event.date).toLocaleDateString("en-GB", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={15} className="text-primary" />
-                {event.time}{event.endTime ? ` – ${event.endTime}` : ""}
+                {event.time}
+                {event.endTime ? ` – ${event.endTime}` : ""}
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin size={15} className="text-primary" />
@@ -585,20 +769,26 @@ function EventDetailPage() {
             </div>
             <div className="flex flex-wrap gap-3 mt-7">
               {event.registrationOpen && (
-                <a href="#register" className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30">
-                  Register Now <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <a
+                  href="#register"
+                  className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                >
+                  Register Now{" "}
+                  <ArrowRight
+                    size={16}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
                 </a>
               )}
               {event.sponsorshipEnabled && (
-                <a href="#sponsorship" className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all">
+                <a
+                  href="#sponsorship"
+                  className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
+                >
                   Become a Sponsor
                 </a>
               )}
-              <ShareButton
-                title={event.title}
-                summary={event.summary}
-                variant="dark"
-              />
+              <ShareButton title={event.title} summary={event.summary} variant="dark" />
             </div>
           </div>
         </div>
@@ -609,12 +799,35 @@ function EventDetailPage() {
         <div className="container-x py-8">
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { tag: "Game-Changing", quote: "The insights shared were groundbreaking. This changed how our entire team thinks about AI strategy.", author: "Sarah M.", role: "CTO, Nexus Labs" },
-              { tag: "The Best Event!", quote: "Incredible speakers, top-tier networking, and an agenda that actually delivered value from start to finish.", author: "James K.", role: "VC Partner, AfricaFund" },
-              { tag: "Unmatched Opportunities", quote: "I made three strategic partnerships in one afternoon. The ROI on this event was immediate and measurable.", author: "Priya S.", role: "Startup Founder" },
+              {
+                tag: "Game-Changing",
+                quote:
+                  "The insights shared were groundbreaking. This changed how our entire team thinks about AI strategy.",
+                author: "Sarah M.",
+                role: "CTO, Nexus Labs",
+              },
+              {
+                tag: "The Best Event!",
+                quote:
+                  "Incredible speakers, top-tier networking, and an agenda that actually delivered value from start to finish.",
+                author: "James K.",
+                role: "VC Partner, AfricaFund",
+              },
+              {
+                tag: "Unmatched Opportunities",
+                quote:
+                  "I made three strategic partnerships in one afternoon. The ROI on this event was immediate and measurable.",
+                author: "Priya S.",
+                role: "Startup Founder",
+              },
             ].map(({ tag, quote, author, role }) => (
-              <div key={tag} className="bg-dark-secondary rounded-2xl border border-border-dark p-5">
-                <span className="text-xs font-bold text-primary uppercase tracking-widest">{tag}</span>
+              <div
+                key={tag}
+                className="bg-dark-secondary rounded-2xl border border-border-dark p-5"
+              >
+                <span className="text-xs font-bold text-primary uppercase tracking-widest">
+                  {tag}
+                </span>
                 <p className="text-white/80 text-sm mt-3 leading-relaxed line-clamp-3">"{quote}"</p>
                 <div className="mt-4 flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">
@@ -643,7 +856,9 @@ function EventDetailPage() {
                 </p>
                 <h2 className="text-3xl md:text-4xl font-bold text-dark mt-3">{event.title}</h2>
                 <div className="text-muted-foreground mt-5 leading-relaxed space-y-4">
-                  {event.description.split("\n\n").map((p, i) => <p key={i}>{p}</p>)}
+                  {event.description.split("\n\n").map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
                 </div>
               </ScrollReveal>
 
@@ -653,7 +868,10 @@ function EventDetailPage() {
                   <h3 className="font-bold text-dark text-xl mb-4">Event Objectives</h3>
                   <ul className="space-y-2">
                     {event.objectives.map((obj) => (
-                      <li key={obj} className="flex items-start gap-3 text-muted-foreground text-sm">
+                      <li
+                        key={obj}
+                        className="flex items-start gap-3 text-muted-foreground text-sm"
+                      >
                         <Check size={15} className="text-primary mt-0.5 shrink-0" />
                         {obj}
                       </li>
@@ -668,7 +886,10 @@ function EventDetailPage() {
                   <h3 className="font-bold text-dark text-xl mb-4">Topics to be Discussed</h3>
                   <div className="flex flex-wrap gap-2">
                     {event.topics.map((t) => (
-                      <span key={t} className="bg-primary/10 text-primary rounded-full px-3.5 py-1.5 text-sm font-medium">
+                      <span
+                        key={t}
+                        className="bg-primary/10 text-primary rounded-full px-3.5 py-1.5 text-sm font-medium"
+                      >
                         {t}
                       </span>
                     ))}
@@ -680,7 +901,9 @@ function EventDetailPage() {
               <ScrollReveal delay={200} className="mt-8">
                 <div className="bg-muted/50 rounded-2xl p-5 border border-border">
                   <h3 className="font-bold text-dark mb-2">Who Should Attend</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{event.targetAudience}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {event.targetAudience}
+                  </p>
                 </div>
               </ScrollReveal>
             </div>
@@ -699,25 +922,40 @@ function EventDetailPage() {
                       className="w-full text-left"
                       onClick={() => setAgendaOpen(agendaOpen === i ? null : i)}
                     >
-                      <div className={`rounded-xl border transition-all ${agendaOpen === i ? "bg-dark border-dark" : "bg-white border-border hover:border-primary/30"} p-4`}>
+                      <div
+                        className={`rounded-xl border transition-all ${agendaOpen === i ? "bg-dark border-dark" : "bg-white border-border hover:border-primary/30"} p-4`}
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
-                            <span className={`text-xs font-bold ${agendaOpen === i ? "text-primary" : "text-primary"} whitespace-nowrap mt-0.5`}>
+                            <span
+                              className={`text-xs font-bold ${agendaOpen === i ? "text-primary" : "text-primary"} whitespace-nowrap mt-0.5`}
+                            >
                               {item.time}
                             </span>
-                            <p className={`font-semibold text-sm ${agendaOpen === i ? "text-white" : "text-dark"}`}>{item.title}</p>
+                            <p
+                              className={`font-semibold text-sm ${agendaOpen === i ? "text-white" : "text-dark"}`}
+                            >
+                              {item.title}
+                            </p>
                           </div>
                           {item.description && (
-                            <ChevronDown size={15} className={`shrink-0 mt-0.5 transition-transform ${agendaOpen === i ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
+                            <ChevronDown
+                              size={15}
+                              className={`shrink-0 mt-0.5 transition-transform ${agendaOpen === i ? "rotate-180 text-primary" : "text-muted-foreground"}`}
+                            />
                           )}
                         </div>
                         {item.speaker && (
-                          <p className={`text-xs mt-1 ml-12 ${agendaOpen === i ? "text-white/50" : "text-muted-foreground"}`}>
+                          <p
+                            className={`text-xs mt-1 ml-12 ${agendaOpen === i ? "text-white/50" : "text-muted-foreground"}`}
+                          >
                             {item.speaker}
                           </p>
                         )}
                         {agendaOpen === i && item.description && (
-                          <p className="text-white/70 text-sm mt-3 ml-12 leading-relaxed">{item.description}</p>
+                          <p className="text-white/70 text-sm mt-3 ml-12 leading-relaxed">
+                            {item.description}
+                          </p>
                         )}
                       </div>
                     </button>
@@ -735,33 +973,61 @@ function EventDetailPage() {
           <div className="container-x">
             <ScrollReveal>
               <div className="text-center max-w-2xl mx-auto mb-10">
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Attend</p>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                  Attend
+                </p>
                 <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Why Attend?</h2>
               </div>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {(event.whyAttendItems?.length ? event.whyAttendItems : [
-                { icon: Lightbulb, title: "Cutting-Edge Insights", description: "Gain frontline knowledge from leading experts reshaping industries with AI and emerging technology." },
-                { icon: Zap, title: "Hands-On Learning", description: "Participate in interactive workshops and live demos — walk away with skills you can apply immediately." },
-                { icon: Network, title: "Exclusive Networking", description: "Connect with 500+ professionals, investors, and innovators. Build partnerships that last beyond the event." },
-                { icon: Award, title: "Innovation Showcase", description: "Discover pioneering startups and products that are defining the future of business and technology." },
-              ]).map((item, i) => {
+              {(event.whyAttendItems?.length
+                ? event.whyAttendItems
+                : [
+                    {
+                      icon: Lightbulb,
+                      title: "Cutting-Edge Insights",
+                      description:
+                        "Gain frontline knowledge from leading experts reshaping industries with AI and emerging technology.",
+                    },
+                    {
+                      icon: Zap,
+                      title: "Hands-On Learning",
+                      description:
+                        "Participate in interactive workshops and live demos — walk away with skills you can apply immediately.",
+                    },
+                    {
+                      icon: Network,
+                      title: "Exclusive Networking",
+                      description:
+                        "Connect with 500+ professionals, investors, and innovators. Build partnerships that last beyond the event.",
+                    },
+                    {
+                      icon: Award,
+                      title: "Innovation Showcase",
+                      description:
+                        "Discover pioneering startups and products that are defining the future of business and technology.",
+                    },
+                  ]
+              ).map((item, i) => {
                 const Icon = (item as any).icon || Lightbulb; // default icon if none provided
                 const num = String(i + 1).padStart(2, "0");
                 return (
-                <ScrollReveal key={item.title} delay={i * 100}>
-                  <div className="bg-dark-secondary rounded-2xl border border-border-dark p-6 hover:-translate-y-1 transition-all duration-300 group h-full">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                        <Icon size={22} />
+                  <ScrollReveal key={item.title} delay={i * 100}>
+                    <div className="bg-dark-secondary rounded-2xl border border-border-dark p-6 hover:-translate-y-1 transition-all duration-300 group h-full">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                          <Icon size={22} />
+                        </div>
+                        <span className="text-5xl font-bold text-white/5">{num}</span>
                       </div>
-                      <span className="text-5xl font-bold text-white/5">{num}</span>
+                      <h4 className="text-white font-bold text-lg">{item.title}</h4>
+                      <p className="text-white/60 text-sm mt-2 leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
-                    <h4 className="text-white font-bold text-lg">{item.title}</h4>
-                    <p className="text-white/60 text-sm mt-2 leading-relaxed">{item.description}</p>
-                  </div>
-                </ScrollReveal>
-              )})}
+                  </ScrollReveal>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -818,10 +1084,17 @@ function EventDetailPage() {
         <section className="py-16 bg-white">
           <div className="container-x text-center">
             <ScrollReveal>
-              <p className="uppercase text-xs tracking-[0.25em] text-muted-foreground font-semibold mb-8">Sponsors & Partners</p>
+              <p className="uppercase text-xs tracking-[0.25em] text-muted-foreground font-semibold mb-8">
+                Sponsors & Partners
+              </p>
               <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
                 {event.sponsorLogos.map((logo, i) => (
-                  <img key={i} src={logo} alt="Sponsor Logo" className="h-16 md:h-20 object-contain grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100" />
+                  <img
+                    key={i}
+                    src={logo}
+                    alt="Sponsor Logo"
+                    className="h-16 md:h-20 object-contain grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100"
+                  />
                 ))}
               </div>
             </ScrollReveal>
@@ -835,17 +1108,26 @@ function EventDetailPage() {
           <div className="container-x">
             <ScrollReveal>
               <div className="text-center max-w-2xl mx-auto mb-10">
-                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">Sponsorship</p>
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                  Sponsorship
+                </p>
                 <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Become a Sponsor</h2>
                 <p className="text-muted-foreground mt-4 leading-relaxed">
-                  Partner with us to connect your brand with 500+ professionals, decision-makers, and innovators.
+                  Partner with us to connect your brand with 500+ professionals, decision-makers,
+                  and innovators.
                 </p>
               </div>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
               {event.sponsorPackages.map((pkg, i) => (
                 <ScrollReveal key={pkg.id} delay={i * 60}>
-                  <SponsorCard pkg={pkg} onSelect={(pkg) => { setSelectedPackage(pkg); setSponsorStep("checkout"); }} />
+                  <SponsorCard
+                    pkg={pkg}
+                    onSelect={(pkg) => {
+                      setSelectedPackage(pkg);
+                      setSponsorStep("checkout");
+                    }}
+                  />
                 </ScrollReveal>
               ))}
             </div>
@@ -870,11 +1152,14 @@ function EventDetailPage() {
       </section>
 
       {/* ── CONTACT + MAP ── */}
-      <section id="contact" className="py-16 md:py-20 bg-dark-secondary border-t border-border-dark scroll-mt-20">
+      <section
+        id="contact"
+        className="py-16 md:py-20 bg-dark-secondary border-t border-border-dark scroll-mt-20"
+      >
         <div className="container-x">
           <ScrollReveal delay={150}>
             <div className="rounded-2xl overflow-hidden h-[500px] bg-dark border border-border-dark flex items-center justify-center">
-              {event.type === 'virtual' ? (
+              {event.type === "virtual" ? (
                 <div className="text-center text-white/40">
                   <Wifi size={40} className="mx-auto mb-3 text-primary/40" />
                   <p className="text-sm">Virtual Event</p>
@@ -882,7 +1167,11 @@ function EventDetailPage() {
                 </div>
               ) : (
                 <iframe
-                  src={event.mapEmbedUrl?.includes("embed") ? event.mapEmbedUrl : `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue || ''} ${event.address || ''} ${event.city || ''}`)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  src={
+                    event.mapEmbedUrl?.includes("embed")
+                      ? event.mapEmbedUrl
+                      : `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue || ""} ${event.address || ""} ${event.city || ""}`)}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                  }
                   className="w-full h-full border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -897,7 +1186,10 @@ function EventDetailPage() {
       {/* ── BACK LINK ── */}
       <div className="py-8 bg-dark border-t border-border-dark">
         <div className="container-x">
-          <Link to="/events" className="inline-flex items-center gap-2 text-white/60 hover:text-primary text-sm transition-colors">
+          <Link
+            to="/events"
+            className="inline-flex items-center gap-2 text-white/60 hover:text-primary text-sm transition-colors"
+          >
             ← Back to All Events
           </Link>
         </div>
@@ -914,7 +1206,10 @@ function EventDetailPage() {
           <SponsorCheckout
             event={event}
             pkg={selectedPackage}
-            onBack={() => { setSponsorStep("select"); setSelectedPackage(null); }}
+            onBack={() => {
+              setSponsorStep("select");
+              setSelectedPackage(null);
+            }}
             onSuccess={() => setSponsorStep("success")}
           />
         </div>
@@ -929,11 +1224,15 @@ function EventDetailPage() {
             </div>
             <h3 className="text-2xl font-bold text-dark">Sponsorship Confirmed!</h3>
             <p className="text-muted-foreground mt-3 leading-relaxed">
-              Thank you for sponsoring <strong>{event.title}</strong> as a <strong>{selectedPackage?.name}</strong>.
-              A confirmation email will be sent to your inbox shortly.
+              Thank you for sponsoring <strong>{event.title}</strong> as a{" "}
+              <strong>{selectedPackage?.name}</strong>. A confirmation email will be sent to your
+              inbox shortly.
             </p>
             <button
-              onClick={() => { setSponsorStep("select"); setSelectedPackage(null); }}
+              onClick={() => {
+                setSponsorStep("select");
+                setSelectedPackage(null);
+              }}
               className="mt-6 bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-3 font-semibold transition-all"
             >
               Close
@@ -943,22 +1242,30 @@ function EventDetailPage() {
       )}
 
       {/* ── SPONSOR SUCCESS INLINE ── */}
-      {sponsorStep === "success" && event.sponsorshipEnabled && event.sponsorPackages.length > 0 && (
-        <section className="py-16 md:py-20 bg-green-50">
-          <div className="container-x text-center">
-            <div className="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-6">
-              <Check size={36} />
+      {sponsorStep === "success" &&
+        event.sponsorshipEnabled &&
+        event.sponsorPackages.length > 0 && (
+          <section className="py-16 md:py-20 bg-green-50">
+            <div className="container-x text-center">
+              <div className="w-20 h-20 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-6">
+                <Check size={36} />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-dark">
+                Thank You for Your Sponsorship!
+              </h2>
+              <p className="text-muted-foreground mt-4 max-w-xl mx-auto leading-relaxed">
+                Your sponsorship for <strong>{event.title}</strong> has been received. We'll be in
+                touch with event details and your sponsorship benefits soon.
+              </p>
+              <a
+                href="#register"
+                className="mt-6 inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all"
+              >
+                Register to Attend <ArrowRight size={16} />
+              </a>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-dark">Thank You for Your Sponsorship!</h2>
-            <p className="text-muted-foreground mt-4 max-w-xl mx-auto leading-relaxed">
-              Your sponsorship for <strong>{event.title}</strong> has been received. We'll be in touch with event details and your sponsorship benefits soon.
-            </p>
-            <a href="#register" className="mt-6 inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all">
-              Register to Attend <ArrowRight size={16} />
-            </a>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
     </>
   );
 }

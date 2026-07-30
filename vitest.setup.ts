@@ -7,7 +7,7 @@ vi.mock("@tanstack/react-start", () => {
         if (!fn._handler) {
           throw new Error("No handler defined for createServerFn mock");
         }
-        
+
         let validatedInput = input;
         if (fn._inputValidator) {
           if (typeof fn._inputValidator.parse === "function") {
@@ -16,7 +16,7 @@ vi.mock("@tanstack/react-start", () => {
             validatedInput = fn._inputValidator(input);
           }
         }
-        
+
         return fn._handler({ data: validatedInput });
       };
 

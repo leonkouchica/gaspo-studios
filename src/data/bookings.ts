@@ -2,12 +2,7 @@
 // Static seed data for the Book a Shoot management module.
 // Pre-typed to match planned Supabase `bookings` table schema.
 
-export type BookingStatus =
-  | "new"
-  | "reviewed"
-  | "confirmed"
-  | "completed"
-  | "cancelled";
+export type BookingStatus = "new" | "reviewed" | "confirmed" | "completed" | "cancelled";
 
 export interface Booking {
   id: string;
@@ -35,7 +30,8 @@ export const bookings: Booking[] = [
     package: "Full Day Coverage",
     preferredDate: "2026-08-15",
     preferredTime: "09:00",
-    message: "We're planning an outdoor ceremony at Lekki Conservation Centre. Would love natural light shots.",
+    message:
+      "We're planning an outdoor ceremony at Lekki Conservation Centre. Would love natural light shots.",
     status: "confirmed",
     submittedAt: "2026-05-20T14:23:00Z",
     adminNotes: "Confirmed via phone call. Deposit paid ₦1,080,000.",

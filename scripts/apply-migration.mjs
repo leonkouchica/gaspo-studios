@@ -17,7 +17,9 @@ const dbPassword = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 if (!dbPassword) {
   console.error("ERROR: SUPABASE_SERVICE_ROLE_KEY not found in environment.");
-  console.error("Make sure your .env file exists and run with: node --env-file=.env scripts/apply-migration.mjs");
+  console.error(
+    "Make sure your .env file exists and run with: node --env-file=.env scripts/apply-migration.mjs",
+  );
   process.exit(1);
 }
 
@@ -34,8 +36,14 @@ const pool = new pg.Pool({
 });
 
 async function applyMigration() {
-  const migrationPath = join(__dirname, "..", "supabase", "migrations", "006_push_subscriptions.sql");
-  
+  const migrationPath = join(
+    __dirname,
+    "..",
+    "supabase",
+    "migrations",
+    "006_push_subscriptions.sql",
+  );
+
   if (!existsSync(migrationPath)) {
     console.error(`Migration file not found: ${migrationPath}`);
     process.exit(1);
@@ -45,13 +53,15 @@ async function applyMigration() {
   console.log(`Read migration: ${migrationPath} (${sql.length} chars)`);
 
   const client = await pool.connect();
-  
+
   try {
     console.log("Connected to Supabase PostgreSQL. Executing migration...\n");
     await client.query(sql);
     console.log("✓ Migration 006_push_subscriptions applied successfully!");
     console.log("  Tables created: push_subscriptions, push_dispatch_log");
-    console.log("  Indexes: idx_push_sub_channels_blogs, idx_push_sub_channels_events, idx_push_sub_user_id");
+    console.log(
+      "  Indexes: idx_push_sub_channels_blogs, idx_push_sub_channels_events, idx_push_sub_user_id",
+    );
     console.log("  RLS policies: 5 policies created");
   } catch (err) {
     console.error("Migration failed:", err.message);

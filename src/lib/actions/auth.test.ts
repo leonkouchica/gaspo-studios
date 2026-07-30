@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  listStaffUsers,
-  createStaffUser,
-  updateUserRole,
-  deleteStaffUser,
-} from "./auth";
+import { listStaffUsers, createStaffUser, updateUserRole, deleteStaffUser } from "./auth";
 
 const mockQuery: any = {
   select: vi.fn(),
@@ -48,10 +43,12 @@ describe("Auth Server Actions", () => {
   describe("listStaffUsers", () => {
     it("should list db user roles mapped with matching emails from auth admin list", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [{ id: "role-1", user_id: "user-123", role: "editor", created_at: "2026-05-30" }],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [{ id: "role-1", user_id: "user-123", role: "editor", created_at: "2026-05-30" }],
+            error: null,
+          }),
+        );
       });
 
       mockAdmin.listUsers.mockResolvedValueOnce({
@@ -77,10 +74,12 @@ describe("Auth Server Actions", () => {
 
     it("should fall back to placeholder email if admin user listing fails", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: [{ id: "role-1", user_id: "user-123", role: "editor", created_at: "2026-05-30" }],
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: [{ id: "role-1", user_id: "user-123", role: "editor", created_at: "2026-05-30" }],
+            error: null,
+          }),
+        );
       });
 
       mockAdmin.listUsers.mockResolvedValueOnce({
@@ -104,10 +103,12 @@ describe("Auth Server Actions", () => {
       });
 
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { id: "role-2", role: "photographer", created_at: "2026-05-31" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { id: "role-2", role: "photographer", created_at: "2026-05-31" },
+            error: null,
+          }),
+        );
       });
 
       const result = await createStaffUser({
@@ -138,10 +139,12 @@ describe("Auth Server Actions", () => {
   describe("updateUserRole", () => {
     it("should update role level mapped to a userId", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({
-          data: { id: "role-1", user_id: "user-123", role: "admin", created_at: "2026-05-30" },
-          error: null,
-        }));
+        return Promise.resolve(
+          onfulfilled({
+            data: { id: "role-1", user_id: "user-123", role: "admin", created_at: "2026-05-30" },
+            error: null,
+          }),
+        );
       });
 
       const result = await updateUserRole({

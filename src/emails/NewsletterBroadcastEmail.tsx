@@ -32,7 +32,7 @@ export default function NewsletterBroadcastEmail({
                 Gaspo Studios
               </Heading>
             </Section>
-            
+
             <Section className="text-base leading-relaxed text-gray-700">
               <div dangerouslySetInnerHTML={{ __html: content }} />
             </Section>

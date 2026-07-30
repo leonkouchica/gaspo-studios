@@ -10,7 +10,11 @@ export const Route = createFileRoute("/admin/login")({
 });
 
 /** Set the Supabase session cookie so the server-side auth middleware can read it. */
-function setSessionCookie(session: { access_token: string; refresh_token: string; expires_at?: number }) {
+function setSessionCookie(session: {
+  access_token: string;
+  refresh_token: string;
+  expires_at?: number;
+}) {
   const projectRef = "fhhxbjwcgfslvbznrvab";
   const cookieName = `sb-${projectRef}-auth-token`;
   const cookieValue = btoa(JSON.stringify(session));
@@ -80,13 +84,17 @@ function AdminLoginPage() {
             <Logo light />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Admin Portal</h1>
-          <p className="text-slate-400 text-sm">Sign in to manage bookings, events, and portfolio content.</p>
+          <p className="text-slate-400 text-sm">
+            Sign in to manage bookings, events, and portfolio content.
+          </p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Email Address</label>
+            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              Email Address
+            </label>
             <div className="relative">
               <Mail size={16} className="text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
@@ -102,7 +110,9 @@ function AdminLoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Password</label>
+            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              Password
+            </label>
             <div className="relative">
               <Lock size={16} className="text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
