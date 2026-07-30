@@ -33,10 +33,9 @@ export default function NewsletterBroadcastEmail({
               </Heading>
             </Section>
             
-            <Section 
-              className="text-base leading-relaxed text-gray-700"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
+            <Section className="text-base leading-relaxed text-gray-700">
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+            </Section>
 
             <Section className="mt-12 border-t border-gray-200 pt-6 text-center">
               <Text className="text-sm text-gray-500 mb-2">
