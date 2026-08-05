@@ -537,41 +537,43 @@ function Index() {
               </div>
             </ScrollReveal>
 
-            {/* Featured video */}
-            {featuredVideo && (
-              <ScrollReveal direction="up" delay={100}>
-                <div className="mb-8">
-                  <YouTubeEmbed
-                    videoId={featuredVideo.videoId}
-                    title={featuredVideo.title}
-                    className="shadow-2xl"
-                  />
-                  {featuredVideo.title && (
-                    <p className="text-white/60 text-sm mt-3 text-center">{featuredVideo.title}</p>
-                  )}
-                </div>
-              </ScrollReveal>
-            )}
+            {/* Side-by-side layout: featured left, secondary grid right */}
+            <ScrollReveal direction="up" delay={100}>
+              <div className={`grid gap-5 items-start ${secondaryVideos.length > 0 ? "md:grid-cols-[3fr_2fr]" : ""}`}>
 
-            {/* Secondary videos */}
-            {secondaryVideos.length > 0 && (
-              <ScrollReveal direction="up" delay={200}>
-                <div className="grid md:grid-cols-3 gap-5">
-                  {secondaryVideos.map((video) => (
-                    <div key={video.id}>
-                      <YouTubeEmbed
-                        videoId={video.videoId}
-                        title={video.title}
-                        className="shadow-lg"
-                      />
-                      {video.title && (
-                        <p className="text-white/50 text-xs mt-2 line-clamp-1">{video.title}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </ScrollReveal>
-            )}
+                {/* Left — featured video */}
+                {featuredVideo && (
+                  <div>
+                    <YouTubeEmbed
+                      videoId={featuredVideo.videoId}
+                      title={featuredVideo.title}
+                      className="shadow-2xl"
+                    />
+                    {featuredVideo.title && (
+                      <p className="text-white/50 text-xs mt-2.5 text-center line-clamp-1">{featuredVideo.title}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Right — secondary videos, 2 per row */}
+                {secondaryVideos.length > 0 && (
+                  <div className="grid grid-cols-2 gap-4">
+                    {secondaryVideos.map((video) => (
+                      <div key={video.id}>
+                        <YouTubeEmbed
+                          videoId={video.videoId}
+                          title={video.title}
+                          className="shadow-lg"
+                        />
+                        {video.title && (
+                          <p className="text-white/50 text-xs mt-2 line-clamp-1">{video.title}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
 
             {/* Channel subscribe CTA */}
             {channelSettings?.showSubscribeBanner && channelSettings.channelUrl && (
