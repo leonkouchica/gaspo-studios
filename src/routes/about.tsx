@@ -82,11 +82,27 @@ function AboutPage() {
 
       <section className="pt-20 md:pt-28 pb-10 md:pb-14">
         <div className="container-x grid md:grid-cols-2 gap-12 items-center">
-          <img
-            src="/images/corporate_team.webp"
-            alt="Studio team"
-            className="rounded-2xl w-full h-[560px] object-cover"
-          />
+          {/* Left column — YouTube embed when configured, static image as fallback */}
+          {brandVideo ? (
+            <div className="w-full">
+              <YouTubeEmbed
+                videoId={brandVideo.videoId}
+                title={brandVideo.title || "Gaspo Studios — Our Story"}
+                className="shadow-2xl"
+              />
+              {brandVideo.title && (
+                <p className="text-muted-foreground text-sm mt-3 text-center">{brandVideo.title}</p>
+              )}
+            </div>
+          ) : (
+            <img
+              src="/images/corporate_team.webp"
+              alt="Studio team"
+              className="rounded-2xl w-full h-[560px] object-cover"
+            />
+          )}
+
+          {/* Right column — text content */}
           <div>
             <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
               Our Story
@@ -126,20 +142,6 @@ function AboutPage() {
               View Our Work{" "}
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-
-            {/* Brand video — only renders when admin has configured a video for the About page */}
-            {brandVideo && (
-              <div className="mt-10">
-                <YouTubeEmbed
-                  videoId={brandVideo.videoId}
-                  title={brandVideo.title || "Gaspo Studios — Our Story"}
-                  className="shadow-xl"
-                />
-                {brandVideo.title && (
-                  <p className="text-muted-foreground text-sm mt-3 text-center">{brandVideo.title}</p>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </section>
