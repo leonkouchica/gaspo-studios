@@ -28,6 +28,7 @@ import {
   Building2,
   Mail,
   Mailbox,
+  Youtube,
 } from "lucide-react";
 import { Logo } from "../components/Logo";
 import { supabase } from "../lib/supabase";
@@ -86,6 +87,7 @@ const nav = [
       { to: "/admin/homepage" as const, icon: Home, label: "Homepage" },
       { to: "/admin/blog" as const, icon: BookOpen, label: "Blog Posts" },
       { to: "/admin/gallery" as const, icon: Image, label: "Gallery" },
+      { to: "/admin/videos" as const, icon: Youtube, label: "YouTube Videos" },
       { to: "/admin/newsletter" as const, icon: Mailbox, label: "Newsletters" },
     ],
   },

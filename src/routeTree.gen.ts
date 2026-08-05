@@ -27,6 +27,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as EventsConfirmationRouteImport } from './routes/events/confirmation'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
+import { Route as AdminVideosRouteImport } from './routes/admin/videos'
 import { Route as AdminSponsorPortalRouteImport } from './routes/admin/sponsor-portal'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminNewsletterRouteImport } from './routes/admin/newsletter'
@@ -134,6 +135,11 @@ const BlogPostIdRoute = BlogPostIdRouteImport.update({
   path: '/$postId',
   getParentRoute: () => BlogRoute,
 } as any)
+const AdminVideosRoute = AdminVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSponsorPortalRoute = AdminSponsorPortalRouteImport.update({
   id: '/sponsor-portal',
   path: '/sponsor-portal',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/confirmation': typeof EventsConfirmationRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/confirmation': typeof EventsConfirmationRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
+  '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/events/confirmation': typeof EventsConfirmationRoute
@@ -344,6 +353,7 @@ export interface FileRouteTypes {
     | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
+    | '/admin/videos'
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
+    | '/admin/videos'
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/admin/newsletter'
     | '/admin/settings'
     | '/admin/sponsor-portal'
+    | '/admin/videos'
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
@@ -578,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogPostIdRouteImport
       parentRoute: typeof BlogRoute
     }
+    '/admin/videos': {
+      id: '/admin/videos'
+      path: '/videos'
+      fullPath: '/admin/videos'
+      preLoaderRoute: typeof AdminVideosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/sponsor-portal': {
       id: '/admin/sponsor-portal'
       path: '/sponsor-portal'
@@ -700,6 +719,7 @@ interface AdminRouteChildren {
   AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSponsorPortalRoute: typeof AdminSponsorPortalRoute
+  AdminVideosRoute: typeof AdminVideosRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminEventsNewRoute: typeof AdminEventsNewRoute
@@ -720,6 +740,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminNewsletterRoute: AdminNewsletterRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSponsorPortalRoute: AdminSponsorPortalRoute,
+  AdminVideosRoute: AdminVideosRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
   AdminEventsNewRoute: AdminEventsNewRoute,

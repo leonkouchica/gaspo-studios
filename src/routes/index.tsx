@@ -15,9 +15,13 @@ import {
   Aperture,
   ImageIcon,
   Zap,
+  Youtube,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ScrollReveal } from "../components/ScrollReveal";
+import { fetchYouTubeVideos, fetchChannelSettings, type YouTubeVideo, type ChannelSettings } from "../lib/actions/videos";
+import { YouTubeEmbed } from "../components/YouTubeEmbed";
+import { VideoGrid } from "../components/VideoGrid";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -119,6 +123,9 @@ const heroSlides = [
 function Index() {
   const [open, setOpen] = useState(0);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+  const [featuredVideo, setFeaturedVideo] = useState<YouTubeVideo | null>(null);
+  const [channelSettings, setChannelSettings] = useState<ChannelSettings | null>(null);
 
   // Auto-advance slides
   useEffect(() => {
@@ -127,6 +134,28 @@ function Index() {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  // Fetch YouTube videos for homepage
+  const loadVideos = useCallback(async () => {
+    try {
+      const [allVideos, channel] = await Promise.all([
+        fetchYouTubeVideos({ data: { placement: "homepage" } }),
+        fetchChannelSettings(),
+      ]);
+      const vids = allVideos as YouTubeVideo[];
+      setVideos(vids);
+      setFeaturedVideo(vids.find((v) => v.featured) ?? vids[0] ?? null);
+      setChannelSettings(channel as ChannelSettings);
+    } catch {
+      // No videos configured — section stays hidden
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVideos();
+  }, [loadVideos]);
+
+  const secondaryVideos = videos.filter((v) => v.id !== featuredVideo?.id).slice(0, 3);
 
   return (
     <>
@@ -482,6 +511,92 @@ function Index() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* ─── YOUTUBE VIDEOS ─── */}
+      {videos.length > 0 && (
+        <section className="pt-12 pb-12 md:pt-16 md:pb-16 bg-dark text-white overflow-hidden">
+          <div className="container-x">
+            {/* Header */}
+            <ScrollReveal>
+              <div className="grid md:grid-cols-2 gap-8 items-end mb-12">
+                <div>
+                  <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
+                    <span className="inline-block w-6 h-px bg-primary" />
+                    Behind the Lens
+                  </p>
+                  <h2 className="text-4xl md:text-5xl font-bold mt-4 leading-tight">
+                    See Our Work in Motion
+                  </h2>
+                </div>
+                <div className="md:text-right md:pb-1">
+                  <p className="text-white/60 text-base leading-relaxed">
+                    Go beyond the still frame — watch our highlight reels, behind-the-scenes coverage,
+                    and studio stories.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Featured video */}
+            {featuredVideo && (
+              <ScrollReveal direction="up" delay={100}>
+                <div className="mb-8">
+                  <YouTubeEmbed
+                    videoId={featuredVideo.videoId}
+                    title={featuredVideo.title}
+                    className="shadow-2xl"
+                  />
+                  {featuredVideo.title && (
+                    <p className="text-white/60 text-sm mt-3 text-center">{featuredVideo.title}</p>
+                  )}
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* Secondary videos */}
+            {secondaryVideos.length > 0 && (
+              <ScrollReveal direction="up" delay={200}>
+                <div className="grid md:grid-cols-3 gap-5">
+                  {secondaryVideos.map((video) => (
+                    <div key={video.id}>
+                      <YouTubeEmbed
+                        videoId={video.videoId}
+                        title={video.title}
+                        className="shadow-lg"
+                      />
+                      {video.title && (
+                        <p className="text-white/50 text-xs mt-2 line-clamp-1">{video.title}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* Channel subscribe CTA */}
+            {channelSettings?.showSubscribeBanner && channelSettings.channelUrl && (
+              <ScrollReveal direction="none" delay={300}>
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <div className="flex items-center gap-3">
+                    <Youtube size={22} className="text-red-500 shrink-0" />
+                    <p className="text-white text-sm font-medium">
+                      {channelSettings.bannerText}
+                    </p>
+                  </div>
+                  <a
+                    href={channelSettings.channelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-full transition-colors shrink-0 flex items-center gap-2"
+                  >
+                    <Youtube size={16} /> Subscribe
+                  </a>
+                </div>
+              </ScrollReveal>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ─── BOOKING CTA — rounded dark container on light background ─── */}
       <section className="pt-12 pb-20 md:pt-16 md:pb-28 bg-muted/40">

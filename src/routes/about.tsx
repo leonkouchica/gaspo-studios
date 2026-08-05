@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Cpu, UserCheck, Instagram, Linkedin } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
+import { useState, useEffect, useCallback } from "react";
+import { fetchYouTubeVideos, type YouTubeVideo } from "../lib/actions/videos";
+import { YouTubeEmbed } from "../components/YouTubeEmbed";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -51,6 +54,22 @@ const team: TeamMember[] = [
 ];
 
 function AboutPage() {
+  const [brandVideo, setBrandVideo] = useState<YouTubeVideo | null>(null);
+
+  const loadVideo = useCallback(async () => {
+    try {
+      const data = await fetchYouTubeVideos({ data: { placement: "about", featuredOnly: true } });
+      const vids = data as YouTubeVideo[];
+      setBrandVideo(vids[0] ?? null);
+    } catch {
+      // No video configured — section stays hidden
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVideo();
+  }, [loadVideo]);
+
   return (
     <>
       <PageHeader
@@ -106,6 +125,20 @@ function AboutPage() {
               View Our Work{" "}
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
+
+            {/* Brand video — only renders when admin has configured a video for the About page */}
+            {brandVideo && (
+              <div className="mt-10">
+                <YouTubeEmbed
+                  videoId={brandVideo.videoId}
+                  title={brandVideo.title || "Gaspo Studios — Our Story"}
+                  className="shadow-xl"
+                />
+                {brandVideo.title && (
+                  <p className="text-muted-foreground text-sm mt-3 text-center">{brandVideo.title}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
