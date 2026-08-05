@@ -58,9 +58,10 @@ function AboutPage() {
 
   const loadVideo = useCallback(async () => {
     try {
-      const data = await fetchYouTubeVideos({ data: { placement: "about", featuredOnly: true } });
+      const data = await fetchYouTubeVideos({ data: { placement: "about" } });
       const vids = data as YouTubeVideo[];
-      setBrandVideo(vids[0] ?? null);
+      // Prefer a featured video; fall back to the first available
+      setBrandVideo(vids.find((v) => v.featured) ?? vids[0] ?? null);
     } catch {
       // No video configured — section stays hidden
     }
