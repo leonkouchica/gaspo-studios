@@ -84,11 +84,11 @@ function AboutPage() {
         <div className="container-x grid md:grid-cols-2 gap-12 items-center">
           {/* Left column — YouTube embed when configured, static image as fallback */}
           {brandVideo ? (
-            <div className="w-full">
+            <div className="w-full h-[567px]">
               <YouTubeEmbed
                 videoId={brandVideo.videoId}
                 title={brandVideo.title || "Gaspo Studios — Our Story"}
-                className="shadow-2xl"
+                className="!aspect-auto h-full shadow-2xl"
               />
               {brandVideo.title && (
                 <p className="text-muted-foreground text-sm mt-3 text-center">{brandVideo.title}</p>
