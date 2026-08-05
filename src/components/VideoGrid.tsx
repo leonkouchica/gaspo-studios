@@ -67,6 +67,13 @@ export function VideoGrid({ videos, className = "" }: VideoGridProps) {
               {video.category}
             </div>
 
+            {/* Featured badge */}
+            {video.featured && (
+              <div className="absolute top-3 right-3 bg-amber-500 text-white rounded-lg px-2 py-1 text-xs font-bold flex items-center gap-1">
+                <span>★</span> Featured
+              </div>
+            )}
+
             {/* Play button */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300">

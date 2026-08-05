@@ -90,6 +90,7 @@ export const fetchYouTubeVideos = createServerFn({ method: "GET" })
       .from("youtube_videos")
       .select("*")
       .eq("visible", true)
+      .order("featured", { ascending: false })   // featured first
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
 
