@@ -810,3 +810,98 @@ export const enableSponsorshipForAllEvents = createServerFn({ method: "POST" }).
     return { updatedCount: toUpdate.length };
   },
 );
+
+/**
+ * Resends the confirmation email to one or all registrants of an event,
+ * using the corrected time from event.time and including the attendee ID.
+ *
+ * Pass `registrationId` to resend to a single attendee.
+ * Omit `registrationId` to resend to all registrants of the event.
+ */
+export const resendConfirmationEmail = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      eventId: z.string(),
+      registrationId: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    // Fetch the event
+    const { data: event, error: eventErr } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", data.eventId)
+      .single();
+
+    if (eventErr || !event) {
+      throw new Error(`Failed to fetch event: ${eventErr?.message}`);
+    }
+
+    // Build formatted date / time (same logic as registerForEvent, using event.time directly)
+    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const rawTime = event.time as string | undefined;
+    const eventTime = rawTime
+      ? (() => {
+          const [h, m] = rawTime.split(":").map(Number);
+          const d = new Date();
+          d.setHours(h, m, 0, 0);
+          return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        })()
+      : "TBA";
+
+    // Determine which registrations to resend to
+    let regsQuery = supabase.from("event_registrations").select("*").eq("event_id", data.eventId);
+    if (data.registrationId) {
+      regsQuery = regsQuery.eq("id", data.registrationId);
+    }
+
+    const { data: registrations, error: regsErr } = await regsQuery;
+    if (regsErr) {
+      throw new Error(`Failed to fetch registrations: ${regsErr.message}`);
+    }
+    if (!registrations || registrations.length === 0) {
+      throw new Error("No registrations found to resend to.");
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const reg of registrations) {
+      try {
+        await sendAppEmail({
+          to: reg.email,
+          subject: `Registration Confirmed: ${event.title}`,
+          react: React.createElement(EventRegistrationEmail, {
+            attendeeId: reg.id,
+            fullName: reg.full_name,
+            eventName: event.title,
+            eventDate: formattedDate,
+            eventTime: eventTime,
+            eventType: event.type,
+            venue: event.venue,
+            mapEmbedUrl: event.map_embed_url,
+          }),
+        });
+
+        await supabase
+          .from("event_registrations")
+          .update({ confirmation_sent: true })
+          .eq("id", reg.id);
+
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to resend to ${reg.email}:`, err);
+        failCount++;
+      }
+    }
+
+    return { successCount, failCount };
+  });

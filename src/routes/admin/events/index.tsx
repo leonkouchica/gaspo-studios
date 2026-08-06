@@ -23,6 +23,8 @@ import {
   ArrowLeft,
   CheckCircle2,
   Sparkles,
+  Mail,
+  Send,
 } from "lucide-react";
 import {
   fetchEvents,
@@ -30,6 +32,7 @@ import {
   fetchEventRegistrations,
   checkInAttendee,
   enableSponsorshipForAllEvents,
+  resendConfirmationEmail,
 } from "../../../lib/actions/events";
 import { fetchEventSponsors, updateSponsorStatus } from "../../../lib/actions/sponsors";
 import { toast } from "sonner";
@@ -114,6 +117,8 @@ function AdminEventsPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loadingRegs, setLoadingRegs] = useState(false);
   const [regSearch, setRegSearch] = useState("");
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [resendingAll, setResendingAll] = useState(false);
 
   // Sponsor states
   const [sponsors, setSponsors] = useState<any[]>([]);
@@ -181,6 +186,42 @@ function AdminEventsPage() {
       );
     } catch (err: any) {
       toast.error(`Failed to update check-in: ${err.message}`);
+    }
+  };
+
+  /** Resend confirmation email to a single attendee or all attendees of selected event */
+  const handleResendEmail = async (registrationId?: string) => {
+    if (!selectedEvent) return;
+    const isBulk = !registrationId;
+    if (isBulk) {
+      if (
+        !confirm(
+          `Resend the corrected confirmation email to ALL ${registrations.length} registrant(s) for "${selectedEvent.title}"?`,
+        )
+      )
+        return;
+      setResendingAll(true);
+    } else {
+      setResendingId(registrationId);
+    }
+    try {
+      const result = await resendConfirmationEmail({
+        data: { eventId: selectedEvent.id, registrationId },
+      });
+      if (isBulk) {
+        toast.success(
+          `Confirmation emails resent: ${result.successCount} succeeded${
+            result.failCount > 0 ? `, ${result.failCount} failed` : ""
+          }.`,
+        );
+      } else {
+        toast.success(`Confirmation email resent successfully.`);
+      }
+    } catch (err: any) {
+      toast.error(`Failed to resend: ${err.message}`);
+    } finally {
+      setResendingAll(false);
+      setResendingId(null);
     }
   };
 
@@ -571,13 +612,28 @@ function AdminEventsPage() {
                       {filteredRegs.length} shown of {registrations.length} registrations
                     </p>
                   </div>
-                  <Link
-                    to="/admin/events/$eventId/check-in"
-                    params={{ eventId: selectedEvent.id }}
-                    className="inline-flex items-center gap-1.5 bg-dark text-white rounded-xl px-3 py-1.5 text-xs font-semibold hover:bg-primary transition-all self-start sm:self-auto"
-                  >
-                    <QrCode size={13} /> Scanner View
-                  </Link>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => handleResendEmail()}
+                      disabled={resendingAll || registrations.length === 0}
+                      className="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl px-3 py-1.5 text-xs font-semibold transition-all self-start sm:self-auto"
+                      title="Resend corrected confirmation email to all registrants"
+                    >
+                      {resendingAll ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Send size={13} />
+                      )}
+                      Resend All
+                    </button>
+                    <Link
+                      to="/admin/events/$eventId/check-in"
+                      params={{ eventId: selectedEvent.id }}
+                      className="inline-flex items-center gap-1.5 bg-dark text-white rounded-xl px-3 py-1.5 text-xs font-semibold hover:bg-primary transition-all self-start sm:self-auto"
+                    >
+                      <QrCode size={13} /> Scanner View
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="relative mb-4">
@@ -643,7 +699,7 @@ function AdminEventsPage() {
                             })}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 flex-wrap justify-end">
                           {/* Payment status */}
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize border ${reg.paymentStatus === "completed" || reg.paymentStatus === "paid" ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}
@@ -652,6 +708,21 @@ function AdminEventsPage() {
                               ? "Paid"
                               : reg.paymentStatus}
                           </span>
+
+                          {/* Resend confirmation email */}
+                          <button
+                            onClick={() => handleResendEmail(reg.id)}
+                            disabled={resendingId === reg.id}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-600 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                            title="Resend corrected confirmation email to this attendee"
+                          >
+                            {resendingId === reg.id ? (
+                              <Loader2 size={12} className="shrink-0 animate-spin" />
+                            ) : (
+                              <Mail size={12} className="shrink-0" />
+                            )}
+                            Resend
+                          </button>
 
                           {/* Check-in status and trigger */}
                           {reg.checkedIn ? (
