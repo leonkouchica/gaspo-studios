@@ -671,15 +671,23 @@ export const registerForEvent = createServerFn({ method: "POST" })
         month: "long",
         day: "numeric",
       });
-      const eventTime = new Date(currentEvent.date).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // Use the stored time field directly instead of parsing from the date-only string
+      // (parsing a date-only string gives midnight UTC, which renders as 12:00 AM)
+      const rawTime = currentEvent.time as string | undefined;
+      const eventTime = rawTime
+        ? (() => {
+            const [h, m] = rawTime.split(":").map(Number);
+            const d = new Date();
+            d.setHours(h, m, 0, 0);
+            return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+          })()
+        : "TBA";
 
       await sendAppEmail({
         to: data.email,
         subject: `Registration Confirmed: ${currentEvent.title}`,
         react: React.createElement(EventRegistrationEmail, {
+          attendeeId: inserted.id,
           fullName: data.fullName,
           eventName: currentEvent.title,
           eventDate: formattedDate,

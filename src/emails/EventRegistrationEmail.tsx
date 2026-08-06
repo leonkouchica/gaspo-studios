@@ -15,6 +15,7 @@ import {
 } from "@react-email/components";
 
 interface EventRegistrationEmailProps {
+  attendeeId?: string;
   fullName: string;
   eventName: string;
   eventDate: string;
@@ -25,6 +26,7 @@ interface EventRegistrationEmailProps {
 }
 
 export function EventRegistrationEmail({
+  attendeeId,
   fullName = "Attendee",
   eventName = "Gaspo Studios Event",
   eventDate = "TBA",
@@ -64,6 +66,11 @@ export function EventRegistrationEmail({
                 {venue && (
                   <Text className="text-white/70 text-[14px] m-0 mt-4">
                     <strong>Venue:</strong> {venue}
+                  </Text>
+                )}
+                {attendeeId && (
+                  <Text className="text-white/70 text-[14px] m-0 mt-4">
+                    <strong>Attendee ID:</strong> {attendeeId}
                   </Text>
                 )}
               </Section>
