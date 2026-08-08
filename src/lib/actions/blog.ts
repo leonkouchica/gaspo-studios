@@ -6,7 +6,7 @@ import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
 import NewsletterBroadcastEmail from "../../emails/NewsletterBroadcastEmail.tsx";
 import * as React from "react";
-import { resend } from "../resend.server.ts";
+import { zeptoMailBatchSend } from "../resend.server.ts";
 import { render } from "@react-email/components";
 
 const postStatusSchema = z.enum(["draft", "published", "scheduled"]);
@@ -535,7 +535,7 @@ export const broadcastBlogNewsletter = createServerFn({ method: "POST" })
       }));
 
       try {
-        const { error: batchError } = await resend.batch.send(payload);
+        const { error: batchError } = await zeptoMailBatchSend(payload);
         if (batchError) {
           console.error("Batch send error:", batchError);
           failCount += batch.length;
