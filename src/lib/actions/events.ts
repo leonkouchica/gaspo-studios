@@ -617,6 +617,20 @@ export const registerForEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const supabase = getSupabaseAdmin();
 
+    // Prevent duplicate registrations: check if this email is already registered for the event
+    const { data: existing } = await supabase
+      .from("event_registrations")
+      .select("id")
+      .eq("event_id", data.eventId)
+      .eq("email", data.email)
+      .maybeSingle();
+
+    if (existing) {
+      throw new Error(
+        "This email address is already registered for this event. Please use a different email or contact us if you need assistance.",
+      );
+    }
+
     // Begin registration insert
     const { data: inserted, error } = await supabase
       .from("event_registrations")
