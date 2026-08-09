@@ -157,7 +157,7 @@ function GalleryPage() {
                     key={it.id}
                     onClick={() => setLightbox(it.src)}
                     onContextMenu={(e) => e.preventDefault()}
-                    className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in gallery-image-wrapper ${getAspectClass(i)}`}
+                    className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in ${getAspectClass(i)}`}
                   >
                     <img
                       src={it.src}
@@ -182,7 +182,7 @@ function GalleryPage() {
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6 gallery-image-wrapper"
+          className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6"
           onClick={() => setLightbox(null)}
           onContextMenu={(e) => e.preventDefault()}
           onDragStart={(e) => e.preventDefault()}

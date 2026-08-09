@@ -196,24 +196,12 @@
 
   /**
    * .gallery-image-wrapper
-   * Applied to the container <div> around each gallery card and lightbox image.
-   * Handles right-click and drag events at the wrapper level since the img
-   * itself has pointer-events: none (events bubble up to the wrapper).
-   *
-   * The transparent ::after overlay adds a final interception layer for
-   * any OS-level drag events that bypass CSS on older browsers.
+   * Optional container class for non-interactive image wrappers.
+   * Applies touch-callout and selection prevention at the wrapper level.
+   * NOTE: Do NOT apply to <button> or <a> elements — use onContextMenu instead.
    */
   .gallery-image-wrapper {
     -webkit-touch-callout: none;
     user-select: none;
-    position: relative;
-  }
-  .gallery-image-wrapper::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 2;           /* Above the image, below action buttons (z-index: 10+) */
-    cursor: zoom-in;
-    background: transparent;
   }
 }
