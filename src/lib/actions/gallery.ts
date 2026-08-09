@@ -101,6 +101,155 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Server function called AFTER the client uploads a file directly to Supabase Storage.
+ * It does NOT receive the file bytes — only the storage path, title, and category.
+ *
+ * Pipeline:
+ * 1. Download the raw file from storage (server-to-server — no body size limit)
+ * 2. Convert to WebP with sharp
+ * 3. Apply GASPO STUDIOS tiled watermark
+ * 4. Re-upload watermarked WebP to the same path (upsert)
+ * 5. Insert a gallery_images DB record and return it
+ *
+ * This completely bypasses the Vercel 4.5MB serverless request body limit because
+ * the client sends only a tiny JSON payload (path + metadata), not the image bytes.
+ */
+export const processGalleryUpload = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      /** Path inside gaspo-media bucket, e.g. "gallery/abc123.webp" */
+      storagePath: z.string(),
+      fileName: z.string(),
+      title: z.string().default("Untitled"),
+      alt: z.string().optional(),
+      category: z.string().default("Weddings"),
+      order: z.number().default(0),
+    }),
+  )
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    // 1. Download the raw file from Supabase Storage (server-to-server)
+    const { data: fileBlob, error: downloadError } = await supabase.storage
+      .from("gaspo-media")
+      .download(data.storagePath);
+
+    if (downloadError || !fileBlob) {
+      throw new Error(
+        `Failed to download uploaded file from storage: ${downloadError?.message ?? "empty blob"}`,
+      );
+    }
+
+    const arrayBuffer = await fileBlob.arrayBuffer();
+    const rawBuffer = Buffer.from(arrayBuffer);
+
+    // 2. Convert to WebP (handles JPG, PNG, HEIC, etc. from client)
+    let webpBuffer: Buffer;
+    try {
+      const sharp = (await import("sharp")).default;
+      webpBuffer = await sharp(rawBuffer).webp({ quality: 90 }).toBuffer();
+    } catch (err: any) {
+      throw new Error(`WebP conversion failed: ${err.message}`);
+    }
+
+    // 3. Apply GASPO STUDIOS watermark
+    try {
+      webpBuffer = await applyGalleryWatermark(webpBuffer);
+    } catch (err: any) {
+      // Log but don't block — watermark failure must not prevent saving
+      console.error("Warning: watermark could not be applied:", err.message);
+    }
+
+    // 4. Re-upload the processed WebP to the same path (overwrites raw upload)
+    const processedBuffer = new Uint8Array(
+      webpBuffer.buffer,
+      webpBuffer.byteOffset,
+      webpBuffer.byteLength,
+    );
+    const { error: uploadError } = await supabase.storage
+      .from("gaspo-media")
+      .upload(data.storagePath, processedBuffer, {
+        contentType: "image/webp",
+        cacheControl: "31536000",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      throw new Error(`Failed to save processed image to storage: ${uploadError.message}`);
+    }
+
+    // 5. Get public URL
+    const { data: urlData } = supabase.storage
+      .from("gaspo-media")
+      .getPublicUrl(data.storagePath);
+
+    const publicUrl = urlData?.publicUrl;
+    if (!publicUrl) throw new Error("Failed to retrieve public URL for uploaded asset");
+
+    // 6. Insert gallery_images DB record
+    const { data: inserted, error: dbError } = await supabase
+      .from("gallery_images")
+      .insert({
+        src: publicUrl,
+        title: data.title,
+        alt: data.alt || data.title,
+        category: data.category,
+        visible: true,
+        display_order: data.order,
+      })
+      .select()
+      .single();
+
+    if (dbError) throw new Error(`Failed to save image record: ${dbError.message}`);
+
+    return {
+      id: inserted.id,
+      src: inserted.src,
+      title: inserted.title,
+      alt: inserted.alt,
+      category: inserted.category,
+      visible: inserted.visible,
+      order: inserted.display_order,
+      uploadedAt: inserted.uploaded_at,
+    };
+  });
+
+/**
+ * Generates a Supabase signed upload URL so the client can PUT the file
+ * directly to storage — bypassing the 4.5MB Vercel serverless body limit.
+ *
+ * Returns { signedUrl, storagePath }. The client should then:
+ * 1. PUT the raw file to signedUrl
+ * 2. Call processGalleryUpload({ storagePath, ... })
+ */
+export const getGalleryUploadUrl = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ fileName: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+    const uuid =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
+    // Preserve original extension so Supabase detects MIME type correctly
+    const ext = data.fileName.split(".").pop()?.toLowerCase() || "jpg";
+    const storagePath = `gallery/${uuid}.${ext}`;
+
+    const { data: signedData, error } = await supabase.storage
+      .from("gaspo-media")
+      .createSignedUploadUrl(storagePath);
+
+    if (error || !signedData) {
+      throw new Error(`Failed to create signed upload URL: ${error?.message ?? "no data"}`);
+    }
+
+    return {
+      signedUrl: signedData.signedUrl,
+      storagePath,
+    };
+  });
+
 export const toggleImageVisibility = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({

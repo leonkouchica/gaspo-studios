@@ -1,10 +1,13 @@
 // src/lib/watermark.server.ts
 // Server-only watermark pipeline — Shutterstock-style tiled diagonal branding.
 // Applied at upload time so the stored file in Supabase is permanently branded.
+//
+// IMPORTANT: The logo is embedded as a base64 constant (GASPO_LOGO_BASE64) so
+// it is always available regardless of where the server bundle is deployed
+// (Vercel, Cloudflare, Docker, etc). It does NOT read from the file system.
 
 import sharp from "sharp";
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { GASPO_LOGO_BASE64 } from "./logo-data.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -25,23 +28,17 @@ const TILE_ANGLE = -30;
 let _logoBuffer: Buffer | null = null;
 
 /**
- * Loads the GASPO STUDIOS logo from disk (once, cached in memory).
- * Resolves relative to the project root regardless of CWD.
+ * Returns the GASPO STUDIOS logo as a Buffer.
+ * Uses the embedded base64 constant — zero file-system dependency.
+ * Result is cached in-process after the first call.
  */
 function getLogoBuffer(): Buffer {
   if (_logoBuffer) return _logoBuffer;
-
-  // Resolve from project root (process.cwd() is the workspace root in TanStack Start)
-  const logoPath = resolve(process.cwd(), "docs/gaspo-studios-logo.webp");
-
   try {
-    _logoBuffer = readFileSync(logoPath);
+    _logoBuffer = Buffer.from(GASPO_LOGO_BASE64, "base64");
     return _logoBuffer;
-  } catch {
-    throw new Error(
-      `Watermark logo not found at "${logoPath}". ` +
-        "Ensure docs/gaspo-studios-logo.webp exists in the project root.",
-    );
+  } catch (err: any) {
+    throw new Error(`Watermark logo could not be decoded from embedded data: ${err.message}`);
   }
 }
 

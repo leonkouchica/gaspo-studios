@@ -14,13 +14,13 @@ import {
   X,
   Stamp,
 } from "lucide-react";
-import { arrayBufferToBase64 } from "../../../lib/base64";
 import {
   fetchGalleryImages,
-  uploadGalleryImage,
   toggleImageVisibility,
   deleteGalleryImage,
   rewatermarkGalleryImages,
+  processGalleryUpload,
+  getGalleryUploadUrl,
 } from "../../../lib/actions/gallery";
 import { toast } from "sonner";
 
@@ -59,6 +59,7 @@ function UploadModal({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadPhase, setUploadPhase] = useState<"idle" | "uploading" | "processing">("idle");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Weddings");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -82,26 +83,45 @@ function UploadModal({
 
     setUploading(true);
     try {
-      // Read file as base64 to send via createServerFn validator
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const base64 = arrayBufferToBase64(arrayBuffer);
-      const result = await uploadGalleryImage({
+      // ── Phase 1: Get a signed upload URL from the server ──────────────────
+      // This is a tiny JSON request — no file bytes involved.
+      setUploadPhase("uploading");
+      const { signedUrl, storagePath } = await getGalleryUploadUrl({
+        data: { fileName: selectedFile.name },
+      });
+
+      // ── Phase 2: PUT the raw file directly to Supabase storage ────────────
+      // The file goes browser → Supabase directly. No server body size limit.
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        body: selectedFile,
+        headers: { "Content-Type": selectedFile.type },
+      });
+      if (!uploadRes.ok) {
+        throw new Error(`Direct upload failed (${uploadRes.status}): ${uploadRes.statusText}`);
+      }
+
+      // ── Phase 3: Server converts to WebP, watermarks, saves DB record ──────
+      // Only the storage path + metadata travels to the server — still tiny.
+      setUploadPhase("processing");
+      const result = await processGalleryUpload({
         data: {
-          fileBase64: base64,
+          storagePath,
           fileName: selectedFile.name,
-          mimeType: selectedFile.type,
           title: title.trim(),
           alt: title.trim(),
           category,
         },
       });
-      toast.success("Image uploaded and converted to WebP.");
+
+      toast.success("Image uploaded, watermarked, and saved to gallery.");
       onUploaded(result as GalleryImage);
       onClose();
     } catch (err: any) {
       toast.error(`Upload failed: ${err.message}`);
     } finally {
       setUploading(false);
+      setUploadPhase("idle");
     }
   };
 
@@ -180,7 +200,8 @@ function UploadModal({
         >
           {uploading ? (
             <>
-              <Loader2 size={15} className="animate-spin" /> Converting &amp; Uploading…
+              <Loader2 size={15} className="animate-spin" />
+              {uploadPhase === "uploading" ? "Uploading…" : "Processing & Watermarking…"}
             </>
           ) : (
             <>
