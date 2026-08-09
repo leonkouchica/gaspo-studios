@@ -63,20 +63,26 @@ async function buildWatermarkTile(imageWidth: number): Promise<Buffer> {
     .ensureAlpha()
     .toBuffer();
 
-  // 2. Apply opacity by modulating the alpha channel
-  //    Sharp's `linear` on the alpha channel: newAlpha = alpha * (opacity/255)
-  const transparent = await sharp(resized)
+  // 2. Convert to white and apply opacity in one linear pass.
+  //    sharp.linear([a_R, a_G, a_B, a_A], [b_R, b_G, b_B, b_A]):
+  //      output_channel = input_channel * a + b
+  //
+  //    R: R × 0 + 255 = 255  →  pure white
+  //    G: G × 0 + 255 = 255  →  pure white
+  //    B: B × 0 + 255 = 255  →  pure white
+  //    A: A × (opacity/255) + 0  →  original logo shape at target opacity
+  //
+  //    Transparent pixels stay transparent (A=0 × anything = 0).
+  const white = await sharp(resized)
     .linear(
-      // multiply each channel by 1.0 (no color change)
-      [1, 1, 1, WATERMARK_OPACITY / 255],
-      // offset 0 for all channels
-      [0, 0, 0, 0],
+      [0, 0, 0, WATERMARK_OPACITY / 255],
+      [255, 255, 255, 0],
     )
     .png()
     .toBuffer();
 
   // 3. Rotate the tile so it sits at a diagonal
-  const rotated = await sharp(transparent)
+  const rotated = await sharp(white)
     .rotate(TILE_ANGLE, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
