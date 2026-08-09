@@ -163,11 +163,7 @@ export const processGalleryUpload = createServerFn({ method: "POST" })
     }
 
     // 4. Re-upload the processed WebP to the same path (overwrites raw upload)
-    const processedBuffer = new Uint8Array(
-      webpBuffer.buffer,
-      webpBuffer.byteOffset,
-      webpBuffer.byteLength,
-    );
+    const processedBuffer = Uint8Array.from(webpBuffer);
     const { error: uploadError } = await supabase.storage
       .from("gaspo-media")
       .upload(data.storagePath, processedBuffer, {
@@ -395,40 +391,60 @@ export const rewatermarkGalleryImages = createServerFn({ method: "POST" })
       try {
         const srcUrl: string = img.src;
 
-        // Extract the relative file path inside the gaspo-media bucket
-        if (!srcUrl.includes("gaspo-media/")) {
-          failed++;
-          errors.push(`Skipped ${img.id}: URL does not reference gaspo-media bucket`);
-          continue;
+        // ── Robust path extraction ───────────────────────────────────────────
+        // Use URL parsing so query params / fragments are automatically stripped.
+        // Supabase public URL structure:
+        //   https://<project>.supabase.co/storage/v1/object/public/gaspo-media/<path>
+        // We need just the bucket-relative portion: e.g. "gallery/abc123.webp"
+        let filePath: string;
+        try {
+          const parsed = new URL(srcUrl);
+          const pathname = parsed.pathname; // e.g. /storage/v1/object/public/gaspo-media/gallery/abc.webp
+          const bucketMarker = "/gaspo-media/";
+          const markerIdx = pathname.indexOf(bucketMarker);
+          if (markerIdx === -1) {
+            failed++;
+            errors.push(`Skipped ${img.id}: URL path does not contain /gaspo-media/ — src: ${srcUrl}`);
+            continue;
+          }
+          filePath = pathname.substring(markerIdx + bucketMarker.length);
+        } catch {
+          // Fallback: plain string extraction if URL() parsing fails
+          const marker = "gaspo-media/";
+          const markerIdx = srcUrl.indexOf(marker);
+          if (markerIdx === -1) {
+            failed++;
+            errors.push(`Skipped ${img.id}: URL does not reference gaspo-media bucket`);
+            continue;
+          }
+          // Strip any query string
+          filePath = srcUrl.substring(markerIdx + marker.length).split("?")[0];
         }
-        const filePath = srcUrl.substring(
-          srcUrl.indexOf("gaspo-media/") + "gaspo-media/".length,
-        );
 
-        // 2. Download existing file from Supabase Storage
+        // ── Download from Supabase Storage ───────────────────────────────────
         const { data: fileBlob, error: downloadError } = await supabase.storage
           .from("gaspo-media")
           .download(filePath);
 
         if (downloadError || !fileBlob) {
           failed++;
-          errors.push(`Download failed for ${img.id}: ${downloadError?.message ?? "empty blob"}`);
+          errors.push(
+            `Download failed for ${img.id} (path: "${filePath}"): ${downloadError?.message ?? "empty blob"}`,
+          );
           continue;
         }
 
-        // 3. Convert Blob → Buffer for sharp
+        // ── Convert Blob → Buffer for sharp ──────────────────────────────────
         const arrayBuffer = await fileBlob.arrayBuffer();
         const inputBuffer = Buffer.from(arrayBuffer);
 
-        // 4. Apply GASPO STUDIOS tiled diagonal watermark
+        // ── Apply GASPO STUDIOS tiled diagonal watermark ──────────────────────
         const watermarked = await applyGalleryWatermark(inputBuffer);
 
-        // 5. Re-upload to the same path (upsert overwrites in place)
-        const uploadBuffer = new Uint8Array(
-          watermarked.buffer,
-          watermarked.byteOffset,
-          watermarked.byteLength,
-        );
+        // ── Re-upload watermarked image ───────────────────────────────────────
+        // Uint8Array.from() creates a clean copy — avoids the shared-pool
+        // edge case with Buffer.buffer/byteOffset/byteLength.
+        const uploadBuffer = Uint8Array.from(watermarked);
         const { error: uploadError } = await supabase.storage
           .from("gaspo-media")
           .upload(filePath, uploadBuffer, {
