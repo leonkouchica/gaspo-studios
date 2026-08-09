@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
+import { applyGalleryWatermark } from "../watermark.server.ts";
 
 export const fetchGalleryImages = createServerFn({ method: "GET" })
   .inputValidator((input: { category?: string; visibleOnly?: boolean } | undefined) => input)
@@ -213,4 +214,92 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
     }
 
     return { success: true };
+  });
+
+/**
+ * Re-applies the GASPO STUDIOS watermark to all existing gallery images.
+ * Downloads each image from Supabase storage, composites the watermark,
+ * and re-uploads to the same path (upsert). Per-image failures are captured
+ * and returned in the result — a single bad image will not abort the batch.
+ */
+export const rewatermarkGalleryImages = createServerFn({ method: "POST" })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    requireRole(["admin"]);
+    const supabase = getSupabaseAdmin();
+
+    // 1. Fetch all gallery image records
+    const { data: images, error: fetchError } = await supabase
+      .from("gallery_images")
+      .select("id, src");
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch gallery images: ${fetchError.message}`);
+    }
+
+    const total = images?.length ?? 0;
+    let processed = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const img of images ?? []) {
+      try {
+        const srcUrl: string = img.src;
+
+        // Extract the relative file path inside the gaspo-media bucket
+        if (!srcUrl.includes("gaspo-media/")) {
+          failed++;
+          errors.push(`Skipped ${img.id}: URL does not reference gaspo-media bucket`);
+          continue;
+        }
+        const filePath = srcUrl.substring(
+          srcUrl.indexOf("gaspo-media/") + "gaspo-media/".length,
+        );
+
+        // 2. Download existing file from Supabase Storage
+        const { data: fileBlob, error: downloadError } = await supabase.storage
+          .from("gaspo-media")
+          .download(filePath);
+
+        if (downloadError || !fileBlob) {
+          failed++;
+          errors.push(`Download failed for ${img.id}: ${downloadError?.message ?? "empty blob"}`);
+          continue;
+        }
+
+        // 3. Convert Blob → Buffer for sharp
+        const arrayBuffer = await fileBlob.arrayBuffer();
+        const inputBuffer = Buffer.from(arrayBuffer);
+
+        // 4. Apply GASPO STUDIOS tiled diagonal watermark
+        const watermarked = await applyGalleryWatermark(inputBuffer);
+
+        // 5. Re-upload to the same path (upsert overwrites in place)
+        const uploadBuffer = new Uint8Array(
+          watermarked.buffer,
+          watermarked.byteOffset,
+          watermarked.byteLength,
+        );
+        const { error: uploadError } = await supabase.storage
+          .from("gaspo-media")
+          .upload(filePath, uploadBuffer, {
+            contentType: "image/webp",
+            cacheControl: "31536000",
+            upsert: true,
+          });
+
+        if (uploadError) {
+          failed++;
+          errors.push(`Re-upload failed for ${img.id}: ${uploadError.message}`);
+          continue;
+        }
+
+        processed++;
+      } catch (err: any) {
+        failed++;
+        errors.push(`Unexpected error for ${img.id}: ${err.message}`);
+      }
+    }
+
+    return { total, processed, failed, errors };
   });

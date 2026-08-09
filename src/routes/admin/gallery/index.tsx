@@ -12,6 +12,7 @@ import {
   RefreshCw,
   AlertCircle,
   X,
+  Stamp,
 } from "lucide-react";
 import { arrayBufferToBase64 } from "../../../lib/base64";
 import {
@@ -19,6 +20,7 @@ import {
   uploadGalleryImage,
   toggleImageVisibility,
   deleteGalleryImage,
+  rewatermarkGalleryImages,
 } from "../../../lib/actions/gallery";
 import { toast } from "sonner";
 
@@ -200,6 +202,7 @@ function AdminGalleryPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [rewatermarking, setRewatermarking] = useState(false);
 
   const loadImages = useCallback(async () => {
     setLoading(true);
@@ -255,6 +258,43 @@ function AdminGalleryPage() {
     }
   };
 
+  /**
+   * Re-applies the GASPO STUDIOS watermark to every existing gallery image.
+   * Downloads, watermarks, and re-uploads each file in place on the server.
+   */
+  const handleRewatermark = async () => {
+    if (
+      !confirm(
+        `Apply GASPO STUDIOS watermark to all ${images.length} existing gallery image${images.length !== 1 ? "s" : ""}?\n\nThis will permanently overwrite the stored files. This action cannot be undone.`,
+      )
+    )
+      return;
+
+    setRewatermarking(true);
+    const toastId = toast.loading(
+      `Watermarking ${images.length} image${images.length !== 1 ? "s" : ""}… this may take a moment.`,
+    );
+    try {
+      const result = await rewatermarkGalleryImages({ data: {} });
+      if (result.failed === 0) {
+        toast.success(
+          `Watermark applied to all ${result.processed} image${result.processed !== 1 ? "s" : ""}.`,
+          { id: toastId },
+        );
+      } else {
+        toast.warning(
+          `Watermarked ${result.processed}/${result.total} images. ${result.failed} failed — check server logs.`,
+          { id: toastId },
+        );
+        console.warn("Rewatermark errors:", result.errors);
+      }
+    } catch (err: any) {
+      toast.error(`Rewatermark failed: ${err.message}`, { id: toastId });
+    } finally {
+      setRewatermarking(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -272,6 +312,18 @@ function AdminGalleryPage() {
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             Refresh
+          </button>
+          <button
+            onClick={handleRewatermark}
+            disabled={rewatermarking || loading || images.length === 0}
+            title="Apply GASPO STUDIOS watermark to all existing gallery images"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-3 py-2 text-sm font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+          >
+            {rewatermarking ? (
+              <><Loader2 size={14} className="animate-spin" /> Watermarking…</>
+            ) : (
+              <><Stamp size={14} /> Watermark Existing</>
+            )}
           </button>
           <button
             onClick={() => setShowUploadModal(true)}
@@ -404,8 +456,9 @@ function AdminGalleryPage() {
           <p className="text-xs text-blue-700 leading-relaxed">
             <strong>Supabase Storage Active:</strong> All uploaded images are automatically
             converted to WebP and stored in the{" "}
-            <code className="bg-blue-100 px-1 rounded">gaspo-media/gallery</code> bucket. Toggle
-            visibility to show/hide images on the public gallery page.
+            <code className="bg-blue-100 px-1 rounded">gaspo-media/gallery</code> bucket.
+            New uploads include the GASPO STUDIOS watermark. Use{" "}
+            <strong>Watermark Existing</strong> to apply the watermark to previously uploaded images.
           </p>
         </div>
       )}
