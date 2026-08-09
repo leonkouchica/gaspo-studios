@@ -176,4 +176,44 @@
   @keyframes fadeUp {
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* ── Portfolio Image Protection ─────────────────────────────────────────── */
+
+  /**
+   * .protected-image
+   * Applied directly to <img> elements in the gallery and lightbox.
+   * Prevents pointer interactions, selection, drag-to-desktop, and
+   * iOS long-press context menu (Save Image / Open in New Tab).
+   */
+  .protected-image {
+    -webkit-touch-callout: none;   /* iOS Safari: disable long-press menu          */
+    -webkit-user-select: none;     /* Safari: disable text/image selection         */
+    user-select: none;             /* Standard: disable selection                  */
+    pointer-events: none;          /* Block all mouse/touch events on the <img>    */
+    -webkit-user-drag: none;       /* Chrome/Safari: block drag-to-desktop         */
+    user-drag: none;
+  }
+
+  /**
+   * .gallery-image-wrapper
+   * Applied to the container <div> around each gallery card and lightbox image.
+   * Handles right-click and drag events at the wrapper level since the img
+   * itself has pointer-events: none (events bubble up to the wrapper).
+   *
+   * The transparent ::after overlay adds a final interception layer for
+   * any OS-level drag events that bypass CSS on older browsers.
+   */
+  .gallery-image-wrapper {
+    -webkit-touch-callout: none;
+    user-select: none;
+    position: relative;
+  }
+  .gallery-image-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;           /* Above the image, below action buttons (z-index: 10+) */
+    cursor: zoom-in;
+    background: transparent;
+  }
 }

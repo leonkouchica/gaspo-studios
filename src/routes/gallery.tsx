@@ -156,12 +156,15 @@ function GalleryPage() {
                   <button
                     key={it.id}
                     onClick={() => setLightbox(it.src)}
-                    className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in ${getAspectClass(i)}`}
+                    onContextMenu={(e) => e.preventDefault()}
+                    className={`mb-6 break-inside-avoid relative group block w-full rounded-2xl overflow-hidden cursor-zoom-in gallery-image-wrapper ${getAspectClass(i)}`}
                   >
                     <img
                       src={it.src}
                       alt={it.alt || it.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
+                      draggable={false}
+                      onDragStart={(e) => e.preventDefault()}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted protected-image"
                     />
                     <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4">
                       <p className="uppercase text-xs tracking-[0.25em] text-primary">
@@ -179,13 +182,21 @@ function GalleryPage() {
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[60] bg-dark/95 flex items-center justify-center p-6 gallery-image-wrapper"
           onClick={() => setLightbox(null)}
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
         >
-          <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary">
+          <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary z-10">
             <X size={20} />
           </button>
-          <img src={lightbox} alt="" className="max-h-[90vh] max-w-full rounded-2xl" />
+          <img
+            src={lightbox}
+            alt=""
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}
+            className="max-h-[90vh] max-w-full rounded-2xl protected-image"
+          />
         </div>
       )}
     </>

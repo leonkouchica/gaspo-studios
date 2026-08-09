@@ -3,6 +3,7 @@
 
 import sharp from "sharp";
 import { getSupabaseAdmin } from "../supabase.server.ts";
+import { applyGalleryWatermark } from "../watermark.server.ts";
 
 /**
  * Decode a base64 string to a Uint8Array using web-standard APIs.
@@ -25,9 +26,15 @@ function base64ToBytes(base64: string): Uint8Array {
  * @param folder The folder inside the bucket (e.g. 'gallery', 'blog', 'events')
  * @returns The public URL of the uploaded WebP image
  */
+/**
+ * @param watermark If true (default for 'gallery'), applies a GASPO STUDIOS tiled
+ *                  diagonal watermark to the image before upload. Defaults to true
+ *                  when folder is 'gallery', false for all other folders.
+ */
 export async function convertAndUploadImage(
   file: any,
   folder: "gallery" | "blog" | "events" | "team",
+  watermark: boolean = folder === "gallery",
 ): Promise<string> {
   if (!file) {
     throw new Error("No file was provided for upload");
@@ -61,26 +68,38 @@ export async function convertAndUploadImage(
     throw new Error(`Failed to read upload buffer: ${err.message}`);
   }
 
-  // 2. Process image with sharp: convert to WebP, quality 90
+  // 2. Process image with sharp: convert to WebP at quality 90
   // Note: sharp is a native Node.js module. On non-Node.js runtimes (Cloudflare Workers),
   // use a WASM-based alternative or a serverless image processing service.
-  let webpBuffer: Uint8Array;
+  let webpBuffer: Buffer;
   try {
-    const result = await sharp(buffer).webp({ quality: 90 }).toBuffer();
-    webpBuffer = new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
+    webpBuffer = await sharp(buffer).webp({ quality: 90 }).toBuffer();
   } catch (err: any) {
     throw new Error(
       `Sharp WebP processing failed: ${err.message}. Ensure the file is a valid image.`,
     );
   }
 
-  // 3. Upload WebP to Supabase Storage (bypassing RLS with admin client)
+  // 3. Optionally apply GASPO STUDIOS tiled diagonal watermark (gallery images only)
+  //    The watermark is baked into the WebP file permanently before storage.
+  if (watermark) {
+    try {
+      webpBuffer = await applyGalleryWatermark(webpBuffer);
+    } catch (err: any) {
+      // Log but don't block upload — watermark failure should not prevent saving
+      console.error("Warning: watermark could not be applied:", err.message);
+    }
+  }
+
+  // 4. Upload WebP to Supabase Storage (bypassing RLS with admin client)
   const supabase = getSupabaseAdmin();
   const uuid =
     Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   const filePath = `${folder}/${uuid}.webp`;
 
-  const { data, error } = await supabase.storage.from("gaspo-media").upload(filePath, webpBuffer, {
+  const uploadBuffer = new Uint8Array(webpBuffer.buffer, webpBuffer.byteOffset, webpBuffer.byteLength);
+
+  const { data, error } = await supabase.storage.from("gaspo-media").upload(filePath, uploadBuffer, {
     contentType: "image/webp",
     cacheControl: "31536000", // 1 year cache
     upsert: true,
@@ -101,7 +120,7 @@ export async function convertAndUploadImage(
       // Retry upload
       const { data: retryData, error: retryError } = await supabase.storage
         .from("gaspo-media")
-        .upload(filePath, webpBuffer, {
+        .upload(filePath, uploadBuffer, {
           contentType: "image/webp",
           cacheControl: "31536000",
           upsert: true,
@@ -115,7 +134,7 @@ export async function convertAndUploadImage(
     }
   }
 
-  // 4. Retrieve public URL
+  // 5. Retrieve public URL
   const { data: urlData } = supabase.storage.from("gaspo-media").getPublicUrl(filePath);
 
   if (!urlData || !urlData.publicUrl) {
