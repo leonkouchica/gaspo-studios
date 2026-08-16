@@ -2,13 +2,16 @@
 -- Creates:
 --   • event_campaigns       — one record per email campaign (per event)
 --   • campaign_recipients   — one record per recipient per campaign send
+--
+-- NOTE: events.id and event_registrations.id are TEXT in this project,
+--       so all PKs and FKs use TEXT accordingly.
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- TABLE: event_campaigns
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS event_campaigns (
-  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id         UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  id               TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  event_id         TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
 
   -- Campaign identity
   name             TEXT NOT NULL,
@@ -36,7 +39,7 @@ CREATE TABLE IF NOT EXISTS event_campaigns (
   fail_count       INT DEFAULT 0,
 
   -- Audit
-  created_by       UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_by       TEXT,           -- auth user id (text to avoid auth dependency)
   created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -45,9 +48,9 @@ CREATE TABLE IF NOT EXISTS event_campaigns (
 -- TABLE: campaign_recipients
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS campaign_recipients (
-  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  campaign_id      UUID NOT NULL REFERENCES event_campaigns(id) ON DELETE CASCADE,
-  registration_id  UUID NOT NULL REFERENCES event_registrations(id) ON DELETE CASCADE,
+  id               TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  campaign_id      TEXT NOT NULL REFERENCES event_campaigns(id) ON DELETE CASCADE,
+  registration_id  TEXT NOT NULL REFERENCES event_registrations(id) ON DELETE CASCADE,
 
   -- Snapshots (captured at send time so report stays accurate even if reg is edited)
   email            TEXT NOT NULL,
