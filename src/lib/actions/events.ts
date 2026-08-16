@@ -10,6 +10,9 @@ import { zeptoMailBatchSend } from "../resend.server.ts";
 import { render } from "@react-email/components";
 import { sendAppEmail } from "../resend.server.ts";
 import EventRegistrationEmail from "../../emails/EventRegistrationEmail.tsx";
+import PreEventAppreciationEmail from "../../emails/PreEventAppreciationEmail.tsx";
+import PostEventThankYouEmail from "../../emails/PostEventThankYouEmail.tsx";
+import CampaignBroadcastEmail from "../../emails/CampaignBroadcastEmail.tsx";
 const eventStatusSchema = z.enum([
   "draft",
   "published",
@@ -918,4 +921,469 @@ export const resendConfirmationEmail = createServerFn({ method: "POST" })
     }
 
     return { successCount, failCount };
+  });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT CAMPAIGN ACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const campaignTemplateSchema = z.enum([
+  "registration_confirmation",
+  "pre_event_appreciation",
+  "post_event_thank_you",
+  "new_registration_notification",
+  "custom",
+]);
+
+/**
+ * Fetches all campaigns for a given event, ordered newest-first.
+ */
+export const fetchEventCampaigns = createServerFn({ method: "GET" })
+  .inputValidator(z.object({ eventId: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+    const { data: campaigns, error } = await supabase
+      .from("event_campaigns")
+      .select("*")
+      .eq("event_id", data.eventId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(`Failed to fetch campaigns: ${error.message}`);
+
+    return (campaigns || []).map((c) => ({
+      id: c.id,
+      eventId: c.event_id,
+      name: c.name,
+      templateType: c.template_type,
+      subject: c.subject,
+      status: c.status,
+      scheduledAt: c.scheduled_at || null,
+      sentAt: c.sent_at || null,
+      totalRecipients: c.total_recipients ?? 0,
+      successCount: c.success_count ?? 0,
+      failCount: c.fail_count ?? 0,
+      createdAt: c.created_at,
+    }));
+  });
+
+/**
+ * Creates a new campaign in draft status.
+ */
+export const createEventCampaign = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      eventId: z.string(),
+      name: z.string().min(1),
+      templateType: campaignTemplateSchema,
+      subject: z.string().min(1),
+      customBodyHtml: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    // Verify event exists
+    const { data: event, error: eventErr } = await supabase
+      .from("events")
+      .select("id, title")
+      .eq("id", data.eventId)
+      .single();
+    if (eventErr || !event) throw new Error("Event not found.");
+
+    const { data: campaign, error } = await supabase
+      .from("event_campaigns")
+      .insert({
+        event_id: data.eventId,
+        name: data.name,
+        template_type: data.templateType,
+        subject: data.subject,
+        custom_body_html: data.customBodyHtml || null,
+        status: "draft",
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to create campaign: ${error.message}`);
+
+    return {
+      id: campaign.id,
+      name: campaign.name,
+      status: campaign.status,
+      createdAt: campaign.created_at,
+    };
+  });
+
+/**
+ * Sends an event campaign to a specific list of selected registrant IDs.
+ * Only the registrants whose IDs are in selectedRegistrationIds will receive the email.
+ */
+export const sendEventCampaign = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      campaignId: z.string(),
+      eventId: z.string(),
+      selectedRegistrationIds: z.array(z.string()).min(1),
+      scheduledAt: z.string().optional(), // ISO string if scheduling
+    }),
+  )
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    // Fetch campaign
+    const { data: campaign, error: campErr } = await supabase
+      .from("event_campaigns")
+      .select("*")
+      .eq("id", data.campaignId)
+      .single();
+    if (campErr || !campaign) throw new Error("Campaign not found.");
+    if (!['draft', 'scheduled'].includes(campaign.status))
+      throw new Error(`Cannot send a campaign with status "${campaign.status}".`);
+
+    // Fetch event
+    const { data: event, error: eventErr } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", data.eventId)
+      .single();
+    if (eventErr || !event) throw new Error("Event not found.");
+
+    // Fetch only the selected registrations
+    const { data: registrations, error: regsErr } = await supabase
+      .from("event_registrations")
+      .select("*")
+      .eq("event_id", data.eventId)
+      .in("id", data.selectedRegistrationIds);
+    if (regsErr) throw new Error(`Failed to fetch registrations: ${regsErr.message}`);
+    if (!registrations || registrations.length === 0)
+      throw new Error("No valid registrations found for the selected recipients.");
+
+    // Filter out registrations with no valid email
+    const eligible = registrations.filter(
+      (r) => r.email && r.email.includes("@"),
+    );
+    if (eligible.length === 0)
+      throw new Error("None of the selected recipients have a valid email address.");
+
+    // If scheduled, just update status and return early
+    if (data.scheduledAt) {
+      await supabase
+        .from("event_campaigns")
+        .update({ status: "scheduled", scheduled_at: data.scheduledAt })
+        .eq("id", data.campaignId);
+      return { scheduled: true, scheduledAt: data.scheduledAt };
+    }
+
+    // Mark as sending
+    await supabase
+      .from("event_campaigns")
+      .update({ status: "sending", total_recipients: eligible.length })
+      .eq("id", data.campaignId);
+
+    // Build event display values
+    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const rawTime = event.time as string | undefined;
+    const eventTime = rawTime
+      ? (() => {
+          const [h, m] = rawTime.split(":").map(Number);
+          const d = new Date();
+          d.setHours(h, m, 0, 0);
+          return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        })()
+      : "TBA";
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const reg of eligible) {
+      let reactElement: React.ReactElement;
+      const firstName = (reg.full_name || "Attendee").split(" ")[0];
+
+      switch (campaign.template_type) {
+        case "pre_event_appreciation":
+          reactElement = React.createElement(PreEventAppreciationEmail, {
+            firstName,
+            eventName: event.title,
+            eventDate: formattedDate,
+            eventTime,
+            eventVenue: event.venue,
+            eventCity: event.city,
+            eventDescription: event.description || "",
+            eventActivities: (event.agenda || []).slice(0, 6).map((a: { title: string }) => a.title),
+            eventImage: event.banner_image || undefined,
+            registrationUrl: `https://www.gaspostudios.com/events/${event.slug}`,
+            agendaItems: (event.agenda || []).map((a: { time: string; title: string }) => ({ time: a.time, title: a.title })),
+          });
+          break;
+
+        case "post_event_thank_you":
+          reactElement = React.createElement(PostEventThankYouEmail, {
+            firstName,
+            eventName: event.title,
+            eventDate: formattedDate,
+            photo1Url: (event.gallery_images || [])[0] || undefined,
+            photo2Url: (event.gallery_images || [])[1] || undefined,
+            galleryUrl: `https://www.gaspostudios.com/gallery`,
+            nextEventUrl: `https://www.gaspostudios.com/events`,
+          });
+          break;
+
+        case "registration_confirmation":
+          reactElement = React.createElement(EventRegistrationEmail, {
+            attendeeId: reg.id,
+            fullName: reg.full_name,
+            eventName: event.title,
+            eventDate: formattedDate,
+            eventTime,
+            eventType: event.type,
+            venue: event.venue,
+          });
+          break;
+
+        default:
+          // new_registration_notification | custom — use generic broadcast
+          reactElement = React.createElement(CampaignBroadcastEmail, {
+            firstName,
+            subject: campaign.subject,
+            bodyHtml: campaign.custom_body_html || `<p>Hi ${firstName}, we have an update regarding <strong>${event.title}</strong>.</p>`,
+            eventName: event.title,
+          });
+      }
+
+      // Insert pending recipient row
+      const { data: recipientRow } = await supabase
+        .from("campaign_recipients")
+        .insert({
+          campaign_id: data.campaignId,
+          registration_id: reg.id,
+          email: reg.email,
+          full_name: reg.full_name,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      try {
+        await sendAppEmail({
+          to: reg.email,
+          subject: campaign.subject,
+          react: reactElement,
+        });
+
+        if (recipientRow?.id) {
+          await supabase
+            .from("campaign_recipients")
+            .update({ status: "sent", sent_at: new Date().toISOString() })
+            .eq("id", recipientRow.id);
+        }
+        successCount++;
+      } catch (err: any) {
+        console.error(`Campaign send failed for ${reg.email}:`, err);
+        if (recipientRow?.id) {
+          await supabase
+            .from("campaign_recipients")
+            .update({ status: "failed", error_message: err.message || "Unknown error" })
+            .eq("id", recipientRow.id);
+        }
+        failCount++;
+      }
+    }
+
+    // Determine final status
+    const finalStatus =
+      failCount === 0
+        ? "sent"
+        : successCount === 0
+          ? "failed"
+          : "partially_sent";
+
+    await supabase
+      .from("event_campaigns")
+      .update({
+        status: finalStatus,
+        sent_at: new Date().toISOString(),
+        success_count: successCount,
+        fail_count: failCount,
+      })
+      .eq("id", data.campaignId);
+
+    return { successCount, failCount, status: finalStatus };
+  });
+
+/**
+ * Sends a test email to the admin's own address only (not logged to campaign_recipients).
+ */
+export const sendTestCampaignEmail = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      toEmail: z.string().email(),
+      eventId: z.string(),
+      templateType: campaignTemplateSchema,
+      subject: z.string(),
+      customBodyHtml: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: event, error: eventErr } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", data.eventId)
+      .single();
+    if (eventErr || !event) throw new Error("Event not found.");
+
+    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const rawTime = event.time as string | undefined;
+    const eventTime = rawTime
+      ? (() => {
+          const [h, m] = rawTime.split(":").map(Number);
+          const d = new Date();
+          d.setHours(h, m, 0, 0);
+          return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        })()
+      : "TBA";
+
+    let reactElement: React.ReactElement;
+    switch (data.templateType) {
+      case "pre_event_appreciation":
+        reactElement = React.createElement(PreEventAppreciationEmail, {
+          firstName: "Test",
+          eventName: event.title,
+          eventDate: formattedDate,
+          eventTime,
+          eventVenue: event.venue,
+          eventCity: event.city,
+          eventDescription: event.description || "",
+          eventActivities: (event.agenda || []).slice(0, 6).map((a: { title: string }) => a.title),
+          eventImage: event.banner_image || undefined,
+          registrationUrl: `https://www.gaspostudios.com/events/${event.slug}`,
+          agendaItems: (event.agenda || []).map((a: { time: string; title: string }) => ({ time: a.time, title: a.title })),
+        });
+        break;
+      case "post_event_thank_you":
+        reactElement = React.createElement(PostEventThankYouEmail, {
+          firstName: "Test",
+          eventName: event.title,
+          eventDate: formattedDate,
+          photo1Url: (event.gallery_images || [])[0] || undefined,
+          photo2Url: (event.gallery_images || [])[1] || undefined,
+        });
+        break;
+      case "registration_confirmation":
+        reactElement = React.createElement(EventRegistrationEmail, {
+          attendeeId: "TEST-ID",
+          fullName: "Test Attendee",
+          eventName: event.title,
+          eventDate: formattedDate,
+          eventTime,
+          eventType: event.type,
+          venue: event.venue,
+        });
+        break;
+      default:
+        reactElement = React.createElement(CampaignBroadcastEmail, {
+          firstName: "Test",
+          subject: data.subject,
+          bodyHtml: data.customBodyHtml || `<p>This is a test of the campaign email for <strong>${event.title}</strong>.</p>`,
+          eventName: event.title,
+        });
+    }
+
+    const result = await sendAppEmail({
+      to: data.toEmail,
+      subject: `[TEST] ${data.subject}`,
+      react: reactElement,
+    });
+
+    if (!result.success) {
+      throw new Error(`Failed to send test email: ${result.error?.message || "Unknown error"}`);
+    }
+
+    return { success: true };
+  });
+
+/**
+ * Returns a campaign's full delivery report including per-recipient rows.
+ */
+export const fetchCampaignReport = createServerFn({ method: "GET" })
+  .inputValidator(z.object({ campaignId: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: campaign, error: campErr } = await supabase
+      .from("event_campaigns")
+      .select("*")
+      .eq("id", data.campaignId)
+      .single();
+    if (campErr || !campaign) throw new Error("Campaign not found.");
+
+    const { data: recipients, error: recsErr } = await supabase
+      .from("campaign_recipients")
+      .select("*")
+      .eq("campaign_id", data.campaignId)
+      .order("sent_at", { ascending: true });
+    if (recsErr) throw new Error(`Failed to fetch recipients: ${recsErr.message}`);
+
+    return {
+      id: campaign.id,
+      name: campaign.name,
+      templateType: campaign.template_type,
+      subject: campaign.subject,
+      status: campaign.status,
+      sentAt: campaign.sent_at,
+      totalRecipients: campaign.total_recipients ?? 0,
+      successCount: campaign.success_count ?? 0,
+      failCount: campaign.fail_count ?? 0,
+      recipients: (recipients || []).map((r) => ({
+        id: r.id,
+        registrationId: r.registration_id,
+        email: r.email,
+        fullName: r.full_name,
+        status: r.status,
+        sentAt: r.sent_at || null,
+        errorMessage: r.error_message || null,
+      })),
+    };
+  });
+
+/**
+ * Cancels a draft or scheduled campaign (soft-delete: sets status to cancelled).
+ */
+export const deleteEventCampaign = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ campaignId: z.string() }))
+  .handler(async ({ data }) => {
+    requireAuth();
+    const supabase = getSupabaseAdmin();
+
+    const { data: campaign, error: fetchErr } = await supabase
+      .from("event_campaigns")
+      .select("status")
+      .eq("id", data.campaignId)
+      .single();
+    if (fetchErr || !campaign) throw new Error("Campaign not found.");
+    if (["sending", "sent"].includes(campaign.status))
+      throw new Error("Cannot cancel a campaign that has already been sent.");
+
+    const { error } = await supabase
+      .from("event_campaigns")
+      .update({ status: "cancelled" })
+      .eq("id", data.campaignId);
+    if (error) throw new Error(`Failed to cancel campaign: ${error.message}`);
+
+    return { success: true };
   });
