@@ -55,6 +55,7 @@ const serverEnvSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().optional().default(""),
   VAPID_SUBJECT: z.string().optional().default("mailto:admin@gaspostudios.com"),
   VITE_VAPID_PUBLIC_KEY: z.string().optional().default(""),
+  CRON_SECRET: z.string().optional().default(""),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -83,6 +84,7 @@ function readEnv(): ServerEnv {
       process.env.VITE_VAPID_PUBLIC_KEY ||
       dotEnvVars.VITE_VAPID_PUBLIC_KEY ||
       "",
+    CRON_SECRET: process.env.CRON_SECRET || dotEnvVars.CRON_SECRET || "",
   };
 
   const result = serverEnvSchema.safeParse(raw);

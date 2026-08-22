@@ -21,6 +21,7 @@ export default defineConfig({
   // Output directly into .vercel/output so Vercel CI picks it up automatically.
   nitro: {
     preset: "vercel",
+    scanDirs: ["server"],
     output: {
       dir: ".vercel/output",
       serverDir: ".vercel/output/functions/__server.func",

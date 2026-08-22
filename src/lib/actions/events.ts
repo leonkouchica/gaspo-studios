@@ -1017,7 +1017,8 @@ export const createEventCampaign = createServerFn({ method: "POST" })
 
 /**
  * Sends an event campaign to a specific list of selected registrant IDs.
- * Only the registrants whose IDs are in selectedRegistrationIds will receive the email.
+ * If scheduledAt is provided, pre-inserts recipients and sets status to 'scheduled'.
+ * If not, immediately sends the campaign via executeCampaignSend().
  */
 export const sendEventCampaign = createServerFn({ method: "POST" })
   .inputValidator(
@@ -1031,6 +1032,11 @@ export const sendEventCampaign = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     requireAuth();
     const supabase = getSupabaseAdmin();
+
+    // Dynamic import to keep server-only code out of the client bundle.
+    // executeCampaignSend lives in a .server.ts file that uses node:fs/path
+    // transitively — importing it statically at module scope would break the build.
+    const { executeCampaignSend } = await import("./campaign-processor.server.ts");
 
     // Fetch campaign
     const { data: campaign, error: campErr } = await supabase
@@ -1067,154 +1073,35 @@ export const sendEventCampaign = createServerFn({ method: "POST" })
     if (eligible.length === 0)
       throw new Error("None of the selected recipients have a valid email address.");
 
-    // If scheduled, just update status and return early
+    // Pre-insert all recipients into campaign_recipients with status 'pending'
+    const recipientRows = eligible.map((r) => ({
+      campaign_id: data.campaignId,
+      registration_id: r.id,
+      email: r.email,
+      full_name: r.full_name,
+      status: "pending",
+    }));
+
+    const { error: insertErr } = await supabase
+      .from("campaign_recipients")
+      .insert(recipientRows);
+    if (insertErr) throw new Error(`Failed to save recipients: ${insertErr.message}`);
+
+    // If scheduled, update status and return — the cron will pick it up later
     if (data.scheduledAt) {
       await supabase
         .from("event_campaigns")
-        .update({ status: "scheduled", scheduled_at: data.scheduledAt })
+        .update({
+          status: "scheduled",
+          scheduled_at: data.scheduledAt,
+          total_recipients: eligible.length,
+        })
         .eq("id", data.campaignId);
       return { scheduled: true, scheduledAt: data.scheduledAt };
     }
 
-    // Mark as sending
-    await supabase
-      .from("event_campaigns")
-      .update({ status: "sending", total_recipients: eligible.length })
-      .eq("id", data.campaignId);
-
-    // Build event display values
-    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    const rawTime = event.time as string | undefined;
-    const eventTime = rawTime
-      ? (() => {
-          const [h, m] = rawTime.split(":").map(Number);
-          const d = new Date();
-          d.setHours(h, m, 0, 0);
-          return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-        })()
-      : "TBA";
-
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const reg of eligible) {
-      let reactElement: React.ReactElement;
-      const firstName = (reg.full_name || "Attendee").split(" ")[0];
-
-      switch (campaign.template_type) {
-        case "pre_event_appreciation":
-          reactElement = React.createElement(PreEventAppreciationEmail, {
-            firstName,
-            eventName: event.title,
-            eventDate: formattedDate,
-            eventTime,
-            eventVenue: event.venue,
-            eventCity: event.city,
-            eventDescription: event.description || "",
-            eventActivities: (event.agenda || []).slice(0, 6).map((a: { title: string }) => a.title),
-            eventImage: event.banner_image || undefined,
-            registrationUrl: `https://www.gaspostudios.com/events/${event.slug}`,
-            agendaItems: (event.agenda || []).map((a: { time: string; title: string }) => ({ time: a.time, title: a.title })),
-          });
-          break;
-
-        case "post_event_thank_you":
-          reactElement = React.createElement(PostEventThankYouEmail, {
-            firstName,
-            eventName: event.title,
-            eventDate: formattedDate,
-            photo1Url: (event.gallery_images || [])[0] || undefined,
-            photo2Url: (event.gallery_images || [])[1] || undefined,
-            galleryUrl: `https://www.gaspostudios.com/gallery`,
-            nextEventUrl: `https://www.gaspostudios.com/events`,
-          });
-          break;
-
-        case "registration_confirmation":
-          reactElement = React.createElement(EventRegistrationEmail, {
-            attendeeId: reg.id,
-            fullName: reg.full_name,
-            eventName: event.title,
-            eventDate: formattedDate,
-            eventTime,
-            eventType: event.type,
-            venue: event.venue,
-          });
-          break;
-
-        default:
-          // new_registration_notification | custom — use generic broadcast
-          reactElement = React.createElement(CampaignBroadcastEmail, {
-            firstName,
-            subject: campaign.subject,
-            bodyHtml: campaign.custom_body_html || `<p>Hi ${firstName}, we have an update regarding <strong>${event.title}</strong>.</p>`,
-            eventName: event.title,
-          });
-      }
-
-      // Insert pending recipient row
-      const { data: recipientRow } = await supabase
-        .from("campaign_recipients")
-        .insert({
-          campaign_id: data.campaignId,
-          registration_id: reg.id,
-          email: reg.email,
-          full_name: reg.full_name,
-          status: "pending",
-        })
-        .select("id")
-        .single();
-
-      try {
-        await sendAppEmail({
-          to: reg.email,
-          subject: campaign.subject,
-          react: reactElement,
-        });
-
-        if (recipientRow?.id) {
-          await supabase
-            .from("campaign_recipients")
-            .update({ status: "sent", sent_at: new Date().toISOString() })
-            .eq("id", recipientRow.id);
-        }
-        successCount++;
-      } catch (err: any) {
-        console.error(`Campaign send failed for ${reg.email}:`, err);
-        if (recipientRow?.id) {
-          await supabase
-            .from("campaign_recipients")
-            .update({ status: "failed", error_message: err.message || "Unknown error" })
-            .eq("id", recipientRow.id);
-        }
-        failCount++;
-      }
-    }
-
-    // Determine final status
-    const finalStatus =
-      failCount === 0
-        ? "sent"
-        : successCount === 0
-          ? "failed"
-          : "partially_sent";
-
-    await supabase
-      .from("event_campaigns")
-      .update({
-        status: finalStatus,
-        sent_at: new Date().toISOString(),
-        success_count: successCount,
-        fail_count: failCount,
-      })
-      .eq("id", data.campaignId);
-
-    return { successCount, failCount, status: finalStatus };
+    // Immediate send — execute now
+    return await executeCampaignSend(data.campaignId, data.eventId);
   });
 
 /**
