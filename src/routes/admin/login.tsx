@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Lock, Mail, Eye, EyeOff, Camera, ArrowRight } from "lucide-react";
@@ -25,6 +25,15 @@ function setSessionCookie(session: {
   document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
+/** Timeout duration for the signInWithPassword call (ms). */
+const AUTH_TIMEOUT_MS = 15_000;
+
+/**
+ * Fallback delay: if TanStack Router navigate hasn't completed the
+ * transition within this window, force a hard redirect (ms).
+ */
+const NAV_FALLBACK_MS = 3_000;
+
 function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,10 +41,16 @@ function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect to admin if already logged in — also sync the cookie for server functions
+  /** Tracks whether handleLogin is in progress to avoid useEffect race. */
+  const loginInProgressRef = useRef(false);
+
+  // Redirect to admin if already logged in — also sync the cookie for server functions.
+  // Skipped while handleLogin is actively running to prevent a race condition
+  // where both the useEffect and handleLogin try to navigate simultaneously.
   useEffect(() => {
+    if (loginInProgressRef.current) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session && !loginInProgressRef.current) {
         setSessionCookie(session);
         navigate({ to: "/admin" });
       }
@@ -50,23 +65,45 @@ function AdminLoginPage() {
     }
 
     setLoading(true);
+    loginInProgressRef.current = true;
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Wrap the auth call with a timeout so it can't hang indefinitely
+      const authPromise = supabase.auth.signInWithPassword({ email, password });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Login request timed out. Please try again.")),
+          AUTH_TIMEOUT_MS,
+        ),
+      );
+
+      const { data, error } = await Promise.race([authPromise, timeoutPromise]);
 
       if (error) {
         toast.error(error.message || "Invalid login credentials.");
       } else if (data.session) {
         setSessionCookie(data.session);
         toast.success("Welcome back! Logging in...");
+
+        // Attempt client-side navigation first
         navigate({ to: "/admin" });
+
+        // Safety net: if TanStack Router navigation stalls (e.g. beforeLoad
+        // hangs due to cold-start or network), fall back to a hard redirect.
+        setTimeout(() => {
+          if (window.location.pathname === "/admin/login") {
+            window.location.href = "/admin";
+          }
+        }, NAV_FALLBACK_MS);
       }
     } catch (err: any) {
-      toast.error("An unexpected error occurred during login.");
+      const message =
+        err?.message?.includes("timed out")
+          ? err.message
+          : "An unexpected error occurred during login.";
+      toast.error(message);
     } finally {
       setLoading(false);
+      loginInProgressRef.current = false;
     }
   };
 

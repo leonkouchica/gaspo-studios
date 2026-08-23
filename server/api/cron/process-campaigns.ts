@@ -4,7 +4,7 @@ import { serverEnv } from "../../../src/lib/env.server";
 
 /**
  * Vercel Cron endpoint for processing scheduled email campaigns.
- * Runs every 2 minutes (configured in vercel.json).
+ * Runs every 5 minutes (configured in vercel.json).
  *
  * This is a Nitro server route (not a TanStack Start route) so it lives
  * entirely on the server — no risk of Node.js modules leaking into the
