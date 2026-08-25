@@ -11,8 +11,8 @@ import { GASPO_LOGO_BASE64 } from "./logo-data.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-/** Opacity of each watermark tile (0–255). 23 ≈ 9% opacity. */
-const WATERMARK_OPACITY = 23;
+/** Opacity of each watermark tile (0–255). 18 ≈ 7% opacity. */
+const WATERMARK_OPACITY = 18;
 
 /** Maximum width of a single watermark tile (px). Scales down for small images. */
 const TILE_MAX_WIDTH = 320;
