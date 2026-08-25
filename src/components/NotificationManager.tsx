@@ -1,13 +1,53 @@
 // src/components/NotificationManager.tsx
 // User-facing push notification opt-in UI with channel checkboxes.
 // Renders a floating panel / card for notification preferences.
-// Auto-dismisses after user accepts or declines.
+// Non-intrusive: delays appearance, remembers dismissal, and auto-fades.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bell, BellRing, X, Loader2 } from "lucide-react";
-import { usePushNotification, type UserPreferences } from "../hooks/use-push-notification";
+import { usePushNotification } from "../hooks/use-push-notification";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
+
+/** localStorage key for tracking dismissal */
+const DISMISS_KEY = "gaspo_notif_dismissed_at";
+/** How long (ms) to suppress the popup after dismissal — 7 days */
+const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+/** How long (ms) to wait before showing the popup on page load */
+const SHOW_DELAY_MS = 5000;
+/** How long (ms) to show the "Notifications Active" confirmation before auto-fading */
+const AUTO_FADE_DELAY_MS = 4000;
+/** Duration (ms) of the fade-out animation */
+const FADE_DURATION_MS = 600;
+
+/**
+ * Checks whether the notification popup was recently dismissed.
+ * Returns true if the popup should remain hidden.
+ */
+function isRecentlyDismissed(): boolean {
+  try {
+    const raw = localStorage.getItem(DISMISS_KEY);
+    if (!raw) return false;
+    const dismissedAt = parseInt(raw, 10);
+    if (isNaN(dismissedAt)) return false;
+    return Date.now() - dismissedAt < DISMISS_DURATION_MS;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Persists the dismissal timestamp to localStorage.
+ * @param permanent - If true, sets a far-future timestamp so the popup never returns.
+ */
+function recordDismissal(permanent = false): void {
+  try {
+    const ts = permanent ? Date.now() + DISMISS_DURATION_MS * 52 : Date.now(); // ~1 year for permanent
+    localStorage.setItem(DISMISS_KEY, String(ts));
+  } catch {
+    // localStorage may be unavailable — fail silently
+  }
+}
 
 export function NotificationManager() {
   const {
@@ -21,27 +61,68 @@ export function NotificationManager() {
     updatePreferences,
   } = usePushNotification();
 
+  const [ready, setReady] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [justSubscribed, setJustSubscribed] = useState(false);
+  const [fading, setFading] = useState(false);
 
-  // Auto-dismiss the "Notifications Active" panel 5 seconds after subscribing
+  // Delay initial render so the popup doesn't hijack the first impression
+  useEffect(() => {
+    if (isRecentlyDismissed()) {
+      setDismissed(true);
+      return;
+    }
+    const timer = setTimeout(() => setReady(true), SHOW_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-fade the "Notifications Active" confirmation panel
   useEffect(() => {
     if (justSubscribed) {
-      const timer = setTimeout(() => {
-        setDismissed(true);
-        setJustSubscribed(false);
-      }, 5000);
-      return () => clearTimeout(timer);
+      const fadeTimer = setTimeout(() => {
+        setFading(true);
+        const removeTimer = setTimeout(() => {
+          setDismissed(true);
+          setJustSubscribed(false);
+          setFading(false);
+          // Subscribed users don't need to see this again
+          recordDismissal(true);
+        }, FADE_DURATION_MS);
+        return () => clearTimeout(removeTimer);
+      }, AUTO_FADE_DELAY_MS);
+      return () => clearTimeout(fadeTimer);
     }
   }, [justSubscribed]);
 
-  // Don't show anything if unsupported or permanently dismissed
+  /** Dismiss handler — remembers dismissal for 7 days */
+  const handleDismiss = useCallback(
+    (permanent = false) => {
+      setFading(true);
+      setTimeout(() => {
+        setDismissed(true);
+        setFading(false);
+        recordDismissal(permanent);
+      }, FADE_DURATION_MS);
+    },
+    [],
+  );
+
+  // Don't render if unsupported, dismissed, not ready, or already subscribed (and not just subscribed)
   if (permission === "unsupported" || dismissed) return null;
+  if (!ready) return null;
+  if (subscribed && !justSubscribed) return null;
+
+  // Shared wrapper styles with enter/fade animation
+  const wrapperClassName = [
+    "fixed bottom-6 right-6 z-50 max-w-sm",
+    fading ? "animate-fade-out" : "animate-slide-fade-in",
+  ].join(" ");
 
   // Denied state — show a helpful message
   if (permission === "denied") {
     return (
-      <div className="fixed bottom-6 right-6 z-50 max-w-sm animate-in slide-in-from-bottom-4 duration-300">
+      <div className={wrapperClassName}>
+        <style>{animationStyles}</style>
         <div className="bg-white rounded-2xl border border-border shadow-lg p-5">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
@@ -55,7 +136,7 @@ export function NotificationManager() {
               </p>
             </div>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={() => handleDismiss(true)}
               className="text-muted-foreground hover:text-dark shrink-0"
               aria-label="Dismiss"
             >
@@ -67,10 +148,11 @@ export function NotificationManager() {
     );
   }
 
-  // Subscribed state — show preference toggles (auto-dismisses after 5s)
+  // Subscribed state — show preference toggles (auto-fades)
   if (subscribed) {
     return (
-      <div className="fixed bottom-6 right-6 z-50 max-w-sm animate-in slide-in-from-bottom-4 duration-300">
+      <div className={wrapperClassName}>
+        <style>{animationStyles}</style>
         <div className="bg-white rounded-2xl border border-border shadow-lg p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -78,7 +160,7 @@ export function NotificationManager() {
               <p className="text-sm font-semibold text-dark">Notifications Active</p>
             </div>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={() => handleDismiss(true)}
               className="text-muted-foreground hover:text-dark shrink-0"
               aria-label="Dismiss"
             >
@@ -128,7 +210,8 @@ export function NotificationManager() {
 
   // Default state — opt-in prompt
   return (
-    <div className="fixed bottom-6 right-6 z-50 max-w-sm animate-in slide-in-from-bottom-4 duration-300">
+    <div className={wrapperClassName}>
+      <style>{animationStyles}</style>
       <div className="bg-white rounded-2xl border border-border shadow-lg p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -136,7 +219,7 @@ export function NotificationManager() {
             <p className="text-sm font-semibold text-dark">Stay Updated</p>
           </div>
           <button
-            onClick={() => setDismissed(true)}
+            onClick={() => handleDismiss()}
             className="text-muted-foreground hover:text-dark shrink-0"
             aria-label="Dismiss"
           >
@@ -172,3 +255,48 @@ export function NotificationManager() {
     </div>
   );
 }
+
+/**
+ * Inline keyframe animations for the notification popup.
+ * Using inline styles to avoid needing a separate CSS import.
+ * Respects prefers-reduced-motion for accessibility.
+ */
+const animationStyles = `
+  @keyframes notifSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes notifFadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+  }
+  .animate-slide-fade-in {
+    animation: notifSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-fade-out {
+    animation: notifFadeOut ${FADE_DURATION_MS}ms ease-out forwards;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-slide-fade-in {
+      animation: none;
+      opacity: 1;
+    }
+    .animate-fade-out {
+      animation: none;
+      opacity: 0;
+    }
+  }
+`;
