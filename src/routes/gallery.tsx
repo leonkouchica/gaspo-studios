@@ -23,7 +23,7 @@ export const Route = createFileRoute("/gallery")({
   component: GalleryPage,
 });
 
-const categories = ["All", "Weddings", "Portraits", "Commercial", "Events", "Video"] as const;
+const categories = ["All", "Weddings", "Portraits", "Commercial", "Events", "Studio", "Video"] as const;
 
 interface GalleryItem {
   id: string;

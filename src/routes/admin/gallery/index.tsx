@@ -45,6 +45,7 @@ const CATEGORIES = [
   "Portraits",
   "Events",
   "Fashion",
+  "Studio",
   "Product",
   "Real Estate",
   "Other",

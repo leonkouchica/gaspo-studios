@@ -7,6 +7,7 @@ export type GalleryCategory =
   | "Portraits"
   | "Commercial"
   | "Events"
+  | "Studio"
   | "Behind the Scenes";
 
 export interface GalleryImage {
@@ -168,6 +169,7 @@ export const galleryCategories: GalleryCategory[] = [
   "Portraits",
   "Commercial",
   "Events",
+  "Studio",
   "Behind the Scenes",
 ];
 
