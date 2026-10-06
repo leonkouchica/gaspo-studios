@@ -51,139 +51,202 @@ const CATEGORIES = [
   "Other",
 ];
 
+interface UploadQueueItem {
+  id: string;
+  file: File;
+  previewUrl: string;
+  title: string;
+  status: "idle" | "uploading" | "processing" | "success" | "error";
+  errorMessage?: string;
+}
+
 function UploadModal({
   onClose,
   onUploaded,
 }: {
   onClose: () => void;
-  onUploaded: (img: GalleryImage) => void;
+  onUploaded: (imgs: GalleryImage[] | GalleryImage) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadPhase, setUploadPhase] = useState<"idle" | "uploading" | "processing">("idle");
-  const [title, setTitle] = useState("");
+  const [items, setItems] = useState<UploadQueueItem[]>([]);
   const [category, setCategory] = useState("Weddings");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    if (!title) setTitle(file.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "));
+  const addFiles = (files: FileList | File[]) => {
+    const newItems: UploadQueueItem[] = Array.from(files)
+      .filter((f) => f.type.startsWith("image/"))
+      .map((f) => ({
+        id: Math.random().toString(36).substring(2, 9),
+        file: f,
+        previewUrl: URL.createObjectURL(f),
+        title: f.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
+        status: "idle",
+      }));
+
+    setItems((prev) => [...prev, ...newItems]);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) handleFileSelect(file);
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) return toast.error("Please select an image.");
-    if (!title.trim()) return toast.error("Please enter a title.");
-
-    setUploading(true);
-    try {
-      // ── Phase 1: Get a signed upload URL from the server ──────────────────
-      // This is a tiny JSON request — no file bytes involved.
-      setUploadPhase("uploading");
-      const { signedUrl, storagePath } = await getGalleryUploadUrl({
-        data: { fileName: selectedFile.name },
-      });
-
-      // ── Phase 2: PUT the raw file directly to Supabase storage ────────────
-      // The file goes browser → Supabase directly. No server body size limit.
-      const uploadRes = await fetch(signedUrl, {
-        method: "PUT",
-        body: selectedFile,
-        headers: { "Content-Type": selectedFile.type },
-      });
-      if (!uploadRes.ok) {
-        throw new Error(`Direct upload failed (${uploadRes.status}): ${uploadRes.statusText}`);
-      }
-
-      // ── Phase 3: Server converts to WebP, watermarks, saves DB record ──────
-      // Only the storage path + metadata travels to the server — still tiny.
-      setUploadPhase("processing");
-      const result = await processGalleryUpload({
-        data: {
-          storagePath,
-          fileName: selectedFile.name,
-          title: title.trim(),
-          alt: title.trim(),
-          category,
-        },
-      });
-
-      toast.success("Image uploaded, watermarked, and saved to gallery.");
-      onUploaded(result as GalleryImage);
-      onClose();
-    } catch (err: any) {
-      toast.error(`Upload failed: ${err.message}`);
-    } finally {
-      setUploading(false);
-      setUploadPhase("idle");
+    if (e.dataTransfer.files?.length) {
+      addFiles(e.dataTransfer.files);
     }
   };
 
+  const removeItem = (id: string) => {
+    if (uploading) return;
+    setItems((prev) => prev.filter((it) => it.id !== id));
+  };
+
+  const updateTitle = (id: string, title: string) => {
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, title } : it)));
+  };
+
+  const handleUpload = async () => {
+    const pending = items.filter((it) => it.status !== "success");
+    if (pending.length === 0) return toast.error("Please add at least one image to upload.");
+
+    setUploading(true);
+    const successfullyUploaded: GalleryImage[] = [];
+    let failedCount = 0;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.status === "success") continue;
+
+      setCurrentIdx(i + 1);
+
+      // Phase 1: get signed upload URL
+      setItems((prev) =>
+        prev.map((it) => (it.id === item.id ? { ...it, status: "uploading" } : it)),
+      );
+
+      try {
+        const { signedUrl, storagePath } = await getGalleryUploadUrl({
+          data: { fileName: item.file.name },
+        });
+
+        // Phase 2: PUT raw file directly to storage
+        const uploadRes = await fetch(signedUrl, {
+          method: "PUT",
+          body: item.file,
+          headers: { "Content-Type": item.file.type },
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error(`Direct upload failed (${uploadRes.status})`);
+        }
+
+        // Phase 3: server converts to WebP, applies watermark, saves DB record
+        setItems((prev) =>
+          prev.map((it) => (it.id === item.id ? { ...it, status: "processing" } : it)),
+        );
+
+        const result = await processGalleryUpload({
+          data: {
+            storagePath,
+            fileName: item.file.name,
+            title: item.title.trim() || item.file.name,
+            alt: item.title.trim() || item.file.name,
+            category,
+          },
+        });
+
+        successfullyUploaded.push(result as GalleryImage);
+        setItems((prev) =>
+          prev.map((it) => (it.id === item.id ? { ...it, status: "success" } : it)),
+        );
+      } catch (err: any) {
+        failedCount++;
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === item.id ? { ...it, status: "error", errorMessage: err.message } : it,
+          ),
+        );
+      }
+    }
+
+    setUploading(false);
+
+    if (successfullyUploaded.length > 0) {
+      onUploaded(successfullyUploaded);
+      if (failedCount === 0) {
+        toast.success(`Successfully uploaded and watermarked ${successfullyUploaded.length} images.`);
+        onClose();
+      } else {
+        toast.warning(
+          `Uploaded ${successfullyUploaded.length} images. ${failedCount} failed — please check errors.`,
+        );
+      }
+    } else {
+      toast.error("Upload failed for all selected images.");
+    }
+  };
+
+  const completedCount = items.filter((it) => it.status === "success").length;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-dark/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white border border-border shadow-2xl rounded-3xl w-full max-w-md p-6 space-y-5 z-10">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-bold text-dark">Upload to Gallery</h3>
+      <div className="absolute inset-0 bg-dark/60 backdrop-blur-sm" onClick={uploading ? undefined : onClose} />
+      <div className="relative bg-white border border-border shadow-2xl rounded-3xl w-full max-w-2xl p-6 space-y-5 z-10 max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
+          <div>
+            <h3 className="font-bold text-dark text-lg">Upload Images to Gallery</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Select one or multiple images. Automatically converts to WebP and applies watermark.
+            </p>
+          </div>
           <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-muted text-slate-500 hover:text-dark flex items-center justify-center"
+            onClick={uploading ? undefined : onClose}
+            disabled={uploading}
+            className="w-8 h-8 rounded-lg bg-muted text-slate-500 hover:text-dark flex items-center justify-center disabled:opacity-50 cursor-pointer"
           >
             <X size={16} />
           </button>
         </div>
 
-        {/* Drop zone */}
-        <div
-          onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
-          onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-border rounded-2xl p-6 text-center text-muted-foreground cursor-pointer hover:border-primary hover:bg-muted/30 transition-colors min-h-[140px] flex flex-col items-center justify-center"
-        >
-          {previewUrl ? (
-            <img src={previewUrl} alt="Preview" className="max-h-32 rounded-xl object-cover" />
-          ) : (
-            <>
-              <Upload size={24} className="mb-2 opacity-50" />
-              <p className="text-xs font-medium">Drop an image or click to browse</p>
-              <p className="text-xs opacity-60 mt-1">Auto-converts to WebP at quality 90</p>
-            </>
-          )}
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) handleFileSelect(f);
-          }}
-        />
-
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs font-bold text-dark block mb-1.5">Image Title</label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Describe the image..."
-              className="w-full bg-slate-50 border border-border rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none"
-            />
+        <div className="overflow-y-auto space-y-4 flex-1 pr-1">
+          {/* Drop zone */}
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-border rounded-2xl p-5 text-center text-muted-foreground cursor-pointer hover:border-primary hover:bg-muted/30 transition-colors min-h-[120px] flex flex-col items-center justify-center"
+          >
+            <Upload size={24} className="mb-1.5 opacity-50 text-primary" />
+            <p className="text-xs font-semibold text-dark">
+              Click to browse or drop multiple images here
+            </p>
+            <p className="text-[11px] opacity-60 mt-0.5">
+              JPG, PNG, WebP • Auto-watermarked with GASPO STUDIOS
+            </p>
           </div>
-          <div>
-            <label className="text-xs font-bold text-dark block mb-1.5">Category</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files?.length) addFiles(e.target.files);
+            }}
+          />
+
+          {/* Category selection */}
+          <div className="bg-slate-50 border border-border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <label className="text-xs font-bold text-dark block">Portfolio Category</label>
+              <p className="text-[11px] text-muted-foreground">
+                Applies to all images in this upload batch
+              </p>
+            </div>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-slate-50 border border-border rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none"
+              disabled={uploading}
+              className="bg-white border border-border rounded-xl px-3 py-2 text-xs font-medium focus:border-primary outline-none"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -192,24 +255,115 @@ function UploadModal({
               ))}
             </select>
           </div>
+
+          {/* Selected queue */}
+          {items.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-dark px-1">
+                <span>
+                  Selected Images ({items.length})
+                </span>
+                {completedCount > 0 && (
+                  <span className="text-green-600 font-semibold">
+                    {completedCount} of {items.length} completed
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                {items.map((it) => (
+                  <div
+                    key={it.id}
+                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-slate-50/60 hover:bg-slate-50 transition-colors"
+                  >
+                    <img
+                      src={it.previewUrl}
+                      alt={it.title}
+                      className="w-12 h-12 rounded-lg object-cover border border-border shrink-0 bg-muted"
+                    />
+
+                    <div className="flex-1 min-w-0">
+                      <input
+                        value={it.title}
+                        onChange={(e) => updateTitle(it.id, e.target.value)}
+                        disabled={uploading || it.status === "success"}
+                        placeholder="Image title…"
+                        className="w-full bg-transparent text-xs font-semibold text-dark outline-none border-b border-transparent focus:border-primary px-1 py-0.5"
+                      />
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5 px-1">
+                        <span>{(it.file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                        <span>•</span>
+                        {it.status === "idle" && (
+                          <span className="text-slate-500">Ready</span>
+                        )}
+                        {it.status === "uploading" && (
+                          <span className="text-blue-600 font-medium flex items-center gap-1">
+                            <Loader2 size={10} className="animate-spin" /> Uploading to storage…
+                          </span>
+                        )}
+                        {it.status === "processing" && (
+                          <span className="text-amber-600 font-medium flex items-center gap-1">
+                            <Loader2 size={10} className="animate-spin" /> Watermarking & WebP…
+                          </span>
+                        )}
+                        {it.status === "success" && (
+                          <span className="text-green-600 font-bold flex items-center gap-1">
+                            <CheckCircle2 size={10} /> Completed
+                          </span>
+                        )}
+                        {it.status === "error" && (
+                          <span className="text-red-600 font-medium">
+                            {it.errorMessage || "Failed"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {!uploading && it.status !== "success" && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(it.id)}
+                        className="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors shrink-0"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={handleUpload}
-          disabled={uploading || !selectedFile}
-          className="w-full bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl py-3 text-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-        >
-          {uploading ? (
-            <>
-              <Loader2 size={15} className="animate-spin" />
-              {uploadPhase === "uploading" ? "Uploading…" : "Processing & Watermarking…"}
-            </>
-          ) : (
-            <>
-              <Upload size={15} /> Upload Image
-            </>
+        {/* Action button */}
+        <div className="pt-2 border-t border-border flex items-center gap-3 shrink-0">
+          {items.length > 0 && !uploading && (
+            <button
+              type="button"
+              onClick={() => setItems([])}
+              className="text-xs text-muted-foreground hover:text-dark px-3 py-2"
+            >
+              Clear All
+            </button>
           )}
-        </button>
+
+          <button
+            onClick={handleUpload}
+            disabled={uploading || items.length === 0}
+            className="flex-1 ml-auto bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl py-3 text-sm flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+          >
+            {uploading ? (
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                Processing {currentIdx} of {items.length}…
+              </>
+            ) : (
+              <>
+                <Upload size={15} /> Upload {items.length} {items.length === 1 ? "Image" : "Images"}
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -488,7 +642,10 @@ function AdminGalleryPage() {
       {showUploadModal && (
         <UploadModal
           onClose={() => setShowUploadModal(false)}
-          onUploaded={(img) => setImages((prev) => [img, ...prev])}
+          onUploaded={(uploaded) => {
+            const list = Array.isArray(uploaded) ? uploaded : [uploaded];
+            setImages((prev) => [...list, ...prev]);
+          }}
         />
       )}
     </div>

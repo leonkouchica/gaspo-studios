@@ -19,6 +19,9 @@ const mockPost = {
   author_avatar: "/images/team_founder.webp",
   author_role: "Founder",
   featured_image: "https://example.com/gallery/img.webp",
+  side_image: "https://example.com/gallery/side.webp",
+  side_image_caption: "Side photo caption",
+  gallery_images: ["https://example.com/gallery/b1.webp"],
   status: "published",
   published_at: "2026-05-31T12:00:00Z",
   views: 10,
@@ -36,6 +39,7 @@ const mockQuery: any = {
   order: vi.fn(),
   or: vi.fn(),
   limit: vi.fn(),
+  range: vi.fn(),
   update: vi.fn(),
   insert: vi.fn(),
   delete: vi.fn(),
@@ -48,6 +52,7 @@ mockQuery.eq.mockReturnValue(mockQuery);
 mockQuery.order.mockReturnValue(mockQuery);
 mockQuery.or.mockReturnValue(mockQuery);
 mockQuery.limit.mockReturnValue(mockQuery);
+mockQuery.range.mockReturnValue(mockQuery);
 mockQuery.update.mockReturnValue(mockQuery);
 mockQuery.insert.mockReturnValue(mockQuery);
 mockQuery.delete.mockReturnValue(mockQuery);
@@ -69,50 +74,71 @@ vi.mock("../supabase.server.ts", () => ({
   getSupabaseAdmin: () => mockSupabase,
 }));
 
+vi.mock("../auth-guard.server.ts", () => ({
+  requireAuth: vi.fn(),
+  requireRole: vi.fn(),
+}));
+
 describe("Blog Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockQuery.select.mockReturnValue(mockQuery);
+    mockQuery.eq.mockReturnValue(mockQuery);
+    mockQuery.order.mockReturnValue(mockQuery);
+    mockQuery.or.mockReturnValue(mockQuery);
+    mockQuery.limit.mockReturnValue(mockQuery);
+    mockQuery.range.mockReturnValue(mockQuery);
+    mockQuery.update.mockReturnValue(mockQuery);
+    mockQuery.insert.mockReturnValue(mockQuery);
+    mockQuery.delete.mockReturnValue(mockQuery);
+    mockQuery.single.mockReturnValue(mockQuery);
   });
 
   describe("fetchBlogPosts", () => {
     it("should fetch, filter, and map posts correctly", async () => {
+      // First call is count query (head: true)
+      mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
+        return Promise.resolve(onfulfilled({ data: null, count: 1, error: null }));
+      });
+      // Second call is data query
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(onfulfilled({ data: [mockPost], error: null }));
       });
 
-      const result = await fetchBlogPosts({ category: "Weddings", status: "published", limit: 10 });
+      const result = await fetchBlogPosts({
+        category: "Weddings",
+        status: "published",
+        limit: 10,
+      });
 
       expect(mockSupabase.from).toHaveBeenCalledWith("blog_posts");
       expect(mockQuery.eq).toHaveBeenCalledWith("category", "Weddings");
       expect(mockQuery.eq).toHaveBeenCalledWith("status", "published");
-      expect(mockQuery.limit).toHaveBeenCalledWith(10);
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe("post-123");
-      expect(result[0].author.name).toBe("Marco Gaspo");
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].id).toBe("post-123");
+      expect(result.items[0].author.name).toBe("Marco Gaspo");
+      expect(result.items[0].sideImage).toBe("https://example.com/gallery/side.webp");
+      expect(result.items[0].galleryImages).toEqual(["https://example.com/gallery/b1.webp"]);
     });
   });
 
   describe("fetchBlogPost", () => {
-    it("should fetch and increment views on read", async () => {
+    it("should fetch post by slug and parse media", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(onfulfilled({ data: mockPost, error: null }));
-      });
-
-      mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({ data: null, error: null }));
       });
 
       const result = await fetchBlogPost({ slug: "test-slug" });
 
       expect(mockQuery.eq).toHaveBeenCalledWith("slug", "test-slug");
-      expect(mockQuery.update).toHaveBeenCalledWith({ views: 11 });
-      expect(mockQuery.eq).toHaveBeenCalledWith("id", "post-123");
-      expect(result.views).toBe(11);
+      expect(result.id).toBe("post-123");
+      expect(result.author.name).toBe("Marco Gaspo");
+      expect(result.sideImage).toBe("https://example.com/gallery/side.webp");
     });
   });
 
   describe("createBlogPost", () => {
-    it("should insert standard blog post data", async () => {
+    it("should insert standard blog post data with author and media", async () => {
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(onfulfilled({ data: mockPost, error: null }));
       });
@@ -124,7 +150,14 @@ describe("Blog Server Actions", () => {
         body: "Test Body",
         category: "Weddings",
         tags: ["tag1"],
+        author: {
+          name: "Marco Gaspo",
+          role: "Founder",
+          avatar: "/images/team_founder.webp",
+        },
         featuredImage: "https://example.com/gallery/img.webp",
+        sideImage: "https://example.com/gallery/side.webp",
+        galleryImages: ["https://example.com/gallery/b1.webp"],
         status: "published",
       });
 
@@ -135,14 +168,11 @@ describe("Blog Server Actions", () => {
   });
 
   describe("updateBlogPost", () => {
-    it("should update blog post in DB", async () => {
+    it("should update blog post in DB with author and media", async () => {
       // 1. SELECT query to get current post status
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(
-          onfulfilled({
-            data: { status: "draft", published_at: null },
-            error: null,
-          }),
+          onfulfilled({ data: { status: "draft", published_at: null }, error: null }),
         );
       });
 
@@ -159,7 +189,14 @@ describe("Blog Server Actions", () => {
         body: "Test Body",
         category: "Weddings",
         tags: ["tag1"],
+        author: {
+          name: "Aisha Bello",
+          role: "Lead Editor",
+          avatar: "/images/portrait_woman.webp",
+        },
         featuredImage: "https://example.com/gallery/img.webp",
+        sideImage: "https://example.com/gallery/side.webp",
+        galleryImages: ["https://example.com/gallery/b1.webp"],
         status: "published",
       });
 
@@ -167,6 +204,7 @@ describe("Blog Server Actions", () => {
       expect(mockQuery.update).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Updated Title",
+          author_name: "Aisha Bello",
         }),
       );
       expect(result.id).toBe("post-123");
@@ -175,7 +213,6 @@ describe("Blog Server Actions", () => {
 
   describe("deleteBlogPost", () => {
     it("should delete from DB and storage", async () => {
-      // 1. SELECT featured_image
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(
           onfulfilled({
@@ -188,7 +225,6 @@ describe("Blog Server Actions", () => {
         );
       });
 
-      // 2. DELETE row
       mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
         return Promise.resolve(onfulfilled({ error: null }));
       });

@@ -23,6 +23,36 @@ const seoSchema = z.object({
   ogImage: z.string().optional(),
 });
 
+export interface BlogMedia {
+  sideImage?: string;
+  sideImageCaption?: string;
+  galleryImages?: string[];
+}
+
+export function extractBlogMedia(body: string): { cleanBody: string; media: BlogMedia } {
+  const match = body?.match(/<!-- BLOG_MEDIA: ({[\s\S]*?}) -->/);
+  if (match) {
+    try {
+      const media = JSON.parse(match[1]);
+      const cleanBody = body.replace(/<!-- BLOG_MEDIA: ({[\s\S]*?}) -->/, "").trim();
+      return { cleanBody, media };
+    } catch {
+      // fallback
+    }
+  }
+  return { cleanBody: body || "", media: {} };
+}
+
+export function injectBlogMedia(body: string, media: BlogMedia): string {
+  const clean = (body || "").replace(/<!-- BLOG_MEDIA: ({[\s\S]*?}) -->/, "").trim();
+  const hasSide = Boolean(media.sideImage);
+  const hasGallery = Boolean(media.galleryImages && media.galleryImages.length > 0);
+  if (!hasSide && !hasGallery) {
+    return clean;
+  }
+  return `${clean}\n\n<!-- BLOG_MEDIA: ${JSON.stringify(media)} -->`;
+}
+
 export const fetchBlogPosts = createServerFn({ method: "GET" })
   .inputValidator(
     (
@@ -73,33 +103,42 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
     const { data: posts, error } = await query;
     if (error) throw new Error(`Failed to fetch blog posts: ${error.message}`);
 
-    const items = (posts || []).map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      title: p.title,
-      excerpt: p.excerpt,
-      body: p.body,
-      category: p.category,
-      tags: p.tags || [],
-      author: {
-        name: p.author_name,
-        avatar: p.author_avatar,
-        role: p.author_role,
-      },
-      featuredImage: p.featured_image,
-      status: p.status,
-      publishedAt: p.published_at,
-      scheduledFor: p.scheduled_for || undefined,
-      views: p.views || 0,
-      comments: p.comments || 0,
-      seo: {
-        title: p.seo_title || p.title,
-        description: p.seo_description || p.excerpt,
-        ogImage: p.seo_og_image || undefined,
-      },
-      createdAt: p.created_at,
-      updatedAt: p.updated_at,
-    }));
+    const items = (posts || []).map((p) => {
+      const { cleanBody, media } = extractBlogMedia(p.body || "");
+      return {
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt,
+        body: cleanBody,
+        category: p.category,
+        tags: p.tags || [],
+        author: {
+          name: p.author_name,
+          avatar: p.author_avatar,
+          role: p.author_role,
+        },
+        featuredImage: p.featured_image,
+        sideImage: p.side_image || media.sideImage || undefined,
+        sideImageCaption: p.side_image_caption || media.sideImageCaption || undefined,
+        galleryImages:
+          Array.isArray(p.gallery_images) && p.gallery_images.length > 0
+            ? p.gallery_images
+            : media.galleryImages || [],
+        status: p.status,
+        publishedAt: p.published_at,
+        scheduledFor: p.scheduled_for || undefined,
+        views: p.views || 0,
+        comments: p.comments || 0,
+        seo: {
+          title: p.seo_title || p.title,
+          description: p.seo_description || p.excerpt,
+          ogImage: p.seo_og_image || undefined,
+        },
+        createdAt: p.created_at,
+        updatedAt: p.updated_at,
+      };
+    });
 
     return { items, total: total || 0, page, totalPages: Math.ceil((total || 0) / limit) };
   });
@@ -118,12 +157,14 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
       throw new Error(`Failed to fetch blog post: ${error.message}`);
     }
 
+    const { cleanBody, media } = extractBlogMedia(p.body || "");
+
     return {
       id: p.id,
       slug: p.slug,
       title: p.title,
       excerpt: p.excerpt,
-      body: p.body,
+      body: cleanBody,
       category: p.category,
       tags: p.tags || [],
       author: {
@@ -132,6 +173,12 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
         role: p.author_role,
       },
       featuredImage: p.featured_image,
+      sideImage: p.side_image || media.sideImage || undefined,
+      sideImageCaption: p.side_image_caption || media.sideImageCaption || undefined,
+      galleryImages:
+        Array.isArray(p.gallery_images) && p.gallery_images.length > 0
+          ? p.gallery_images
+          : media.galleryImages || [],
       status: p.status,
       publishedAt: p.published_at,
       scheduledFor: p.scheduled_for || undefined,
@@ -161,12 +208,14 @@ export const fetchBlogPostById = createServerFn({ method: "GET" })
       throw new Error(`Failed to fetch blog post: ${error.message}`);
     }
 
+    const { cleanBody, media } = extractBlogMedia(p.body || "");
+
     return {
       id: p.id,
       slug: p.slug,
       title: p.title,
       excerpt: p.excerpt,
-      body: p.body,
+      body: cleanBody,
       category: p.category,
       tags: p.tags || [],
       author: {
@@ -175,6 +224,12 @@ export const fetchBlogPostById = createServerFn({ method: "GET" })
         role: p.author_role,
       },
       featuredImage: p.featured_image,
+      sideImage: p.side_image || media.sideImage || undefined,
+      sideImageCaption: p.side_image_caption || media.sideImageCaption || undefined,
+      galleryImages:
+        Array.isArray(p.gallery_images) && p.gallery_images.length > 0
+          ? p.gallery_images
+          : media.galleryImages || [],
       status: p.status,
       publishedAt: p.published_at,
       scheduledFor: p.scheduled_for || undefined,
@@ -259,6 +314,9 @@ export const createBlogPost = createServerFn({ method: "POST" })
       tags: z.array(z.string()).default([]),
       author: authorSchema.optional(),
       featuredImage: z.string(),
+      sideImage: z.string().optional(),
+      sideImageCaption: z.string().optional(),
+      galleryImages: z.array(z.string()).optional(),
       status: postStatusSchema,
       scheduledFor: z.string().optional(),
       seo: seoSchema.optional(),
@@ -274,36 +332,67 @@ export const createBlogPost = createServerFn({ method: "POST" })
     };
     const seo = data.seo || {};
 
-    const { data: inserted, error } = await supabase
-      .from("blog_posts")
-      .insert({
-        slug: data.slug,
-        title: data.title,
-        excerpt: data.excerpt,
-        body: data.body,
-        category: data.category,
-        tags: data.tags,
-        author_name: author.name,
-        author_avatar: author.avatar,
-        author_role: author.role,
-        featured_image: data.featuredImage,
-        status: data.status,
-        published_at: data.status === "published" ? new Date().toISOString() : null,
-        scheduled_for: data.scheduledFor || null,
-        views: 0,
-        comments: 0,
-        seo_title: seo.title || data.title,
-        seo_description: seo.description || data.excerpt,
-        seo_og_image: seo.ogImage || data.featuredImage,
-      })
-      .select()
-      .single();
+    const media: BlogMedia = {
+      sideImage: data.sideImage || undefined,
+      sideImageCaption: data.sideImageCaption || undefined,
+      galleryImages: data.galleryImages || [],
+    };
 
-    if (error) {
-      throw new Error(`Failed to create blog post: ${error.message}`);
+    const basePayload = {
+      slug: data.slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      category: data.category,
+      tags: data.tags,
+      author_name: author.name,
+      author_avatar: author.avatar,
+      author_role: author.role,
+      featured_image: data.featuredImage,
+      status: data.status,
+      published_at: data.status === "published" ? new Date().toISOString() : null,
+      scheduled_for: data.scheduledFor || null,
+      views: 0,
+      comments: 0,
+      seo_title: seo.title || data.title,
+      seo_description: seo.description || data.excerpt,
+      seo_og_image: seo.ogImage || data.featuredImage,
+    };
+
+    // Attempt insert with DB columns first
+    try {
+      const { data: inserted, error } = await supabase
+        .from("blog_posts")
+        .insert({
+          ...basePayload,
+          body: data.body,
+          side_image: data.sideImage || null,
+          side_image_caption: data.sideImageCaption || null,
+          gallery_images: data.galleryImages || [],
+        })
+        .select()
+        .single();
+
+      if (!error && inserted) {
+        return inserted;
+      }
+      throw error;
+    } catch (err: any) {
+      // Fallback: if columns do not exist yet, embed media marker in body
+      const { data: fallbackInserted, error: fallbackError } = await supabase
+        .from("blog_posts")
+        .insert({
+          ...basePayload,
+          body: injectBlogMedia(data.body, media),
+        })
+        .select()
+        .single();
+
+      if (fallbackError) {
+        throw new Error(`Failed to create blog post: ${fallbackError.message}`);
+      }
+
+      return fallbackInserted;
     }
-
-    return inserted;
   });
 
 export const updateBlogPost = createServerFn({ method: "POST" })
@@ -318,6 +407,9 @@ export const updateBlogPost = createServerFn({ method: "POST" })
       tags: z.array(z.string()).default([]),
       author: authorSchema.optional(),
       featuredImage: z.string(),
+      sideImage: z.string().optional(),
+      sideImageCaption: z.string().optional(),
+      galleryImages: z.array(z.string()).optional(),
       status: postStatusSchema,
       scheduledFor: z.string().optional(),
       seo: seoSchema.optional(),
@@ -347,36 +439,68 @@ export const updateBlogPost = createServerFn({ method: "POST" })
       publishedAt = null;
     }
 
-    const { data: updated, error } = await supabase
-      .from("blog_posts")
-      .update({
-        slug: data.slug,
-        title: data.title,
-        excerpt: data.excerpt,
-        body: data.body,
-        category: data.category,
-        tags: data.tags,
-        author_name: author.name,
-        author_avatar: author.avatar,
-        author_role: author.role,
-        featured_image: data.featuredImage,
-        status: data.status,
-        published_at: publishedAt,
-        scheduled_for: data.scheduledFor || null,
-        seo_title: seo.title || data.title,
-        seo_description: seo.description || data.excerpt,
-        seo_og_image: seo.ogImage || data.featuredImage,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", data.id)
-      .select()
-      .single();
+    const media: BlogMedia = {
+      sideImage: data.sideImage || undefined,
+      sideImageCaption: data.sideImageCaption || undefined,
+      galleryImages: data.galleryImages || [],
+    };
 
-    if (error) {
-      throw new Error(`Failed to update blog post: ${error.message}`);
+    const baseUpdatePayload = {
+      slug: data.slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      category: data.category,
+      tags: data.tags,
+      author_name: author.name,
+      author_avatar: author.avatar,
+      author_role: author.role,
+      featured_image: data.featuredImage,
+      status: data.status,
+      published_at: publishedAt,
+      scheduled_for: data.scheduledFor || null,
+      seo_title: seo.title || data.title,
+      seo_description: seo.description || data.excerpt,
+      seo_og_image: seo.ogImage || data.featuredImage,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Attempt update with DB columns first
+    try {
+      const { data: updated, error } = await supabase
+        .from("blog_posts")
+        .update({
+          ...baseUpdatePayload,
+          body: data.body,
+          side_image: data.sideImage || null,
+          side_image_caption: data.sideImageCaption || null,
+          gallery_images: data.galleryImages || [],
+        })
+        .eq("id", data.id)
+        .select()
+        .single();
+
+      if (!error && updated) {
+        return updated;
+      }
+      throw error;
+    } catch (err: any) {
+      // Fallback: embed media marker in body
+      const { data: fallbackUpdated, error: fallbackError } = await supabase
+        .from("blog_posts")
+        .update({
+          ...baseUpdatePayload,
+          body: injectBlogMedia(data.body, media),
+        })
+        .eq("id", data.id)
+        .select()
+        .single();
+
+      if (fallbackError) {
+        throw new Error(`Failed to update blog post: ${fallbackError.message}`);
+      }
+
+      return fallbackUpdated;
     }
-
-    return updated;
   });
 
 export const deleteBlogPost = createServerFn({ method: "POST" })

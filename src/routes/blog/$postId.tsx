@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
-import { useEffect } from "react";
+import { ArrowLeft, Calendar, Clock, Image as ImageIcon, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { fetchBlogPost, recordBlogPostView } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { ShareButton } from "../../components/ShareButton";
@@ -64,6 +64,8 @@ export const Route = createFileRoute("/blog/$postId")({
 
 function BlogPostDetail() {
   const post = Route.useLoaderData();
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+
   if (!post) return null;
 
   // Record view on client-side — keeps fetchBlogPost (GET) idempotent
@@ -99,9 +101,9 @@ function BlogPostDetail() {
               <div className="flex flex-wrap items-center justify-center gap-6 text-white/70 text-sm">
                 <div className="flex items-center gap-2">
                   <img
-                    src={post.author.avatar}
+                    src={post.author.avatar || "/images/team_founder.webp"}
                     alt={post.author.name}
-                    className="w-8 h-8 rounded-full border border-white/20"
+                    className="w-8 h-8 rounded-full border border-white/20 object-cover"
                   />
                   <span>{post.author.name}</span>
                 </div>
@@ -130,10 +132,62 @@ function BlogPostDetail() {
               {post.excerpt}
             </p>
 
-            <div
-              className="[&>p]:mb-6 [&>p]:text-lg [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-12 [&>h2]:mb-4 text-dark"
-              dangerouslySetInnerHTML={{ __html: post.body }}
-            />
+            {/* Post Content with optional Left-Aligned Side Image */}
+            <div className="flow-root">
+              {post.sideImage && (
+                <figure className="float-none sm:float-left sm:mr-8 mb-6 sm:mb-4 max-w-full sm:max-w-[320px] rounded-2xl overflow-hidden shadow-md border border-border group bg-muted/40 cursor-pointer" onClick={() => setActiveImage(post.sideImage || null)}>
+                  <img
+                    src={post.sideImage}
+                    alt={post.sideImageCaption || post.title}
+                    className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {post.sideImageCaption && (
+                    <figcaption className="text-xs text-muted-foreground mt-2 px-3 pb-2 text-center italic">
+                      {post.sideImageCaption}
+                    </figcaption>
+                  )}
+                </figure>
+              )}
+
+              <div
+                className="[&>p]:mb-6 [&>p]:text-lg [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-12 [&>h2]:mb-4 text-dark"
+                dangerouslySetInnerHTML={{ __html: post.body }}
+              />
+            </div>
+
+            {/* Bottom Photo Gallery */}
+            {post.galleryImages && post.galleryImages.length > 0 && (
+              <div className="mt-16 pt-10 border-t border-border">
+                <div className="flex items-center gap-2 mb-6">
+                  <ImageIcon size={22} className="text-primary" />
+                  <h2 className="text-2xl font-bold text-dark">Photo Highlights</h2>
+                  <span className="text-xs text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full ml-auto font-medium">
+                    {post.galleryImages.length} Photo{post.galleryImages.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {post.galleryImages.map((img: string, idx: number) => (
+                    <div
+                      key={idx}
+                      onClick={() => setActiveImage(img)}
+                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-muted cursor-pointer shadow-sm hover:shadow-md transition-all"
+                    >
+                      <img
+                        src={img}
+                        alt={`Photo highlight ${idx + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-dark/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="bg-white/90 text-dark text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow">
+                          View Photo
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex flex-wrap gap-2">
@@ -153,11 +207,11 @@ function BlogPostDetail() {
               </div>
             </div>
 
-            <div className="mt-12 bg-white border border-border p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
+            <div className="mt-12 bg-white border border-border p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left shadow-sm">
               <img
-                src={post.author.avatar}
+                src={post.author.avatar || "/images/team_founder.webp"}
                 alt={post.author.name}
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-24 h-24 rounded-full object-cover shrink-0 border-2 border-primary/20 shadow-sm"
               />
               <div>
                 <h3 className="text-lg font-bold text-dark">{post.author.name}</h3>
@@ -170,6 +224,28 @@ function BlogPostDetail() {
           </ScrollReveal>
         </div>
       </article>
+
+      {/* Lightbox Modal */}
+      {activeImage && (
+        <div
+          className="fixed inset-0 z-50 bg-dark/90 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setActiveImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <img
+              src={activeImage}
+              alt="Expanded view"
+              className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl"
+            />
+            <button
+              onClick={() => setActiveImage(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-dark/80 text-white flex items-center justify-center hover:bg-dark transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

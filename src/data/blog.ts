@@ -20,6 +20,9 @@ export interface BlogPostFull {
   tags: string[];
   author: BlogAuthor;
   featuredImage: string;
+  sideImage?: string;
+  sideImageCaption?: string;
+  galleryImages?: string[];
   status: PostStatus;
   publishedAt: string | null;
   scheduledFor?: string;

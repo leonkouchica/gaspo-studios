@@ -1,4 +1,4 @@
-import { createStart, createMiddleware, createCsrfMiddleware } from "@tanstack/react-start";
+import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 import { runWithUser, type AuthenticatedUser } from "./lib/auth-guard.server";
@@ -70,10 +70,29 @@ const authMiddleware = createMiddleware().server(async ({ request, next }) => {
 });
 
 // ── CSRF Protection ──────────────────────────────────────────────────────────
-// Uses TanStack Start's built-in CSRF middleware to protect server functions
-// (RPC endpoints) from cross-site request forgery.
-const csrfMiddleware = createCsrfMiddleware({
-  filter: (ctx) => ctx.handlerType === "serverFn",
+// Verifies Origin / Host header on mutating requests to protect server functions
+// from cross-site request forgery.
+const csrfMiddleware = createMiddleware().server(async ({ request, next }) => {
+  const req = request as Request;
+  const method = req.method?.toUpperCase();
+  if (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") {
+    const origin = req.headers.get("origin");
+    const host = req.headers.get("host");
+    if (origin && host) {
+      try {
+        const originHost = new URL(origin).host;
+        if (originHost !== host) {
+          return new Response(JSON.stringify({ error: "Invalid CSRF origin" }), {
+            status: 403,
+            headers: { "content-type": "application/json" },
+          });
+        }
+      } catch {
+        // Ignore unparseable origins (e.g. non-browser clients)
+      }
+    }
+  }
+  return await next();
 });
 
 // ── Rate Limiting ────────────────────────────────────────────────────────────
