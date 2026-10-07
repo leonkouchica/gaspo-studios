@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -710,6 +710,11 @@ function RegistrationForm({ event }: { event: Event }) {
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 function EventDetailPage() {
+  const routerState = useRouterState();
+  if (routerState.location.pathname.endsWith("/feedback")) {
+    return <Outlet />;
+  }
+
   const event = Route.useLoaderData();
   if (!event) return null;
 
