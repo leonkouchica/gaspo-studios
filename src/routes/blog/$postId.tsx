@@ -135,7 +135,10 @@ function BlogPostDetail() {
             {/* Post Content with optional Left-Aligned Side Image */}
             <div className="flow-root">
               {post.sideImage && (
-                <figure className="float-none sm:float-left sm:mr-8 mb-6 sm:mb-4 max-w-full sm:max-w-[320px] rounded-2xl overflow-hidden shadow-md border border-border group bg-muted/40 cursor-pointer" onClick={() => setActiveImage(post.sideImage || null)}>
+                <figure
+                  className="float-none sm:float-left sm:mr-8 lg:mr-10 mb-6 sm:mb-4 w-full sm:w-[46%] md:w-[44%] sm:max-w-[480px] md:max-w-[500px] lg:max-w-[520px] rounded-2xl overflow-hidden shadow-md border border-border group bg-muted/40 cursor-pointer"
+                  onClick={() => setActiveImage(post.sideImage || null)}
+                >
                   <img
                     src={post.sideImage}
                     alt={post.sideImageCaption || post.title}
