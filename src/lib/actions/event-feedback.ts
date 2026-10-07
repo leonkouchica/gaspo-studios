@@ -5,8 +5,8 @@ import { requireAuth } from "../auth-guard.server.ts";
 
 export const eventFeedbackInputSchema = z.object({
   eventId: z.string().min(1, "Event ID is required"),
-  fullName: z.string().optional().default(""),
-  email: z.string().optional().default(""),
+  fullName: z.string().trim().min(2, "Full name is required (minimum 2 characters)"),
+  email: z.string().trim().email("A valid email address is required"),
   attendanceMode: z.enum(["in_person", "virtual"]).default("in_person"),
   overallRating: z.number().int().min(1).max(5),
   contentRating: z.number().int().min(1).max(5),
@@ -73,8 +73,8 @@ export const submitEventFeedback = createServerFn({ method: "POST" })
       .from("event_feedback")
       .insert({
         event_id: event.id,
-        full_name: data.fullName?.trim() || null,
-        email: data.email?.trim() || null,
+        full_name: data.fullName.trim(),
+        email: data.email.trim().toLowerCase(),
         attendance_mode: data.attendanceMode,
         overall_rating: data.overallRating,
         content_rating: data.contentRating,

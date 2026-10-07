@@ -92,6 +92,8 @@ describe("Event Feedback Server Actions", () => {
       await expect(
         submitEventFeedback({
           eventId: "non-existent",
+          fullName: "Alex Johnson",
+          email: "alex@example.com",
           overallRating: 5,
           contentRating: 5,
           organizationRating: 5,
@@ -99,6 +101,21 @@ describe("Event Feedback Server Actions", () => {
           npsScore: 9,
         }),
       ).rejects.toThrow("Event not found");
+    });
+
+    it("should reject feedback submission when fullName or email is missing", async () => {
+      await expect(
+        submitEventFeedback({
+          eventId: "evt-001",
+          fullName: "",
+          email: "invalid-email",
+          overallRating: 5,
+          contentRating: 5,
+          organizationRating: 5,
+          venueRating: 5,
+          npsScore: 9,
+        }),
+      ).rejects.toThrow();
     });
   });
 

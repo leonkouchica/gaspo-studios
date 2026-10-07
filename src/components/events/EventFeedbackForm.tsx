@@ -135,6 +135,15 @@ export function EventFeedbackForm({ event, onSuccess }: EventFeedbackFormProps) 
       toast.error("Please choose a recommendation score (0 to 10).");
       return;
     }
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      toast.error("Please enter your full name.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -149,8 +158,8 @@ export function EventFeedbackForm({ event, onSuccess }: EventFeedbackFormProps) 
         bestAspect,
         improvementSuggestions,
         futureTopics,
-        fullName,
-        email,
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
       };
 
       await submitEventFeedback({ data: payload });
@@ -413,23 +422,26 @@ export function EventFeedbackForm({ event, onSuccess }: EventFeedbackFormProps) 
         </div>
       </div>
 
-      {/* ── QUESTION 10: Attendee Details (Optional) ── */}
+      {/* ── QUESTION 10: Attendee Details (Mandatory) ── */}
       <div className="pt-4 border-t border-border-dark space-y-4">
         <div>
           <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-            <ShieldCheck size={16} className="text-emerald-400" />
-            10. Your Details (Optional)
+            <ShieldCheck size={16} className="text-primary" />
+            10. Attendee Information <span className="text-primary">*</span>
           </h4>
           <p className="text-xs text-white/50 mt-0.5">
-            You may remain anonymous or share your contact info if you'd like our team to follow up.
+            Please provide your name and email address to verify and record your feedback.
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-white/60 block mb-1">Your Name</label>
+            <label className="text-xs text-white/70 block mb-1 font-medium">
+              Your Full Name <span className="text-primary">*</span>
+            </label>
             <input
               type="text"
+              required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g., Alex Johnson"
@@ -438,9 +450,12 @@ export function EventFeedbackForm({ event, onSuccess }: EventFeedbackFormProps) 
           </div>
 
           <div>
-            <label className="text-xs text-white/60 block mb-1">Email Address</label>
+            <label className="text-xs text-white/70 block mb-1 font-medium">
+              Email Address <span className="text-primary">*</span>
+            </label>
             <input
               type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="alex@example.com"
