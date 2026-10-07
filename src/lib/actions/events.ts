@@ -1181,13 +1181,18 @@ export const sendTestCampaignEmail = createServerFn({ method: "POST" })
           venue: event.venue,
         });
         break;
-      default:
+      default: {
+        const testCustomContent =
+          data.customBodyHtml ||
+          `<p>This is a test of the campaign email for <strong>${event.title}</strong>.</p>`;
+        const personalizedContent = testCustomContent.replace(/\{\{first_name\}\}/gi, "Test Attendee");
         reactElement = React.createElement(CampaignBroadcastEmail, {
-          firstName: "Test",
+          firstName: "Test Attendee",
           subject: data.subject,
-          bodyHtml: data.customBodyHtml || `<p>This is a test of the campaign email for <strong>${event.title}</strong>.</p>`,
+          bodyHtml: personalizedContent,
           eventName: event.title,
         });
+      }
     }
 
     const result = await sendAppEmail({

@@ -48,6 +48,7 @@ import {
   deleteEventCampaign,
 } from "../../../lib/actions/events";
 import { fetchEventSponsors, updateSponsorStatus } from "../../../lib/actions/sponsors";
+import RichTextEditor from "../../../components/RichTextEditor";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/events/")({
@@ -1600,16 +1601,22 @@ function EventCampaignTab({ allEvents }: { allEvents: Event[] }) {
               {/* Custom body for custom/broadcast type */}
               {(templateType === "custom" || templateType === "new_registration_notification") && (
                 <div>
-                  <label className="block text-xs font-medium text-dark mb-1.5">Email Body (HTML)</label>
-                  <textarea
-                    value={customBodyHtml}
-                    onChange={(e) => setCustomBodyHtml(e.target.value)}
-                    placeholder="<p>Hi {{first_name}}, ...</p>"
-                    rows={8}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm font-mono resize-y"
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-medium text-dark">Email Body</label>
+                    <span className="text-xs text-muted-foreground">Full HTML &amp; Rich Text Editor</span>
+                  </div>
+                  <RichTextEditor
+                    content={customBodyHtml}
+                    onChange={setCustomBodyHtml}
+                    uploadFolder="events"
+                    placeholder="<p>Hi {{first_name}}, write your message here...</p>"
+                    showHtmlToggle={true}
+                    variables={[
+                      { label: "First Name", value: "{{first_name}}" },
+                    ]}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Available variables: <code className="bg-muted px-1 rounded">{"{{first_name}}"}</code>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Available variables: click <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-semibold text-xs">{"{{first_name}}"}</code> to insert. Images uploaded from your computer are automatically converted to WebP.
                   </p>
                 </div>
               )}

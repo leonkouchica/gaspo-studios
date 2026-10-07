@@ -123,14 +123,19 @@ export async function executeCampaignSend(
         });
         break;
 
-      default:
+      default: {
         // new_registration_notification | custom — use generic broadcast
+        const customContent =
+          campaign.custom_body_html ||
+          `<p>Hi ${firstName}, we have an update regarding <strong>${event.title}</strong>.</p>`;
+        const personalizedContent = customContent.replace(/\{\{first_name\}\}/gi, firstName);
         reactElement = React.createElement(CampaignBroadcastEmail, {
           firstName,
           subject: campaign.subject,
-          bodyHtml: campaign.custom_body_html || `<p>Hi ${firstName}, we have an update regarding <strong>${event.title}</strong>.</p>`,
+          bodyHtml: personalizedContent,
           eventName: event.title,
         });
+      }
     }
 
     try {

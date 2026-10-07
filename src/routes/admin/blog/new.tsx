@@ -284,7 +284,7 @@ function NewBlogPostPage() {
 
             <div>
               <label className="text-sm font-semibold text-dark block mb-1.5">Content Body *</label>
-              <RichTextEditor content={form.body} onChange={(html) => set("body", html)} />
+              <RichTextEditor content={form.body} onChange={(html) => set("body", html)} uploadFolder="blog" />
             </div>
           </div>
 

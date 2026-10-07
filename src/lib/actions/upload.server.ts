@@ -33,7 +33,7 @@ function base64ToBytes(base64: string): Uint8Array {
  */
 export async function convertAndUploadImage(
   file: any,
-  folder: "gallery" | "blog" | "events" | "team",
+  folder: "gallery" | "blog" | "events" | "team" | "newsletter" | "campaigns",
   watermark: boolean = folder === "gallery",
 ): Promise<string> {
   if (!file) {

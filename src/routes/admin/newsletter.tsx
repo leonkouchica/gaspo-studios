@@ -285,11 +285,14 @@ function AdminNewsletterPage() {
 
             <div>
               <label className="block text-sm font-semibold text-dark mb-1.5">Email Body</label>
-              <div className="border border-border rounded-xl overflow-hidden focus-within:border-primary transition-colors">
-                <RichTextEditor content={content} onChange={setContent} />
-              </div>
+              <RichTextEditor
+                content={content}
+                onChange={setContent}
+                uploadFolder="newsletter"
+                showHtmlToggle={true}
+              />
               <p className="text-xs text-muted-foreground mt-2">
-                This email will be sent to all {subscribers.length} active subscribers.
+                This email will be sent to all {subscribers.length} active subscribers. Images uploaded will be automatically converted to WebP.
               </p>
             </div>
           </div>

@@ -53,7 +53,7 @@ describe("upload.server convertAndUploadImage", () => {
 
   it("should throw an error for unsupported file types", async () => {
     await expect(convertAndUploadImage({} as any, "gallery")).rejects.toThrow(
-      "Unsupported file type: must be File, Blob or Buffer",
+      "Unsupported file type: must be File, Blob or Uint8Array",
     );
   });
 
@@ -72,13 +72,13 @@ describe("upload.server convertAndUploadImage", () => {
     const result = await convertAndUploadImage(mockFile, "gallery");
 
     expect(mockFile.arrayBuffer).toHaveBeenCalled();
-    expect(mockSharp).toHaveBeenCalledWith(Buffer.from(arrayBufferData));
+    expect(mockSharp).toHaveBeenCalledWith(new Uint8Array(arrayBufferData));
     expect(mockWebp).toHaveBeenCalledWith({ quality: 90 });
     expect(mockToBuffer).toHaveBeenCalled();
     expect(mockStorage.from).toHaveBeenCalledWith("gaspo-media");
     expect(mockUpload).toHaveBeenCalledWith(
       expect.stringMatching(/^gallery\/[a-z0-9]+\.webp$/),
-      Buffer.from("webp-data"),
+      new Uint8Array(Buffer.from("webp-data")),
       expect.objectContaining({
         contentType: "image/webp",
         cacheControl: "31536000",
