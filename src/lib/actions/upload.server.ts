@@ -68,12 +68,15 @@ export async function convertAndUploadImage(
     throw new Error(`Failed to read upload buffer: ${err.message}`);
   }
 
-  // 2. Process image with sharp: convert to WebP at quality 90
+  // 2. Process image with sharp: resize to max 2048px and convert to WebP at quality 82
   // Note: sharp is a native Node.js module. On non-Node.js runtimes (Cloudflare Workers),
   // use a WASM-based alternative or a serverless image processing service.
   let webpBuffer: Buffer;
   try {
-    webpBuffer = await sharp(buffer).webp({ quality: 90 }).toBuffer();
+    webpBuffer = await sharp(buffer)
+      .resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82, effort: 4 })
+      .toBuffer();
   } catch (err: any) {
     throw new Error(
       `Sharp WebP processing failed: ${err.message}. Ensure the file is a valid image.`,

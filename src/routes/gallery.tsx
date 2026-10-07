@@ -20,6 +20,16 @@ export const Route = createFileRoute("/gallery")({
     ],
     links: [{ rel: "canonical", href: "/gallery" }],
   }),
+  loader: async () => {
+    const [items, videos] = await Promise.all([
+      fetchGalleryImages({ data: { visibleOnly: true } }),
+      fetchYouTubeVideos({ data: { placement: "gallery" } }).catch(() => []),
+    ]);
+    return {
+      items: (items || []) as GalleryItem[],
+      videos: (videos || []) as YouTubeVideo[],
+    };
+  },
   component: GalleryPage,
 });
 
@@ -36,11 +46,12 @@ interface GalleryItem {
 }
 
 function GalleryPage() {
+  const loaderData = Route.useLoaderData();
   const [filter, setFilter] = useState<(typeof categories)[number]>("All");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+  const [items, setItems] = useState<GalleryItem[]>(loaderData?.items || []);
+  const [loading, setLoading] = useState(!loaderData?.items);
+  const [videos, setVideos] = useState<YouTubeVideo[]>(loaderData?.videos || []);
   const [videosLoading, setVideosLoading] = useState(false);
 
   const loadGallery = useCallback(async () => {
@@ -57,6 +68,7 @@ function GalleryPage() {
   }, []);
 
   const loadVideos = useCallback(async () => {
+    if (videos.length > 0) return;
     setVideosLoading(true);
     try {
       const data = await fetchYouTubeVideos({ data: { placement: "gallery" } });
@@ -66,11 +78,13 @@ function GalleryPage() {
     } finally {
       setVideosLoading(false);
     }
-  }, []);
+  }, [videos.length]);
 
   useEffect(() => {
-    loadGallery();
-  }, [loadGallery]);
+    if (!loaderData?.items) {
+      loadGallery();
+    }
+  }, [loadGallery, loaderData?.items]);
 
   useEffect(() => {
     if (filter === "Video") loadVideos();
@@ -162,6 +176,8 @@ function GalleryPage() {
                     <img
                       src={it.src}
                       alt={it.alt || it.title}
+                      loading={i < 4 ? "eager" : "lazy"}
+                      decoding="async"
                       draggable={false}
                       onDragStart={(e) => e.preventDefault()}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted protected-image"

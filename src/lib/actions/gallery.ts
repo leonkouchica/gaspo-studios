@@ -5,9 +5,26 @@ import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import { applyGalleryWatermark } from "../watermark.server.ts";
 
+interface GalleryCacheEntry {
+  data: any[];
+  expiresAt: number;
+}
+const galleryCache = new Map<string, GalleryCacheEntry>();
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+export function invalidateGalleryCache() {
+  galleryCache.clear();
+}
+
 export const fetchGalleryImages = createServerFn({ method: "GET" })
   .inputValidator((input: { category?: string; visibleOnly?: boolean } | undefined) => input)
   .handler(async ({ data }) => {
+    const cacheKey = `${data?.category || "all"}_${Boolean(data?.visibleOnly)}`;
+    const cached = galleryCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.data;
+    }
+
     const supabase = getSupabaseAdmin();
     let query = supabase
       .from("gallery_images")
@@ -27,7 +44,7 @@ export const fetchGalleryImages = createServerFn({ method: "GET" })
       throw new Error(`Failed to fetch gallery images: ${error.message}`);
     }
 
-    return (images || []).map((img) => ({
+    const result = (images || []).map((img) => ({
       id: img.id,
       src: img.src,
       title: img.title,
@@ -37,6 +54,9 @@ export const fetchGalleryImages = createServerFn({ method: "GET" })
       order: img.display_order,
       uploadedAt: img.uploaded_at,
     }));
+
+    galleryCache.set(cacheKey, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
+    return result;
   });
 
 // Web-standard base64 decoder — no Node.js Buffer dependency
@@ -88,6 +108,8 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(`Failed to save image record: ${error.message}`);
     }
+
+    invalidateGalleryCache();
 
     return {
       id: inserted.id,
@@ -145,11 +167,14 @@ export const processGalleryUpload = createServerFn({ method: "POST" })
     const arrayBuffer = await fileBlob.arrayBuffer();
     const rawBuffer = Buffer.from(arrayBuffer);
 
-    // 2. Convert to WebP (handles JPG, PNG, HEIC, etc. from client)
+    // 2. Convert to WebP (handles JPG, PNG, HEIC, etc. from client) with max 2048px dimension
     let webpBuffer: Buffer;
     try {
       const sharp = (await import("sharp")).default;
-      webpBuffer = await sharp(rawBuffer).webp({ quality: 90 }).toBuffer();
+      webpBuffer = await sharp(rawBuffer)
+        .resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 82, effort: 4 })
+        .toBuffer();
     } catch (err: any) {
       throw new Error(`WebP conversion failed: ${err.message}`);
     }
@@ -199,6 +224,8 @@ export const processGalleryUpload = createServerFn({ method: "POST" })
       .single();
 
     if (dbError) throw new Error(`Failed to save image record: ${dbError.message}`);
+
+    invalidateGalleryCache();
 
     return {
       id: inserted.id,
@@ -267,6 +294,8 @@ export const toggleImageVisibility = createServerFn({ method: "POST" })
       throw new Error(`Failed to toggle visibility: ${error.message}`);
     }
 
+    invalidateGalleryCache();
+
     return {
       id: updated.id,
       src: updated.src,
@@ -307,6 +336,8 @@ export const updateImageMeta = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(`Failed to update image metadata: ${error.message}`);
     }
+
+    invalidateGalleryCache();
 
     return {
       id: updated.id,
@@ -357,6 +388,8 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
     } catch (storageErr) {
       console.error("Warning: failed to delete file from Supabase storage:", storageErr);
     }
+
+    invalidateGalleryCache();
 
     return { success: true };
   });
@@ -465,6 +498,8 @@ export const rewatermarkGalleryImages = createServerFn({ method: "POST" })
         errors.push(`Unexpected error for ${img.id}: ${err.message}`);
       }
     }
+
+    invalidateGalleryCache();
 
     return { total, processed, failed, errors };
   });

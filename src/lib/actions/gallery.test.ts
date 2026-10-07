@@ -55,6 +55,11 @@ vi.mock("../supabase.server.ts", () => ({
   getSupabaseAdmin: () => mockSupabase,
 }));
 
+vi.mock("../auth-guard.server.ts", () => ({
+  requireAuth: vi.fn().mockReturnValue({ id: "mock-user", email: "admin@gaspostudios.com", role: "admin" }),
+  requireRole: vi.fn().mockReturnValue({ id: "mock-user", email: "admin@gaspostudios.com", role: "admin" }),
+}));
+
 vi.mock("./upload.server.ts", () => ({
   convertAndUploadImage: vi.fn().mockResolvedValue("https://example.com/gallery/test.webp"),
 }));

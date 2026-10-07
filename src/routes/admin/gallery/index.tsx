@@ -25,6 +25,10 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/gallery/")({
+  loader: async () => {
+    const images = await fetchGalleryImages({ data: {} });
+    return { images: (images || []) as GalleryImage[] };
+  },
   component: AdminGalleryPage,
 });
 
@@ -370,8 +374,9 @@ function UploadModal({
 }
 
 function AdminGalleryPage() {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const loaderData = Route.useLoaderData();
+  const [images, setImages] = useState<GalleryImage[]>(loaderData?.images || []);
+  const [loading, setLoading] = useState(!loaderData?.images);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -394,8 +399,10 @@ function AdminGalleryPage() {
   }, []);
 
   useEffect(() => {
-    loadImages();
-  }, [loadImages]);
+    if (!loaderData?.images) {
+      loadImages();
+    }
+  }, [loadImages, loaderData?.images]);
 
   const categories = Array.from(new Set(images.map((i) => i.category)));
 
@@ -580,6 +587,7 @@ function AdminGalleryPage() {
                   alt={img.title}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">

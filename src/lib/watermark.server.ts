@@ -145,10 +145,20 @@ async function buildTileComposites(
  * @returns A new WebP buffer with the watermark composited over it
  */
 export async function applyGalleryWatermark(webpBuffer: Buffer): Promise<Buffer> {
-  // Get source image dimensions
-  const sourceMeta = await sharp(webpBuffer).metadata();
-  const imageWidth = sourceMeta.width ?? 1200;
-  const imageHeight = sourceMeta.height ?? 800;
+  // Get source image dimensions and ensure max 2048px bounds
+  let baseSharp = sharp(webpBuffer);
+  const sourceMeta = await baseSharp.metadata();
+  const rawWidth = sourceMeta.width ?? 1200;
+  const rawHeight = sourceMeta.height ?? 800;
+
+  let imageWidth = rawWidth;
+  let imageHeight = rawHeight;
+  if (rawWidth > 2048 || rawHeight > 2048) {
+    baseSharp = sharp(await baseSharp.resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true }).toBuffer());
+    const resizedMeta = await baseSharp.metadata();
+    imageWidth = resizedMeta.width ?? Math.min(rawWidth, 2048);
+    imageHeight = resizedMeta.height ?? Math.min(rawHeight, 2048);
+  }
 
   // Build the tile
   const tile = await buildWatermarkTile(imageWidth);
@@ -158,7 +168,7 @@ export async function applyGalleryWatermark(webpBuffer: Buffer): Promise<Buffer>
   const composites = await buildTileComposites(imageWidth, imageHeight, tile, tileMeta);
 
   // Apply all tiles in one sharp composite pass and re-encode as WebP
-  const result = await sharp(webpBuffer).composite(composites).webp({ quality: 90 }).toBuffer();
+  const result = await baseSharp.composite(composites).webp({ quality: 82, effort: 4 }).toBuffer();
 
   return result;
 }
