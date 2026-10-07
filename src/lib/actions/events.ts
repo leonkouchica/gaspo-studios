@@ -73,7 +73,7 @@ export const fetchEvents = createServerFn({ method: "GET" })
     if (data?.status && data.status !== "all") {
       query = query.eq("status", data.status);
     } else if (data?.visibleOnly) {
-      query = query.in("status", ["published", "upcoming", "ongoing"]);
+      query = query.in("status", ["published", "upcoming", "ongoing", "completed"]);
     }
 
     const { data: eventsList, error } = await query;

@@ -57,6 +57,7 @@ const mockRegistration = {
 const mockQuery: any = {
   select: vi.fn(),
   eq: vi.fn(),
+  in: vi.fn(),
   order: vi.fn(),
   update: vi.fn(),
   insert: vi.fn(),
@@ -67,6 +68,7 @@ const mockQuery: any = {
 
 mockQuery.select.mockReturnValue(mockQuery);
 mockQuery.eq.mockReturnValue(mockQuery);
+mockQuery.in.mockReturnValue(mockQuery);
 mockQuery.order.mockReturnValue(mockQuery);
 mockQuery.update.mockReturnValue(mockQuery);
 mockQuery.insert.mockReturnValue(mockQuery);
@@ -87,6 +89,10 @@ const mockSupabase = {
 
 vi.mock("../supabase.server.ts", () => ({
   getSupabaseAdmin: () => mockSupabase,
+}));
+
+vi.mock("../auth-guard.server.ts", () => ({
+  requireAuth: vi.fn().mockReturnValue({ id: "admin-user", role: "admin" }),
 }));
 
 vi.mock("./upload.server.ts", () => ({
@@ -113,6 +119,23 @@ describe("Events Server Actions", () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe("evt-001");
       expect(result[0].bannerImage).toBe("https://example.com/events/banner.webp");
+    });
+
+    it("should retrieve visible events including completed events for public website", async () => {
+      mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
+        return Promise.resolve(onfulfilled({ data: [mockEvent], error: null }));
+      });
+
+      const result = await fetchEvents({ visibleOnly: true });
+
+      expect(mockSupabase.from).toHaveBeenCalledWith("events");
+      expect(mockQuery.in).toHaveBeenCalledWith("status", [
+        "published",
+        "upcoming",
+        "ongoing",
+        "completed",
+      ]);
+      expect(result).toHaveLength(1);
     });
   });
 
@@ -156,9 +179,13 @@ describe("Events Server Actions", () => {
 
   describe("updateEvent", () => {
     it("should update event records in DB", async () => {
-      mockQuery.then.mockImplementationOnce((onfulfilled: any) => {
-        return Promise.resolve(onfulfilled({ data: mockEvent, error: null }));
-      });
+      mockQuery.then
+        .mockImplementationOnce((onfulfilled: any) => {
+          return Promise.resolve(onfulfilled({ data: { status: "draft" }, error: null }));
+        })
+        .mockImplementationOnce((onfulfilled: any) => {
+          return Promise.resolve(onfulfilled({ data: mockEvent, error: null }));
+        });
 
       const result = await updateEvent({
         id: "evt-001",

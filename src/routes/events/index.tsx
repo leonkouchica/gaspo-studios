@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Zap,
   Loader2,
+  Check,
 } from "lucide-react";
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { type Event } from "../../data/events";
@@ -250,6 +251,8 @@ function EventCard({ event, view }: { event: Event; view: "grid" | "list" }) {
 
 function FeaturedHero({ event }: { event: Event }) {
   const { days, hours, mins, secs } = useCountdown(event.date);
+  const isCompleted = event.status === "completed" || event.status === "archived";
+
   return (
     <section className="relative min-h-[calc(70vh+80px)] flex items-end overflow-hidden bg-dark">
       <img
@@ -261,9 +264,16 @@ function FeaturedHero({ event }: { event: Event }) {
 
       <div className="container-x relative z-10 pt-28 pb-16 md:pt-32 md:pb-20 w-full">
         <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 text-primary text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm mb-4">
-            <Star size={11} fill="currentColor" /> Featured Event
-          </span>
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 bg-primary/20 border border-primary/30 text-primary text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+              <Star size={11} fill="currentColor" /> Featured Event
+            </span>
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                <Check size={11} /> Concluded
+              </span>
+            )}
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">{event.title}</h1>
           <p className="text-white/75 text-lg mt-4 leading-relaxed max-w-2xl">{event.summary}</p>
           <div className="flex flex-wrap gap-4 mt-5 text-sm text-white/70">
@@ -281,29 +291,35 @@ function FeaturedHero({ event }: { event: Event }) {
             </span>
             <span className="flex items-center gap-1.5">
               <Users size={15} className="text-primary" />
-              {event.registrationCount} registered
+              {event.registrationCount} {isCompleted ? "attended" : "registered"}
             </span>
           </div>
 
-          {/* Countdown */}
-          <div className="flex gap-3 mt-6">
-            {[
-              { v: days, l: "Days" },
-              { v: hours, l: "Hrs" },
-              { v: mins, l: "Min" },
-              { v: secs, l: "Sec" },
-            ].map(({ v, l }) => (
-              <div
-                key={l}
-                className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-4 py-3 text-center min-w-[60px]"
-              >
-                <p className="text-2xl font-bold text-white tabular-nums">
-                  {String(v).padStart(2, "0")}
-                </p>
-                <p className="text-xs text-white/50 mt-0.5">{l}</p>
-              </div>
-            ))}
-          </div>
+          {/* Countdown or Concluded Pill */}
+          {!isCompleted ? (
+            <div className="flex gap-3 mt-6">
+              {[
+                { v: days, l: "Days" },
+                { v: hours, l: "Hrs" },
+                { v: mins, l: "Min" },
+                { v: secs, l: "Sec" },
+              ].map(({ v, l }) => (
+                <div
+                  key={l}
+                  className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-4 py-3 text-center min-w-[60px]"
+                >
+                  <p className="text-2xl font-bold text-white tabular-nums">
+                    {String(v).padStart(2, "0")}
+                  </p>
+                  <p className="text-xs text-white/50 mt-0.5">{l}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm font-medium px-4 py-2 rounded-full backdrop-blur-sm mt-6">
+              <Check size={15} /> Event Concluded Successfully
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-3 mt-8">
             <Link
@@ -311,16 +327,18 @@ function FeaturedHero({ event }: { event: Event }) {
               params={{ eventId: event.slug }}
               className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
             >
-              Register Now{" "}
+              {isCompleted ? "View Event Recap" : "Register Now"}{" "}
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link
-              to="/events/$eventId"
-              params={{ eventId: event.slug }}
-              className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
-            >
-              Become a Sponsor
-            </Link>
+            {!isCompleted && event.sponsorshipEnabled && (
+              <Link
+                to="/events/$eventId"
+                params={{ eventId: event.slug }}
+                className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
+              >
+                Become a Sponsor
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -353,18 +371,22 @@ function EventsListPage() {
     loadEvents();
   }, [loadEvents]);
 
-  const featured = (() => {
-    const upcoming = events.filter((e) => e.status !== "completed");
-    if (upcoming.length === 0) return events[0];
-    const sorted = [...upcoming].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-    const explicitFeatured = sorted.find((e) => e.featured);
-    return explicitFeatured || sorted[0];
-  })();
-  const categories = Array.from(new Set(events.map((e) => e.category)));
+  const upcomingEvents = events.filter((e) => e.status !== "completed" && e.status !== "archived");
+  const pastEvents = events.filter((e) => e.status === "completed" || e.status === "archived");
 
-  const filtered = events.filter((e) => {
+  const featured = (() => {
+    if (upcomingEvents.length > 0) {
+      const sorted = [...upcomingEvents].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      );
+      const explicitFeatured = sorted.find((e) => e.featured);
+      return explicitFeatured || sorted[0];
+    }
+    return events[0] || null;
+  })();
+  const categories = Array.from(new Set(upcomingEvents.map((e) => e.category)));
+
+  const filtered = upcomingEvents.filter((e) => {
     const matchSearch =
       !search ||
       e.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -392,7 +414,7 @@ function EventsListPage() {
             <div className="container-x">
               <div className="grid grid-cols-3 divide-x divide-border-dark">
                 {[
-                  { icon: TrendingUp, label: "Upcoming Events", value: events.length },
+                  { icon: TrendingUp, label: "Upcoming Events", value: upcomingEvents.length },
                   {
                     icon: Users,
                     label: "Total Registered",
@@ -483,7 +505,15 @@ function EventsListPage() {
               </ScrollReveal>
 
               {/* Results */}
-              {filtered.length === 0 ? (
+              {upcomingEvents.length === 0 ? (
+                <div className="text-center py-16 bg-muted/30 rounded-3xl border border-dashed border-border px-4">
+                  <CalendarDays size={38} className="mx-auto mb-3 text-muted-foreground/50" />
+                  <h3 className="text-xl font-bold text-dark">No Upcoming Events Right Now</h3>
+                  <p className="text-muted-foreground text-sm mt-1 max-w-md mx-auto">
+                    We don't have new upcoming events scheduled at the moment. Take a look at our past events below or subscribe to stay notified!
+                  </p>
+                </div>
+              ) : filtered.length === 0 ? (
                 <div className="text-center py-20">
                   <p className="text-muted-foreground">
                     No events match your filters.{" "}
@@ -520,41 +550,84 @@ function EventsListPage() {
           </section>
 
           {/* ── PAST EVENTS ── */}
-          <section className="py-16 md:py-20 bg-muted/40">
-            <div className="container-x">
-              <ScrollReveal>
-                <div className="mb-8">
-                  <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
-                    <span className="inline-block w-6 h-px bg-primary" />
-                    Look Back
-                  </p>
-                  <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Past Events</h2>
-                </div>
-              </ScrollReveal>
-              <div className="grid md:grid-cols-3 gap-6">
-                {events
-                  .filter((e) => ["completed", "archived"].includes(e.status))
-                  .map((p, i) => (
+          {pastEvents.length > 0 && (
+            <section className="py-16 md:py-20 bg-muted/40">
+              <div className="container-x">
+                <ScrollReveal>
+                  <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                      <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
+                        <span className="inline-block w-6 h-px bg-primary" />
+                        Look Back
+                      </p>
+                      <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Past Events</h2>
+                    </div>
+                    <p className="text-muted-foreground text-sm max-w-md">
+                      Relive highlights and insights from our concluded workshops, masterclasses, and conferences.
+                    </p>
+                  </div>
+                </ScrollReveal>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pastEvents.map((p, i) => (
                     <ScrollReveal key={p.id} delay={i * 100}>
-                      <div className="group rounded-2xl overflow-hidden relative cursor-pointer">
+                      <Link
+                        to="/events/$eventId"
+                        params={{ eventId: p.slug }}
+                        className="group rounded-2xl overflow-hidden relative block h-80 shadow-md hover:shadow-xl transition-all duration-300"
+                      >
                         <img
-                          src={p.img}
+                          src={p.bannerImage || "/images/gallery_1.webp"}
                           alt={p.title}
-                          className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-muted"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-                          <p className="text-xs uppercase tracking-widest text-primary">{p.date}</p>
-                          <p className="font-bold text-lg mt-1">{p.title}</p>
-                          <p className="text-white/60 text-sm mt-1">{p.attendees} attendees</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-dark/95 via-dark/50 to-transparent" />
+                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                          <span className="bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                            Completed
+                          </span>
+                          <span className="bg-dark/70 backdrop-blur-sm text-white/90 text-xs px-2.5 py-1 rounded-full border border-white/10 capitalize">
+                            {p.category}
+                          </span>
                         </div>
-                      </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-semibold mb-1.5">
+                            <CalendarDays size={13} />
+                            <span>
+                              {new Date(p.date).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                            {p.city && (
+                              <>
+                                <span className="text-white/40">•</span>
+                                <span>{p.city}</span>
+                              </>
+                            )}
+                          </div>
+                          <p className="font-bold text-lg md:text-xl line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                            {p.title}
+                          </p>
+                          <div className="flex items-center justify-between mt-3 text-white/70 text-sm border-t border-white/10 pt-3">
+                            <span className="flex items-center gap-1.5 text-xs text-white/75">
+                              <Users size={13} className="text-primary" />
+                              {p.registrationCount || 0} attendees
+                            </span>
+                            <span className="text-xs font-medium text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                              View Event <ArrowRight size={12} />
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
                     </ScrollReveal>
                   ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* ── NEWSLETTER ── */}
           <section className="py-16 bg-dark">

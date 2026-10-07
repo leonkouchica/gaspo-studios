@@ -733,6 +733,11 @@ function EventDetailPage() {
         <div className="container-x relative z-10 pt-28 pb-14 md:pt-32 w-full">
           <div className="max-w-4xl">
             <div className="flex flex-wrap gap-2 mb-4">
+              {event.status === "completed" && (
+                <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  <Check size={12} /> Event Concluded
+                </span>
+              )}
               <span className="bg-primary/20 border border-primary/30 text-primary text-xs font-semibold px-3 py-1.5 rounded-full">
                 {event.category}
               </span>
@@ -764,29 +769,38 @@ function EventDetailPage() {
               </span>
               <span className="flex items-center gap-1.5">
                 <Users size={15} className="text-primary" />
-                {event.registrationCount} registered{event.capacity ? ` / ${event.capacity}` : ""}
+                {event.registrationCount} {event.status === "completed" ? "attended" : "registered"}
+                {event.capacity ? ` / ${event.capacity}` : ""}
               </span>
             </div>
             <div className="flex flex-wrap gap-3 mt-7">
-              {event.registrationOpen && (
-                <a
-                  href="#register"
-                  className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
-                >
-                  Register Now{" "}
-                  <ArrowRight
-                    size={16}
-                    className="group-hover:translate-x-1 transition-transform"
-                  />
-                </a>
-              )}
-              {event.sponsorshipEnabled && (
-                <a
-                  href="#sponsorship"
-                  className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
-                >
-                  Become a Sponsor
-                </a>
+              {event.status === "completed" ? (
+                <span className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full px-7 py-3.5 font-semibold text-sm">
+                  <Check size={16} /> Event Successfully Concluded
+                </span>
+              ) : (
+                <>
+                  {event.registrationOpen && (
+                    <a
+                      href="#register"
+                      className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                    >
+                      Register Now{" "}
+                      <ArrowRight
+                        size={16}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    </a>
+                  )}
+                  {event.sponsorshipEnabled && (
+                    <a
+                      href="#sponsorship"
+                      className="inline-flex items-center gap-2 text-white border border-white/30 rounded-full px-7 py-3.5 font-medium hover:bg-white/10 transition-all"
+                    >
+                      Become a Sponsor
+                    </a>
+                  )}
+                </>
               )}
               <ShareButton title={event.title} summary={event.summary} variant="dark" />
             </div>
@@ -1102,32 +1116,32 @@ function EventDetailPage() {
         </section>
       )}
 
-      {/* ── SPONSORSHIP ── */}
-      {event.sponsorshipEnabled && event.sponsorPackages.length > 0 && (
-        <section id="sponsorship" className="py-16 md:py-20 bg-muted/40 scroll-mt-20">
+      {/* ── EVENT GALLERY (IF AVAILABLE) ── */}
+      {event.galleryImages && event.galleryImages.length > 0 && (
+        <section className="py-16 md:py-20 bg-background border-t border-border">
           <div className="container-x">
             <ScrollReveal>
-              <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="mb-10 text-center max-w-2xl mx-auto">
                 <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
-                  Sponsorship
+                  Gallery
                 </p>
-                <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Become a Sponsor</h2>
-                <p className="text-muted-foreground mt-4 leading-relaxed">
-                  Partner with us to connect your brand with 500+ professionals, decision-makers,
-                  and innovators.
+                <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Event Highlights</h2>
+                <p className="text-muted-foreground mt-3 text-sm">
+                  Photos and memorable moments from {event.title}.
                 </p>
               </div>
             </ScrollReveal>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
-              {event.sponsorPackages.map((pkg, i) => (
-                <ScrollReveal key={pkg.id} delay={i * 60}>
-                  <SponsorCard
-                    pkg={pkg}
-                    onSelect={(pkg) => {
-                      setSelectedPackage(pkg);
-                      setSponsorStep("checkout");
-                    }}
-                  />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {event.galleryImages.map((img, i) => (
+                <ScrollReveal key={i} delay={i * 50}>
+                  <div className="rounded-2xl overflow-hidden aspect-video bg-muted group shadow-sm">
+                    <img
+                      src={img}
+                      alt={`${event.title} highlight ${i + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
                 </ScrollReveal>
               ))}
             </div>
@@ -1135,21 +1149,83 @@ function EventDetailPage() {
         </section>
       )}
 
-      {/* ── REGISTER + CONTACT + MAP ── */}
-      <section id="register" className="py-16 md:py-20 bg-dark scroll-mt-20">
-        <div className="container-x">
-          <ScrollReveal>
-            <div className="mb-10">
-              <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
-                <span className="inline-block w-6 h-px bg-primary" /> Registration
-              </p>
-              <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Register Now</h2>
-              <p className="text-white/60 mt-3">Secure your spot — registration is free.</p>
+      {/* ── SPONSORSHIP ── */}
+      {event.status !== "completed" &&
+        event.sponsorshipEnabled &&
+        event.sponsorPackages.length > 0 && (
+          <section id="sponsorship" className="py-16 md:py-20 bg-muted/40 scroll-mt-20">
+            <div className="container-x">
+              <ScrollReveal>
+                <div className="text-center max-w-2xl mx-auto mb-10">
+                  <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium">
+                    Sponsorship
+                  </p>
+                  <h2 className="text-3xl md:text-5xl font-bold text-dark mt-3">Become a Sponsor</h2>
+                  <p className="text-muted-foreground mt-4 leading-relaxed">
+                    Partner with us to connect your brand with 500+ professionals, decision-makers,
+                    and innovators.
+                  </p>
+                </div>
+              </ScrollReveal>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
+                {event.sponsorPackages.map((pkg, i) => (
+                  <ScrollReveal key={pkg.id} delay={i * 60}>
+                    <SponsorCard
+                      pkg={pkg}
+                      onSelect={(pkg) => {
+                        setSelectedPackage(pkg);
+                        setSponsorStep("checkout");
+                      }}
+                    />
+                  </ScrollReveal>
+                ))}
+              </div>
             </div>
-          </ScrollReveal>
-          <RegistrationForm event={event} />
-        </div>
-      </section>
+          </section>
+        )}
+
+      {/* ── REGISTER + CONTACT + MAP ── */}
+      {event.status === "completed" ? (
+        <section id="concluded" className="py-16 md:py-20 bg-dark scroll-mt-20">
+          <div className="container-x">
+            <ScrollReveal>
+              <div className="max-w-2xl mx-auto text-center py-10">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-5">
+                  <Check size={32} />
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white">Event Concluded</h2>
+                <p className="text-white/60 mt-4 leading-relaxed">
+                  {event.title} has completed. Attendee registration is closed. Thank you to everyone
+                  who took part and made this event a success!
+                </p>
+                <div className="mt-8 flex justify-center gap-4">
+                  <Link
+                    to="/events"
+                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                  >
+                    Explore Upcoming Events <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      ) : (
+        <section id="register" className="py-16 md:py-20 bg-dark scroll-mt-20">
+          <div className="container-x">
+            <ScrollReveal>
+              <div className="mb-10">
+                <p className="uppercase text-xs tracking-[0.25em] text-primary font-medium flex items-center gap-3">
+                  <span className="inline-block w-6 h-px bg-primary" /> Registration
+                </p>
+                <h2 className="text-4xl md:text-6xl font-bold text-white mt-3">Register Now</h2>
+                <p className="text-white/60 mt-3">Secure your spot — registration is free.</p>
+              </div>
+            </ScrollReveal>
+            <RegistrationForm event={event} />
+          </div>
+        </section>
+      )}
 
       {/* ── CONTACT + MAP ── */}
       <section
