@@ -27,6 +27,7 @@ import {
   Send,
   Loader2,
   CreditCard,
+  MessageSquareHeart,
 } from "lucide-react";
 import { type Event, type Speaker, type SponsorPackage } from "../../data/events";
 import { fetchEvent, registerForEvent } from "../../lib/actions/events";
@@ -775,9 +776,19 @@ function EventDetailPage() {
             </div>
             <div className="flex flex-wrap gap-3 mt-7">
               {event.status === "completed" ? (
-                <span className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full px-7 py-3.5 font-semibold text-sm">
-                  <Check size={16} /> Event Successfully Concluded
-                </span>
+                <>
+                  <span className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full px-6 py-3.5 font-semibold text-sm">
+                    <Check size={16} /> Concluded
+                  </span>
+                  <Link
+                    to="/events/$eventId/feedback"
+                    params={{ eventId: event.slug }}
+                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold text-sm transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                  >
+                    <MessageSquareHeart size={16} />
+                    Leave Event Feedback
+                  </Link>
+                </>
               ) : (
                 <>
                   {event.registrationOpen && (
@@ -1198,10 +1209,18 @@ function EventDetailPage() {
                   {event.title} has completed. Attendee registration is closed. Thank you to everyone
                   who took part and made this event a success!
                 </p>
-                <div className="mt-8 flex justify-center gap-4">
+                <div className="mt-8 flex flex-wrap justify-center gap-4">
+                  <Link
+                    to="/events/$eventId/feedback"
+                    params={{ eventId: event.slug }}
+                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                  >
+                    <MessageSquareHeart size={16} />
+                    Leave Event Feedback
+                  </Link>
                   <Link
                     to="/events"
-                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full px-7 py-3.5 font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/30"
+                    className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-full px-7 py-3.5 font-semibold transition-all"
                   >
                     Explore Upcoming Events <ArrowRight size={16} />
                   </Link>

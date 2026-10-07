@@ -34,6 +34,7 @@ import { Route as BlogPostIdRouteImport } from './routes/blog/$postId'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as EventsConfirmationRouteImport } from './routes/events/confirmation'
+import { Route as EventsFeedbackRouteImport } from './routes/events/feedback'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
 import { Route as AdminBlogNewRouteImport } from './routes/admin/blog/new'
 import { Route as AdminBookingsIndexRouteImport } from './routes/admin/bookings/index'
@@ -41,6 +42,7 @@ import { Route as AdminEventsIndexRouteImport } from './routes/admin/events/inde
 import { Route as AdminEventsNewRouteImport } from './routes/admin/events/new'
 import { Route as AdminGalleryIndexRouteImport } from './routes/admin/gallery/index'
 import { Route as AdminHomepageIndexRouteImport } from './routes/admin/homepage/index'
+import { Route as EventsEventIdFeedbackRouteImport } from './routes/events/$eventId/feedback'
 import { Route as AdminBlogPostIdEditRouteImport } from './routes/admin/blog/$postId/edit'
 import { Route as AdminEventsEventIdCheckInRouteImport } from './routes/admin/events/$eventId/check-in'
 import { Route as AdminEventsEventIdEditRouteImport } from './routes/admin/events/$eventId/edit'
@@ -170,6 +172,11 @@ const EventsConfirmationRoute = EventsConfirmationRouteImport.update({
   path: '/events/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsFeedbackRoute = EventsFeedbackRouteImport.update({
+  id: '/events/feedback',
+  path: '/events/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -204,6 +211,11 @@ const AdminHomepageIndexRoute = AdminHomepageIndexRouteImport.update({
   id: '/homepage/',
   path: '/homepage/',
   getParentRoute: () => AdminRoute,
+} as any)
+const EventsEventIdFeedbackRoute = EventsEventIdFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => EventsEventIdRoute,
 } as any)
 const AdminBlogPostIdEditRoute = AdminBlogPostIdEditRouteImport.update({
   id: '/blog/$postId/edit',
@@ -243,13 +255,15 @@ export interface FileRoutesByFullPath {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/confirmation': typeof EventsConfirmationRoute
+  '/events/feedback': typeof EventsFeedbackRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/events/': typeof EventsIndexRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/events/new': typeof AdminEventsNewRoute
+  '/events/$eventId/feedback': typeof EventsEventIdFeedbackRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/bookings/': typeof AdminBookingsIndexRoute
   '/admin/events/': typeof AdminEventsIndexRoute
@@ -278,13 +292,15 @@ export interface FileRoutesByTo {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/confirmation': typeof EventsConfirmationRoute
+  '/events/feedback': typeof EventsFeedbackRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/events': typeof EventsIndexRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/events/new': typeof AdminEventsNewRoute
+  '/events/$eventId/feedback': typeof EventsEventIdFeedbackRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/bookings': typeof AdminBookingsIndexRoute
   '/admin/events': typeof AdminEventsIndexRoute
@@ -316,13 +332,15 @@ export interface FileRoutesById {
   '/admin/sponsor-portal': typeof AdminSponsorPortalRoute
   '/admin/videos': typeof AdminVideosRoute
   '/blog/$postId': typeof BlogPostIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/confirmation': typeof EventsConfirmationRoute
+  '/events/feedback': typeof EventsFeedbackRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/events/': typeof EventsIndexRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
   '/admin/events/new': typeof AdminEventsNewRoute
+  '/events/$eventId/feedback': typeof EventsEventIdFeedbackRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/admin/bookings/': typeof AdminBookingsIndexRoute
   '/admin/events/': typeof AdminEventsIndexRoute
@@ -357,11 +375,13 @@ export interface FileRouteTypes {
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
+    | '/events/feedback'
     | '/admin/'
     | '/blog/'
     | '/events/'
     | '/admin/blog/new'
     | '/admin/events/new'
+    | '/events/$eventId/feedback'
     | '/admin/blog/'
     | '/admin/bookings/'
     | '/admin/events/'
@@ -392,11 +412,13 @@ export interface FileRouteTypes {
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
+    | '/events/feedback'
     | '/admin'
     | '/blog'
     | '/events'
     | '/admin/blog/new'
     | '/admin/events/new'
+    | '/events/$eventId/feedback'
     | '/admin/blog'
     | '/admin/bookings'
     | '/admin/events'
@@ -429,11 +451,13 @@ export interface FileRouteTypes {
     | '/blog/$postId'
     | '/events/$eventId'
     | '/events/confirmation'
+    | '/events/feedback'
     | '/admin/'
     | '/blog/'
     | '/events/'
     | '/admin/blog/new'
     | '/admin/events/new'
+    | '/events/$eventId/feedback'
     | '/admin/blog/'
     | '/admin/bookings/'
     | '/admin/events/'
@@ -457,8 +481,9 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
-  EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsEventIdRoute: typeof EventsEventIdRouteWithChildren
   EventsConfirmationRoute: typeof EventsConfirmationRoute
+  EventsFeedbackRoute: typeof EventsFeedbackRoute
   EventsIndexRoute: typeof EventsIndexRoute
 }
 
@@ -639,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/feedback': {
+      id: '/events/feedback'
+      path: '/events/feedback'
+      fullPath: '/events/feedback'
+      preLoaderRoute: typeof EventsFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/blog/': {
       id: '/admin/blog/'
       path: '/blog'
@@ -687,6 +719,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/homepage/'
       preLoaderRoute: typeof AdminHomepageIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/events/$eventId/feedback': {
+      id: '/events/$eventId/feedback'
+      path: '/feedback'
+      fullPath: '/events/$eventId/feedback'
+      preLoaderRoute: typeof EventsEventIdFeedbackRouteImport
+      parentRoute: typeof EventsEventIdRoute
     }
     '/admin/blog/$postId/edit': {
       id: '/admin/blog/$postId/edit'
@@ -768,6 +807,18 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface EventsEventIdRouteChildren {
+  EventsEventIdFeedbackRoute: typeof EventsEventIdFeedbackRoute
+}
+
+const EventsEventIdRouteChildren: EventsEventIdRouteChildren = {
+  EventsEventIdFeedbackRoute: EventsEventIdFeedbackRoute,
+}
+
+const EventsEventIdRouteWithChildren = EventsEventIdRoute._addFileChildren(
+  EventsEventIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -781,8 +832,9 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
-  EventsEventIdRoute: EventsEventIdRoute,
+  EventsEventIdRoute: EventsEventIdRouteWithChildren,
   EventsConfirmationRoute: EventsConfirmationRoute,
+  EventsFeedbackRoute: EventsFeedbackRoute,
   EventsIndexRoute: EventsIndexRoute,
 }
 export const routeTree = rootRouteImport

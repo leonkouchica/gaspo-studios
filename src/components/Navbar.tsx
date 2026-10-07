@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, ChevronDown, CalendarDays, Clock } from "lucide-react";
+import { Menu, X, ChevronDown, CalendarDays, Clock, MessageSquareHeart } from "lucide-react";
 import { Logo } from "./Logo";
 
 const linksStart = [
@@ -23,6 +23,12 @@ const eventDropdown = [
     desc: "Workshops, exhibitions & meetups",
   },
   { to: "/events#past", label: "Past Events", icon: Clock, desc: "Browse our previous sessions" },
+  {
+    to: "/events/feedback",
+    label: "Event Feedback",
+    icon: MessageSquareHeart,
+    desc: "Share your attendee feedback & ratings",
+  },
 ];
 
 export function Navbar() {

@@ -32,7 +32,10 @@ import {
   Clock,
   CheckCheck,
   FlaskConical,
+  MessageSquareHeart,
+  Copy,
 } from "lucide-react";
+import { EventFeedbackTab } from "../../../components/admin/EventFeedbackTab";
 import {
   fetchEvents,
   deleteEvent,
@@ -124,7 +127,8 @@ function AdminEventsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortField, setSortField] = useState<"date" | "title" | "registrationCount">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-  const [activeTab, setActiveTab] = useState<"events" | "registrations" | "sponsors" | "campaign">("events");
+  const [activeTab, setActiveTab] = useState<"events" | "registrations" | "sponsors" | "campaign" | "feedback">("events");
+  const [feedbackEventId, setFeedbackEventId] = useState<string>("all");
 
   // Registration states
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -350,8 +354,8 @@ function AdminEventsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
-        {(["events", "registrations", "sponsors", "campaign"] as const).map((tab) => (
+      <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit flex-wrap">
+        {(["events", "registrations", "sponsors", "campaign", "feedback"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -360,7 +364,8 @@ function AdminEventsPage() {
             }`}
           >
             {tab === "campaign" && <Megaphone size={13} />}
-            {tab === "campaign" ? "Event Campaign" : tab}
+            {tab === "feedback" && <MessageSquareHeart size={13} />}
+            {tab === "campaign" ? "Event Campaign" : tab === "feedback" ? "Feedback & Surveys" : tab}
           </button>
         ))}
       </div>
@@ -547,6 +552,27 @@ function AdminEventsPage() {
                               >
                                 <QrCode size={14} />
                               </Link>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(`https://www.gaspostudios.com/events/${event.slug}/feedback`);
+                                  toast.success(`Copied feedback link for ${event.title}`);
+                                }}
+                                className="w-8 h-8 rounded-lg hover:bg-muted text-muted-foreground hover:text-primary flex items-center justify-center transition-colors"
+                                title="Copy Attendee Feedback Link"
+                              >
+                                <Copy size={14} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setFeedbackEventId(event.id);
+                                  setActiveTab("feedback");
+                                }}
+                                className="w-8 h-8 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary flex items-center justify-center transition-colors"
+                                title="View Event Feedback"
+                              >
+                                <MessageSquareHeart size={14} />
+                              </button>
                               <button
                                 onClick={() => handleDelete(event.id, event.title)}
                                 className="w-8 h-8 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 flex items-center justify-center transition-colors"
@@ -928,6 +954,14 @@ function AdminEventsPage() {
       {/* ── EVENT CAMPAIGN TAB ── */}
       {activeTab === "campaign" && (
         <EventCampaignTab allEvents={eventsList} />
+      )}
+
+      {/* ── EVENT FEEDBACK TAB ── */}
+      {activeTab === "feedback" && (
+        <EventFeedbackTab
+          allEvents={eventsList}
+          initialEventId={feedbackEventId}
+        />
       )}
     </div>
   );
@@ -1613,10 +1647,14 @@ function EventCampaignTab({ allEvents }: { allEvents: Event[] }) {
                     showHtmlToggle={true}
                     variables={[
                       { label: "First Name", value: "{{first_name}}" },
+                      {
+                        label: "Feedback Link",
+                        value: `<p><a href="https://www.gaspostudios.com/events/${selectedEvent.slug}/feedback" style="display:inline-block;background:#e11d48;color:#ffffff;padding:12px 24px;border-radius:9999px;text-decoration:none;font-weight:600;">Share Your Event Feedback</a></p>`,
+                      },
                     ]}
                   />
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    Available variables: click <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-semibold text-xs">{"{{first_name}}"}</code> to insert. Images uploaded from your computer are automatically converted to WebP.
+                    Available variables: click <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-semibold text-xs">{"{{first_name}}"}</code> or <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-semibold text-xs">{"Feedback Link"}</code> to insert. Images uploaded from your computer are automatically converted to WebP.
                   </p>
                 </div>
               )}
