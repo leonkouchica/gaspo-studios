@@ -48,6 +48,27 @@ const AUTHOR_PRESETS = [
   },
 ];
 
+const STOP_WORDS = new Set([
+  "a", "an", "the", "and", "or", "but", "of", "in", "on", "at", "to",
+  "for", "with", "by", "from", "up", "about", "into", "through", "is",
+  "it", "its", "as", "be", "was", "are", "were", "been", "have", "has",
+  "had", "that", "this", "these", "those", "s",
+]);
+
+function generateShortSlug(title: string, maxWords = 6): string {
+  const cleaned = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "") // strip special chars
+    .trim();
+
+  const words = cleaned.split(/\s+/).filter(Boolean);
+
+  const meaningful = words.filter((w) => !STOP_WORDS.has(w));
+  const selected = meaningful.length > 0 ? meaningful : words; // fallback if all stop-words
+
+  return selected.slice(0, maxWords).join("-").slice(0, 60);
+}
+
 export const Route = createFileRoute("/admin/blog/$postId/edit")({
   loader: async ({ params }) => {
     try {
@@ -235,12 +256,7 @@ function EditBlogPostPage() {
     if (!form.body.trim()) return toast.error("Content is required.");
     if (!form.category) return toast.error("Please select a category.");
 
-    const slug =
-      form.slug.trim() ||
-      form.title
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
+    const slug = form.slug.trim() || generateShortSlug(form.title);
 
     setSaving(true);
     try {
