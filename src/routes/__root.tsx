@@ -87,6 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Gaspo Studios — where art meets precision in photography. Weddings, portraits, corporate and commercial shoots.",
       },
       { name: "author", content: "Gaspo Studios" },
+      { property: "og:site_name", content: "Gaspo Studios" },
       { property: "og:title", content: "Gaspo Studios — Professional Photography" },
       {
         property: "og:description",
@@ -106,6 +107,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png",
       },
+      {
+        property: "og:image:secure_url",
+        content:
+          "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png",
+      },
+      { property: "og:image:type", content: "image/png" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       {

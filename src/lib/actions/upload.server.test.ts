@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { convertAndUploadImage } from "./upload.server";
 
-const { mockSharp, mockWebp, mockToBuffer } = vi.hoisted(() => ({
+const { mockSharp, mockResize, mockWebp, mockToBuffer } = vi.hoisted(() => ({
   mockToBuffer: vi.fn(),
   mockWebp: vi.fn(),
+  mockResize: vi.fn(),
   mockSharp: vi.fn(),
 }));
 
@@ -11,7 +12,12 @@ mockWebp.mockImplementation(() => ({
   toBuffer: mockToBuffer,
 }));
 
+mockResize.mockImplementation(() => ({
+  webp: mockWebp,
+}));
+
 mockSharp.mockImplementation(() => ({
+  resize: mockResize,
   webp: mockWebp,
 }));
 
@@ -73,7 +79,7 @@ describe("upload.server convertAndUploadImage", () => {
 
     expect(mockFile.arrayBuffer).toHaveBeenCalled();
     expect(mockSharp).toHaveBeenCalledWith(new Uint8Array(arrayBufferData));
-    expect(mockWebp).toHaveBeenCalledWith({ quality: 90 });
+    expect(mockWebp).toHaveBeenCalledWith({ quality: 82, effort: 4 });
     expect(mockToBuffer).toHaveBeenCalled();
     expect(mockStorage.from).toHaveBeenCalledWith("gaspo-media");
     expect(mockUpload).toHaveBeenCalledWith(

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchBlogPost, recordBlogPostView } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { ShareButton } from "../../components/ShareButton";
+import { getOgImageUrl } from "../../lib/og";
 
 export const Route = createFileRoute("/blog/$postId")({
   loader: async ({ params }) => {
@@ -19,28 +20,36 @@ export const Route = createFileRoute("/blog/$postId")({
     if (!post) return { meta: [{ title: "Post Not Found" }] };
 
     const pathname = `/blog/${post.slug}`;
+    const rawImage = post.seo?.ogImage || post.featuredImage;
+    const ogImage = getOgImageUrl(rawImage);
+    const postTitle = post.seo?.title || post.title;
+    const postDesc = post.seo?.description || post.excerpt;
 
     return {
       meta: [
-        { title: `${post.seo?.title || post.title} — Gaspo Studios` },
-        { name: "description", content: post.seo?.description || post.excerpt },
+        { title: `${postTitle} — Gaspo Studios` },
+        { name: "description", content: postDesc },
 
-        /* OpenGraph / Facebook */
+        /* OpenGraph / Facebook / WhatsApp */
+        { property: "og:site_name", content: "Gaspo Studios" },
         { property: "og:type", content: "article" },
         { property: "og:url", content: `https://www.gaspostudios.com${pathname}` },
-        { property: "og:title", content: post.seo?.title || post.title },
-        { property: "og:description", content: post.seo?.description || post.excerpt },
-        { property: "og:image", content: post.seo?.ogImage || post.featuredImage },
+        { property: "og:title", content: postTitle },
+        { property: "og:description", content: postDesc },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: postTitle },
         { property: "article:published_time", content: post.publishedAt || "" },
 
         /* Twitter */
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:url", content: `https://www.gaspostudios.com${pathname}` },
-        { name: "twitter:title", content: post.seo?.title || post.title },
-        { name: "twitter:description", content: post.seo?.description || post.excerpt },
-        { name: "twitter:image", content: post.seo?.ogImage || post.featuredImage },
+        { name: "twitter:title", content: postTitle },
+        { name: "twitter:description", content: postDesc },
+        { name: "twitter:image", content: ogImage },
       ],
       links: [{ rel: "canonical", href: `https://www.gaspostudios.com${pathname}` }],
     };
