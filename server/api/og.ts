@@ -23,7 +23,11 @@ export async function handleOgRequest(event: any) {
 
   let parsedUrl: URL;
   try {
-    parsedUrl = new URL(rawUrl);
+    if (rawUrl.startsWith("/")) {
+      parsedUrl = new URL(rawUrl, "https://www.gaspostudios.com");
+    } else {
+      parsedUrl = new URL(rawUrl);
+    }
   } catch {
     throw createError({
       statusCode: 400,

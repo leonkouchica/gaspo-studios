@@ -34,7 +34,7 @@ import { fetchEvent, registerForEvent } from "../../lib/actions/events";
 import { initSponsorPayment } from "../../lib/actions/sponsors";
 import { ShareButton } from "../../components/ShareButton";
 import { ScrollReveal } from "../../components/ScrollReveal";
-import { getOgImageUrl } from "../../lib/og";
+import { getEventOgImageUrl } from "../../lib/og";
 
 export const Route = createFileRoute("/events/$eventId")({
   loader: async ({ params }) => {
@@ -50,8 +50,7 @@ export const Route = createFileRoute("/events/$eventId")({
     if (!event) return { meta: [{ title: "Event Not Found" }] };
 
     const pathname = `/events/${event.slug}`;
-    const rawImage = event.seo?.ogImage || event.bannerImage;
-    const ogImage = getOgImageUrl(rawImage);
+    const ogImage = getEventOgImageUrl(event.slug);
     const eventTitle = event.seo?.title || event.title;
     const eventDesc = event.seo?.description || event.summary;
 

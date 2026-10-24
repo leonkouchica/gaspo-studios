@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchBlogPost, recordBlogPostView } from "../../lib/actions/blog";
 import { ScrollReveal } from "../../components/ScrollReveal";
 import { ShareButton } from "../../components/ShareButton";
-import { getOgImageUrl } from "../../lib/og";
+import { getBlogOgImageUrl } from "../../lib/og";
 
 export const Route = createFileRoute("/blog/$postId")({
   loader: async ({ params }) => {
@@ -20,8 +20,7 @@ export const Route = createFileRoute("/blog/$postId")({
     if (!post) return { meta: [{ title: "Post Not Found" }] };
 
     const pathname = `/blog/${post.slug}`;
-    const rawImage = post.seo?.ogImage || post.featuredImage;
-    const ogImage = getOgImageUrl(rawImage);
+    const ogImage = getBlogOgImageUrl(post.slug);
     const postTitle = post.seo?.title || post.title;
     const postDesc = post.seo?.description || post.excerpt;
 

@@ -1,16 +1,26 @@
 /**
- * Helper to generate an OpenGraph image URL for social media cards (WhatsApp, Facebook, Twitter, LinkedIn).
+ * Helper to generate OpenGraph image URLs for social media cards (WhatsApp, Facebook, Twitter, LinkedIn).
  *
- * Routes WebP/Supabase storage images through the dynamic OG endpoint (/api/og/image.jpg?url=...)
- * which converts them on-the-fly into standardized 1200x630 progressive JPEGs with Edge CDN caching
- * and crawler-friendly headers, bypassing Supabase Storage's 'x-robots-tag: none' and WebP limitations.
+ * Uses clean static-like URLs (/api/og/blog/:slug.jpg and /api/og/events/:slug.jpg)
+ * which have no query strings, ensuring 100% compatibility with WhatsApp's strict client scraper.
  */
-export function getOgImageUrl(imageUrl?: string | null): string {
-  const defaultOgImage =
-    "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png";
 
+const DEFAULT_OG_IMAGE =
+  "https://fhhxbjwcgfslvbznrvab.supabase.co/storage/v1/object/public/gaspo-media/og/gaspo-studios-og.png";
+
+export function getBlogOgImageUrl(slug: string): string {
+  if (!slug) return DEFAULT_OG_IMAGE;
+  return `https://www.gaspostudios.com/api/og/blog/${slug}.jpg`;
+}
+
+export function getEventOgImageUrl(slug: string): string {
+  if (!slug) return DEFAULT_OG_IMAGE;
+  return `https://www.gaspostudios.com/api/og/events/${slug}.jpg`;
+}
+
+export function getOgImageUrl(imageUrl?: string | null): string {
   if (!imageUrl) {
-    return defaultOgImage;
+    return DEFAULT_OG_IMAGE;
   }
 
   // If already routed or root OG PNG, keep as-is
@@ -18,5 +28,9 @@ export function getOgImageUrl(imageUrl?: string | null): string {
     return imageUrl;
   }
 
-  return `https://www.gaspostudios.com/api/og/image.jpg?url=${encodeURIComponent(imageUrl)}`;
+  const absoluteImageUrl = imageUrl.startsWith("/")
+    ? `https://www.gaspostudios.com${imageUrl}`
+    : imageUrl;
+
+  return `https://www.gaspostudios.com/api/og/image.jpg?url=${encodeURIComponent(absoluteImageUrl)}`;
 }
