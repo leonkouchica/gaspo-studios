@@ -19,33 +19,45 @@ export function ScrollReveal({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setRevealed(true);
+      return;
+    }
+
+    const currentEl = ref.current;
+    if (!currentEl) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setRevealed(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
+          if (delay > 0) {
+            setTimeout(() => {
+              setRevealed(true);
+            }, delay);
+          } else {
             setRevealed(true);
-          }, delay);
-          if (ref.current) {
-            observer.unobserve(ref.current);
           }
+          observer.unobserve(currentEl);
         }
       },
       {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px", // Trigger slightly before the element is fully in view
+        threshold: 0.02,
+        rootMargin: "0px 0px 60px 0px", // Trigger slightly before the element enters view
       },
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    observer.observe(currentEl);
 
     return () => {
-      if (ref.current) {
-        if (ref.current) {
-          observer.unobserve(ref.current);
-        }
-      }
+      observer.unobserve(currentEl);
     };
   }, [delay]);
 

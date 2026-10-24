@@ -127,102 +127,100 @@ function BlogPostDetail() {
 
         {/* Content */}
         <div className="container-x mt-12 max-w-3xl">
-          <ScrollReveal delay={100}>
-            <p className="text-xl md:text-2xl font-light text-dark/80 leading-relaxed mb-12 italic border-l-4 border-primary pl-6 py-2">
-              {post.excerpt}
-            </p>
+          <p className="text-xl md:text-2xl font-light text-dark/80 leading-relaxed mb-12 italic border-l-4 border-primary pl-6 py-2">
+            {post.excerpt}
+          </p>
 
-            {/* Post Content with optional Left-Aligned Side Image */}
-            <div className="flow-root">
-              {post.sideImage && (
-                <figure
-                  className="float-none sm:float-left sm:mr-8 lg:mr-10 mb-6 sm:mb-4 w-full sm:w-[46%] md:w-[44%] sm:max-w-[480px] md:max-w-[500px] lg:max-w-[520px] rounded-2xl overflow-hidden shadow-md border border-border group bg-muted/40 cursor-pointer"
-                  onClick={() => setActiveImage(post.sideImage || null)}
-                >
-                  <img
-                    src={post.sideImage}
-                    alt={post.sideImageCaption || post.title}
-                    className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {post.sideImageCaption && (
-                    <figcaption className="text-xs text-muted-foreground mt-2 px-3 pb-2 text-center italic">
-                      {post.sideImageCaption}
-                    </figcaption>
-                  )}
-                </figure>
-              )}
-
-              <div
-                className="[&>p]:mb-6 [&>p]:text-lg [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-12 [&>h2]:mb-4 text-dark"
-                dangerouslySetInnerHTML={{ __html: post.body }}
-              />
-            </div>
-
-            {/* Bottom Photo Gallery */}
-            {post.galleryImages && post.galleryImages.length > 0 && (
-              <div className="mt-16 pt-10 border-t border-border">
-                <div className="flex items-center gap-2 mb-6">
-                  <ImageIcon size={22} className="text-primary" />
-                  <h2 className="text-2xl font-bold text-dark">Photo Highlights</h2>
-                  <span className="text-xs text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full ml-auto font-medium">
-                    {post.galleryImages.length} Photo{post.galleryImages.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {post.galleryImages.map((img: string, idx: number) => (
-                    <div
-                      key={idx}
-                      onClick={() => setActiveImage(img)}
-                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-muted cursor-pointer shadow-sm hover:shadow-md transition-all"
-                    >
-                      <img
-                        src={img}
-                        alt={`Photo highlight ${idx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-dark/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="bg-white/90 text-dark text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow">
-                          View Photo
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* Post Content with optional Left-Aligned Side Image */}
+          <div className="flow-root">
+            {post.sideImage && (
+              <figure
+                className="float-none sm:float-left sm:mr-8 lg:mr-10 mb-6 sm:mb-4 w-full sm:w-[46%] md:w-[44%] sm:max-w-[480px] md:max-w-[500px] lg:max-w-[520px] rounded-2xl overflow-hidden shadow-md border border-border group bg-muted/40 cursor-pointer"
+                onClick={() => setActiveImage(post.sideImage || null)}
+              >
+                <img
+                  src={post.sideImage}
+                  alt={post.sideImageCaption || post.title}
+                  className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 group-hover:scale-105"
+                />
+                {post.sideImageCaption && (
+                  <figcaption className="text-xs text-muted-foreground mt-2 px-3 pb-2 text-center italic">
+                    {post.sideImageCaption}
+                  </figcaption>
+                )}
+              </figure>
             )}
 
-            <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag: string) => (
-                  <span
-                    key={tag}
-                    className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-medium"
+            <div
+              className="[&>p]:mb-6 [&>p]:text-lg [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-12 [&>h2]:mb-4 text-dark"
+              dangerouslySetInnerHTML={{ __html: post.body }}
+            />
+          </div>
+
+          {/* Bottom Photo Gallery */}
+          {post.galleryImages && post.galleryImages.length > 0 && (
+            <ScrollReveal className="mt-16 pt-10 border-t border-border">
+              <div className="flex items-center gap-2 mb-6">
+                <ImageIcon size={22} className="text-primary" />
+                <h2 className="text-2xl font-bold text-dark">Photo Highlights</h2>
+                <span className="text-xs text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full ml-auto font-medium">
+                  {post.galleryImages.length} Photo{post.galleryImages.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {post.galleryImages.map((img: string, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => setActiveImage(img)}
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-muted cursor-pointer shadow-sm hover:shadow-md transition-all"
                   >
-                    #{tag}
-                  </span>
+                    <img
+                      src={img}
+                      alt={`Photo highlight ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-dark/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="bg-white/90 text-dark text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm shadow">
+                        View Photo
+                      </span>
+                    </div>
+                  </div>
                 ))}
               </div>
+            </ScrollReveal>
+          )}
 
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-dark">Share:</span>
-                <ShareButton title={post.title} summary={post.excerpt} />
-              </div>
+          <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-medium"
+                >
+                  #{tag}
+                </span>
+              ))}
             </div>
 
-            <div className="mt-12 bg-white border border-border p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left shadow-sm">
-              <img
-                src={post.author.avatar || "/images/team_founder.webp"}
-                alt={post.author.name}
-                className="w-24 h-24 rounded-full object-cover shrink-0 border-2 border-primary/20 shadow-sm"
-              />
-              <div>
-                <h3 className="text-lg font-bold text-dark">{post.author.name}</h3>
-                <p className="text-primary text-sm font-medium mb-3">{post.author.role}</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Passionate about capturing authentic stories and timeless moments.
-                </p>
-              </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-dark">Share:</span>
+              <ShareButton title={post.title} summary={post.excerpt} />
+            </div>
+          </div>
+
+          <ScrollReveal className="mt-12 bg-white border border-border p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left shadow-sm">
+            <img
+              src={post.author.avatar || "/images/team_founder.webp"}
+              alt={post.author.name}
+              className="w-24 h-24 rounded-full object-cover shrink-0 border-2 border-primary/20 shadow-sm"
+            />
+            <div>
+              <h3 className="text-lg font-bold text-dark">{post.author.name}</h3>
+              <p className="text-primary text-sm font-medium mb-3">{post.author.role}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Passionate about capturing authentic stories and timeless moments.
+              </p>
             </div>
           </ScrollReveal>
         </div>
