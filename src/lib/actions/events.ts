@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getSupabaseAdmin } from "../supabase.server.ts";
+import { getSupabaseAdmin, getSupabasePublic } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
@@ -63,7 +63,7 @@ export const fetchEvents = createServerFn({ method: "GET" })
     (input: { category?: string; status?: string; visibleOnly?: boolean } | undefined) => input,
   )
   .handler(async ({ data }) => {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     let query = supabase.from("events").select("*").order("date", { ascending: false });
 
     if (data?.category && data.category !== "all" && data.category !== "All") {
@@ -131,7 +131,7 @@ export const fetchEvent = createServerFn({ method: "GET" })
     }),
   )
   .handler(async ({ data }) => {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     let query = supabase.from("events").select("*");
 
     if (data.id) {

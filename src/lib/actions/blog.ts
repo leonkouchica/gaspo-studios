@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getSupabaseAdmin } from "../supabase.server.ts";
+import { getSupabaseAdmin, getSupabasePublic } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import { sendPushNotifications } from "../push-notification.server.ts";
@@ -62,7 +62,7 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
     ) => input,
   )
   .handler(async ({ data }) => {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     const page = data?.page || 1;
     const limit = data?.limit || 20;
     const offset = (page - 1) * limit;
@@ -146,7 +146,7 @@ export const fetchBlogPosts = createServerFn({ method: "GET" })
 export const fetchBlogPost = createServerFn({ method: "GET" })
   .inputValidator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     const { data: p, error } = await supabase
       .from("blog_posts")
       .select("*")
@@ -197,7 +197,7 @@ export const fetchBlogPost = createServerFn({ method: "GET" })
 export const fetchBlogPostById = createServerFn({ method: "GET" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     const { data: p, error } = await supabase
       .from("blog_posts")
       .select("*")

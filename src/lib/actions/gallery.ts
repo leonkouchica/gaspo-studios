@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getSupabaseAdmin } from "../supabase.server.ts";
+import { getSupabaseAdmin, getSupabasePublic } from "../supabase.server.ts";
 import { convertAndUploadImage } from "./upload.server.ts";
 import { requireAuth, requireRole } from "../auth-guard.server.ts";
 import { applyGalleryWatermark } from "../watermark.server.ts";
@@ -25,7 +25,7 @@ export const fetchGalleryImages = createServerFn({ method: "GET" })
       return cached.data;
     }
 
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     let query = supabase
       .from("gallery_images")
       .select("*")
